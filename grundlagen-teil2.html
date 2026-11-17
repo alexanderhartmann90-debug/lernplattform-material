@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grundlagen Elektrotechnik – Teil 2</title>
+<style>
+  :root{
+    --ink:#1d2433; --muted:#5b6475; --line:#d5dae3; --bg:#f5f7fa; --paper:#ffffff;
+    --accent:#0b6bcb; --accent-soft:#e6f0fb;
+    --c-m:#0e7490; --c-n:#7c3aed; --c-f:#c2410c; --c-s:#b42318; --c-l:#15803d;
+    --warn:#b45309; --warn-soft:#fdf3e4; --ok:#15803d; --ok-soft:#e7f5ec; --bad:#b42318; --bad-soft:#fdecea;
+    --cL:#8b4513; --cN:#1e66d0; --cPE:#16a34a;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Segoe UI",system-ui,-apple-system,Arial,sans-serif}
+  .wrap{max-width:1080px;margin:0 auto;padding:20px 16px 80px}
+  header.top{background:linear-gradient(135deg,#3b1d0b,#c2410c);color:#fff;border-radius:14px;padding:26px 24px;margin-bottom:14px}
+  header.top h1{margin:0 0 4px;font-size:1.8rem}
+  header.top p{margin:0;opacity:.9}
+  nav{position:sticky;top:0;z-index:10;background:var(--bg);padding:8px 0;margin-bottom:10px;display:flex;gap:8px;flex-wrap:wrap}
+  nav a{text-decoration:none;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-weight:600;font-size:.95rem}
+  nav a:hover{border-color:var(--accent);color:var(--accent)}
+  nav a .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+  section.topic{scroll-margin-top:60px;margin-bottom:36px}
+  .topic-head{display:flex;align-items:center;gap:12px;margin:8px 0 12px}
+  .badge{width:44px;height:44px;border-radius:12px;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem;flex-shrink:0}
+  .topic-head h2{margin:0;font-size:1.5rem}
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:14px}
+  .card h3{margin:0 0 10px;font-size:1.1rem}
+  .card h4{margin:14px 0 6px}
+  .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:12px 0}
+  .fact{background:var(--accent-soft);border-radius:8px;padding:10px 12px}
+  .fact small{display:block;color:var(--muted);font-size:.8rem;text-transform:uppercase;letter-spacing:.04em}
+  .fact b{font-size:1.05rem}
+  .formula{font-family:"Cambria Math","Times New Roman",serif;font-size:1.2rem;background:#f1f3f7;border-radius:8px;padding:8px 14px;display:inline-block;margin:4px 6px 4px 0}
+  .merke{background:var(--warn-soft);border-left:4px solid var(--warn);border-radius:6px;padding:10px 14px;margin-top:10px}
+  .sim{display:grid;grid-template-columns:310px 1fr;gap:20px;align-items:start}
+  .controls label{display:block;font-weight:600;font-size:.93rem;margin-top:12px}
+  .controls label output{float:right;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
+  input[type=range]{width:100%;accent-color:var(--accent)}
+  select{width:100%;font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line);margin-top:4px;background:#fff}
+  .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  button{font:inherit;font-size:.9rem;padding:7px 12px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
+  button.ghost{background:#fff;color:var(--accent)}
+  button.on{background:var(--accent);color:#fff}
+  .seg{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+  .seg button{background:#fff;color:var(--accent);font-size:.85rem;padding:6px 10px}
+  .seg button.on{background:var(--accent);color:#fff}
+  .chk{display:flex !important;justify-content:flex-start !important;gap:8px;align-items:center;font-weight:500 !important}
+  .readout{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:12px}
+  .ro{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fbfcfe}
+  .ro small{display:block;color:var(--muted);font-size:.8rem}
+  .ro b{font-size:1.25rem;font-variant-numeric:tabular-nums}
+  svg.dia{width:100%;height:auto;background:#fbfcfe;border:1px solid var(--line);border-radius:10px;display:block}
+  canvas.plot{width:100%;height:320px;display:block;background:#fff;border:1px solid var(--line);border-radius:10px}
+  .hint{color:var(--muted);font-size:.9rem;margin:8px 0 0}
+  .try{margin:0;padding-left:20px}
+  .try li{margin:4px 0}
+  table.t{width:100%;border-collapse:collapse;font-size:.93rem;margin-top:8px}
+  table.t th,table.t td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+  table.t th{background:var(--accent-soft)}
+  .status{border-radius:10px;padding:12px 14px;margin-top:12px;font-weight:500}
+  .status.ok{background:var(--ok-soft);border-left:5px solid var(--ok)}
+  .status.warn{background:var(--warn-soft);border-left:5px solid var(--warn)}
+  .status.danger{background:var(--bad-soft);border-left:5px solid var(--bad)}
+  .grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+  .ftype{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fff}
+  .ftype h4{margin:8px 0 4px;color:var(--c-f)}
+  .ftype p{margin:4px 0;font-size:.92rem}
+  .ftype .lbl{font-weight:700}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .pill{display:inline-block;border-radius:999px;padding:2px 10px;font-size:.82rem;font-weight:700}
+  .pill.y{background:var(--ok-soft);color:var(--ok)}
+  .pill.n{background:var(--bad-soft);color:var(--bad)}
+  @keyframes flow{to{stroke-dashoffset:-40}}
+  .flow{stroke-dasharray:12 8;animation:flow 1s linear infinite}
+  @media (max-width:860px){.sim{grid-template-columns:1fr}.two{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>Grundlagen der Elektrotechnik – Teil 2</h1>
+  <p>Motoren · Netzsysteme · Fehlerarten · Fehler- und Leitungsschutz – mit Schaubildern und Fehler-Simulatoren</p>
+</header>
+
+<nav>
+  <a href="#motoren"><span class="dot" style="background:var(--c-m)"></span>Motoren</a>
+  <a href="#netze"><span class="dot" style="background:var(--c-n)"></span>Netzsysteme</a>
+  <a href="#fehlerarten"><span class="dot" style="background:var(--c-f)"></span>Fehlerarten</a>
+  <a href="#fehlersim"><span class="dot" style="background:var(--c-s)"></span>Fehler-Simulator</a>
+  <a href="#schutz"><span class="dot" style="background:var(--c-l)"></span>Fehler- &amp; Leitungsschutz</a>
+</nav>
+
+<!-- =============================== MOTOREN =============================== -->
+<section class="topic" id="motoren">
+  <div class="topic-head"><div class="badge" style="background:var(--c-m)">M</div><h2>Elektromotoren – der Drehstrom-Asynchronmotor</h2></div>
+
+  <div class="card">
+    <h3>Theorie</h3>
+    <p>Der <b>Drehstrom-Asynchronmotor mit Käfigläufer</b> ist der häufigste Motor in der Industrie. Er ist robust, wartungsarm und günstig.</p>
+    <div class="two">
+      <div>
+        <h4>Aufbau</h4>
+        <ul>
+          <li><b>Ständer (Stator):</b> drei Wicklungen (U, V, W), um 120° versetzt</li>
+          <li><b>Läufer (Rotor):</b> Käfig aus Aluminium- oder Kupferstäben, an den Enden kurzgeschlossen</li>
+          <li><b>Klemmbrett:</b> Anschlüsse U1, V1, W1 und U2, V2, W2</li>
+        </ul>
+        <h4>Funktionsprinzip</h4>
+        <ol>
+          <li>Der Drehstrom erzeugt im Ständer ein <b>Drehfeld</b>.</li>
+          <li>Das Drehfeld induziert im Läufer eine Spannung → es fließt Strom im Käfig.</li>
+          <li>Strom im Magnetfeld erzeugt eine <b>Kraft</b> → der Läufer dreht sich.</li>
+          <li>Der Läufer ist immer etwas <b>langsamer</b> als das Drehfeld (asynchron). Diesen Unterschied nennt man <b>Schlupf</b>.</li>
+        </ol>
+      </div>
+      <div>
+        <h4>Wichtige Formeln</h4>
+        <span class="formula">n<sub>s</sub> = f · 60 / p</span>
+        <span class="formula">s = (n<sub>s</sub> − n) / n<sub>s</sub></span>
+        <span class="formula">P = M · 2π · n / 60</span>
+        <table class="t">
+          <tr><th>Polpaare p</th><th>Polzahl</th><th>n<sub>s</sub> bei 50 Hz</th></tr>
+          <tr><td>1</td><td>2</td><td>3000 min⁻¹</td></tr>
+          <tr><td>2</td><td>4</td><td>1500 min⁻¹</td></tr>
+          <tr><td>3</td><td>6</td><td>1000 min⁻¹</td></tr>
+          <tr><td>4</td><td>8</td><td>750 min⁻¹</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="merke"><b>Merke:</b> Drehrichtung ändern = <b>zwei Außenleiter tauschen</b>. Drehzahl ändern = Frequenz ändern (Frequenzumrichter) oder Polzahl ändern (polumschaltbarer Motor).</div>
+  </div>
+
+  <div class="card">
+    <h3>Schaubild: Stern- und Dreieckschaltung am Klemmbrett</h3>
+    <div class="two">
+      <div>
+        <svg class="dia" viewBox="0 0 260 170" id="kbStern"></svg>
+        <p class="hint"><b>Sternschaltung (Y):</b> W2, U2 und V2 sind verbunden. Jede Wicklung bekommt U / √3 = <b>230 V</b> (bei 400-V-Netz).</p>
+      </div>
+      <div>
+        <svg class="dia" viewBox="0 0 260 170" id="kbDreieck"></svg>
+        <p class="hint"><b>Dreieckschaltung (Δ):</b> U1–W2, V1–U2, W1–V2 verbunden. Jede Wicklung bekommt die volle Spannung <b>400 V</b>.</p>
+      </div>
+    </div>
+    <div class="merke"><b>Typenschild lesen:</b> „230/400 V Δ/Y“ → am 400-V-Netz in <b>Stern</b>. „400/690 V Δ/Y“ → am 400-V-Netz in <b>Dreieck</b>; nur dieser Motor ist für den <b>Stern-Dreieck-Anlauf</b> geeignet. Im Stern sind Anlaufstrom und Drehmoment nur <b>⅓</b> so groß.</div>
+  </div>
+
+  <div class="card">
+    <h3>Simulator: Asynchronmotor mit Frequenzumrichter</h3>
+    <p class="hint" style="margin-top:0">Motor 400/690 V Δ/Y am 400-V-Netz, Nennmoment M<sub>N</sub> = 10 Nm, Kippmoment M<sub>K</sub> = 2,5 · M<sub>N</sub>.</p>
+    <div class="sim">
+      <div class="controls">
+        <label>Frequenz f <output id="mFo"></output></label>
+        <input type="range" id="mF" min="5" max="80" step="1" value="50">
+        <label>Polpaarzahl p</label>
+        <select id="mP"><option value="1">p = 1 (2-polig)</option><option value="2" selected>p = 2 (4-polig)</option><option value="3">p = 3 (6-polig)</option><option value="4">p = 4 (8-polig)</option></select>
+        <label>Schaltung</label>
+        <div class="seg" id="mSch"><button data-v="d" class="on">Dreieck Δ</button><button data-v="y">Stern Y</button></div>
+        <label>Lastmoment M<sub>L</sub> <output id="mLo"></output></label>
+        <input type="range" id="mL" min="0" max="30" step="0.5" value="10">
+        <label class="chk"><input type="checkbox" id="mRev"> Zwei Außenleiter getauscht (Linkslauf)</label>
+        <div class="readout">
+          <div class="ro"><small>Drehfeld n<sub>s</sub></small><b id="mNs"></b></div>
+          <div class="ro"><small>Läufer n</small><b id="mN" style="color:var(--c-m)"></b></div>
+          <div class="ro"><small>Schlupf s</small><b id="mS"></b></div>
+          <div class="ro"><small>Leistung P</small><b id="mPw"></b></div>
+        </div>
+      </div>
+      <div>
+        <svg class="dia" viewBox="0 0 470 250" id="mSvg">
+          <circle cx="130" cy="125" r="105" fill="#e5e7eb" stroke="#6b7280" stroke-width="2"/>
+          <circle cx="130" cy="125" r="82" fill="#fbfcfe" stroke="#6b7280" stroke-width="2"/>
+          <g font-size="13" font-weight="700" text-anchor="middle">
+            <text x="130" y="36" fill="#8b4513">U</text>
+            <text x="54" y="175" fill="#1d2433">V</text>
+            <text x="206" y="175" fill="#6b7280">W</text>
+          </g>
+          <g id="mField"><line x1="130" y1="125" x2="130" y2="50" stroke="#b42318" stroke-width="5" stroke-linecap="round"/><polygon points="130,44 121,60 139,60" fill="#b42318"/></g>
+          <g id="mRotor">
+            <circle cx="130" cy="125" r="60" fill="#cbd5e1" stroke="#475569" stroke-width="2"/>
+            <g stroke="#b45309" stroke-width="5" stroke-linecap="round" id="mBars"></g>
+            <circle cx="130" cy="125" r="10" fill="#475569"/>
+            <rect x="126" y="68" width="8" height="18" fill="#0e7490"/>
+          </g>
+          <g font-size="12">
+            <line x1="255" y1="60" x2="280" y2="60" stroke="#b42318" stroke-width="5"/><text x="288" y="64">Drehfeld (n<tspan baseline-shift="sub" font-size="9">s</tspan>)</text>
+            <rect x="255" y="86" width="25" height="10" fill="#0e7490"/><text x="288" y="95">Läufer (n)</text>
+            <text x="255" y="130" fill="#5b6475">Zeitlupe 1 : 100</text>
+            <text x="255" y="160" font-weight="700" id="mState"></text>
+            <text x="255" y="182" fill="#5b6475" id="mStart"></text>
+            <text x="255" y="202" fill="#5b6475" id="mDir"></text>
+          </g>
+        </svg>
+        <p class="hint">Beobachte: Der Läufer (blaue Markierung) bleibt immer etwas hinter dem roten Drehfeld zurück – das ist der Schlupf. Je größer die Last, desto größer der Schlupf.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Kennlinie: Drehmoment-Drehzahl-Kennlinie M = f(n)</h3>
+    <canvas class="plot" id="mPlot" style="height:340px"></canvas>
+    <p class="hint">Wichtige Punkte: <b>Anlaufmoment</b> bei n = 0, <b>Kippmoment</b> (Maximum), <b>Arbeitspunkt</b> (Schnittpunkt mit der Lastkennlinie) und <b>Leerlauf</b> knapp unter n<sub>s</sub>. Ist die Last größer als das Kippmoment, bleibt der Motor stehen („er kippt“). Über 50 Hz sinkt das Kippmoment (Feldschwächung).</p>
+  </div>
+
+  <div class="card">
+    <h3>Andere Motoren in der Mechatronik</h3>
+    <table class="t">
+      <tr><th>Motor</th><th>Besonderheit</th><th>Typischer Einsatz</th></tr>
+      <tr><td>Gleichstrommotor</td><td>Drehzahl einfach über die Spannung einstellbar; mit Bürsten und Kommutator</td><td>Kfz, Kleinantriebe, Spielzeug</td></tr>
+      <tr><td>EC-/BLDC-Motor</td><td>bürstenlos, elektronisch kommutiert, verschleißarm</td><td>Lüfter, Pumpen, Akkuwerkzeuge</td></tr>
+      <tr><td>Synchronmotor</td><td>Läufer dreht genau mit dem Drehfeld (kein Schlupf), Permanentmagnete</td><td>Antriebe mit exakter Drehzahl</td></tr>
+      <tr><td>Servomotor</td><td>Motor mit Geber und Regler; genaues Positionieren</td><td>Roboter, CNC-Maschinen, Achsen</td></tr>
+      <tr><td>Schrittmotor</td><td>dreht in festen Schritten, meist ohne Rückmeldung</td><td>3D-Drucker, Ventile, Positionierung</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Probier's aus</h3>
+    <ol class="try">
+      <li>Stelle p = 2 und f = 50 Hz ein. Wie groß ist n<sub>s</sub>? Wie groß ist der Schlupf bei Nennlast (10 Nm)?</li>
+      <li>Schalte auf Stern. Kann der Motor die Last von 10 Nm noch anfahren? Warum nicht?</li>
+      <li>Erhöhe die Last langsam. Bei welchem Moment kippt der Motor?</li>
+      <li>Stelle f = 25 Hz ein. Was passiert mit der Drehzahl?</li>
+    </ol>
+  </div>
+</section>
+
+<!-- =============================== NETZSYSTEME =============================== -->
+<section class="topic" id="netze">
+  <div class="topic-head"><div class="badge" style="background:var(--c-n)">TN</div><h2>Netzsysteme</h2></div>
+
+  <div class="card">
+    <h3>Theorie: Was bedeuten die Buchstaben?</h3>
+    <div class="two">
+      <table class="t">
+        <tr><th colspan="2">1. Buchstabe – Erdung der Stromquelle</th></tr>
+        <tr><td><b>T</b> (terra)</td><td>Sternpunkt des Trafos ist direkt geerdet (Betriebserder)</td></tr>
+        <tr><td><b>I</b> (isolé)</td><td>Sternpunkt isoliert oder hochohmig geerdet</td></tr>
+        <tr><th colspan="2">2. Buchstabe – Erdung der Gehäuse</th></tr>
+        <tr><td><b>N</b> (neutral)</td><td>Gehäuse über Schutzleiter mit dem geerdeten Sternpunkt verbunden</td></tr>
+        <tr><td><b>T</b> (terra)</td><td>Gehäuse über eigenen Anlagenerder direkt geerdet</td></tr>
+      </table>
+      <table class="t">
+        <tr><th colspan="2">Weitere Buchstaben (nur TN)</th></tr>
+        <tr><td><b>C</b> (combiné)</td><td>N und PE als gemeinsamer <b>PEN-Leiter</b></td></tr>
+        <tr><td><b>S</b> (séparé)</td><td>N und PE getrennt geführt</td></tr>
+        <tr><td><b>C-S</b></td><td>zuerst PEN, dann Aufteilung in N und PE</td></tr>
+        <tr><th colspan="2">Leiterfarben</th></tr>
+        <tr><td>L1 / L2 / L3</td><td>braun / schwarz / grau</td></tr>
+        <tr><td>N / PE</td><td>blau / grün-gelb</td></tr>
+      </table>
+    </div>
+    <div class="merke"><b>Merke:</b> Der PEN-Leiter darf <b>nie</b> unterbrochen oder geschaltet werden. Nach der Aufteilung in N und PE dürfen die beiden Leiter <b>nicht wieder verbunden</b> werden.</div>
+  </div>
+
+  <div class="card">
+    <h3>Schaubild und Simulator: Körperschluss in verschiedenen Netzsystemen</h3>
+    <div class="seg" id="netSel">
+      <button data-v="TNC">TN-C</button><button data-v="TNS">TN-S</button><button data-v="TNCS" class="on">TN-C-S</button><button data-v="TT">TT</button><button data-v="IT">IT</button>
+    </div>
+    <div class="btns"><button id="netFault" class="ghost">⚡ Körperschluss an L1 auslösen</button></div>
+    <svg class="dia" viewBox="0 0 600 260" id="netSvg" style="margin-top:10px"></svg>
+    <div class="sim" style="margin-top:14px">
+      <div class="controls" id="netCtl"></div>
+      <div id="netInfo"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Probier's aus</h3>
+    <ol class="try">
+      <li>TN-C-S, LS B16: Bis zu welcher Schleifenimpedanz Z<sub>S</sub> schaltet der LS noch sicher ab?</li>
+      <li>Wechsle von B16 auf C16. Was ändert sich an der maximalen Schleifenimpedanz?</li>
+      <li>TT-System: Warum reicht hier ein LS-Schalter allein nicht aus?</li>
+      <li>IT-System: Warum darf die Anlage beim ersten Fehler weiterlaufen?</li>
+    </ol>
+  </div>
+</section>
+
+<!-- =============================== FEHLERARTEN =============================== -->
+<section class="topic" id="fehlerarten">
+  <div class="topic-head"><div class="badge" style="background:var(--c-f)">⚡</div><h2>Fehlerarten</h2></div>
+  <div class="card">
+    <h3>Schaubilder der wichtigsten Fehlerarten</h3>
+    <p class="hint" style="margin-top:0">Leiterfarben: <b style="color:var(--cL)">L braun</b> · <b style="color:var(--cN)">N blau</b> · <b style="color:var(--cPE)">PE grün-gelb</b> · Fehler <b style="color:#dc2626">rot</b></p>
+    <div class="grid3" id="ftGrid"></div>
+  </div>
+</section>
+
+<!-- =============================== FEHLER-SIMULATOR =============================== -->
+<section class="topic" id="fehlersim">
+  <div class="topic-head"><div class="badge" style="background:var(--c-s)">!</div><h2>Fehler-Simulator: Stromkreis mit LS, FI und Schutzleiter</h2></div>
+  <div class="card">
+    <p style="margin-top:0">Ein Gerät mit Metallgehäuse (Schutzklasse I, Lampe 60 W) hängt an 230 V, abgesichert mit <b>LS B16</b> und optional mit <b>FI 30 mA</b>. Schalte Fehler dazu und beobachte, welches Schutzorgan reagiert.</p>
+    <div class="sim">
+      <div class="controls">
+        <label>Fehler einbauen</label>
+        <select id="fsF">
+          <option value="none">kein Fehler</option>
+          <option value="kurz">Kurzschluss L–N im Gerät</option>
+          <option value="koerper">Körperschluss (PE in Ordnung)</option>
+          <option value="koerper_nope">Körperschluss + PE unterbrochen</option>
+          <option value="erd">Erdschluss (beschädigtes Kabel)</option>
+          <option value="leiter">Leiterschluss (Schalter überbrückt)</option>
+          <option value="unN">Unterbrechung N-Leiter</option>
+          <option value="unL">Unterbrechung Außenleiter L</option>
+        </select>
+        <label class="chk"><input type="checkbox" id="fsSw" checked> Schalter EIN</label>
+        <label class="chk"><input type="checkbox" id="fsFI" checked> FI-Schutzschalter 30 mA vorhanden</label>
+        <label class="chk"><input type="checkbox" id="fsTouch"> Person berührt das Gehäuse</label>
+        <div class="btns">
+          <button id="fsTrain">🎲 Trainingsmodus: Zufallsfehler</button>
+        </div>
+        <div id="fsQuiz" style="display:none;margin-top:12px;border:1px dashed var(--accent);border-radius:10px;padding:10px">
+          <b>Welcher Fehler liegt vor?</b>
+          <select id="fsAns"></select>
+          <div class="btns"><button id="fsCheck">Prüfen</button><button class="ghost" id="fsShow">Auflösen</button></div>
+          <p id="fsRes" style="margin:8px 0 0;font-weight:700"></p>
+        </div>
+      </div>
+      <div>
+        <svg class="dia" viewBox="0 0 640 280" id="fsSvg"></svg>
+        <div class="readout">
+          <div class="ro"><small>Strom in L</small><b id="fsIL"></b></div>
+          <div class="ro"><small>Differenzstrom</small><b id="fsID"></b></div>
+          <div class="ro"><small>Berührungsspannung</small><b id="fsUB"></b></div>
+          <div class="ro"><small>LS B16</small><b id="fsLS"></b></div>
+          <div class="ro"><small>FI 30 mA</small><b id="fsFIo"></b></div>
+        </div>
+        <div class="status ok" id="fsMsg"></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Probier's aus</h3>
+    <ol class="try">
+      <li>Baue „Körperschluss + PE unterbrochen“ ein und lass die Person das Gehäuse berühren – einmal mit, einmal ohne FI.</li>
+      <li>Welcher Fehler wird von <b>keinem</b> Schutzorgan erkannt?</li>
+      <li>Warum löst der LS beim Erdschluss nicht aus, der FI aber schon?</li>
+      <li>Nutze den Trainingsmodus und finde fünf Fehler hintereinander richtig.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- =============================== SCHUTZ =============================== -->
+<section class="topic" id="schutz">
+  <div class="topic-head"><div class="badge" style="background:var(--c-l)">LS</div><h2>Fehlerschutz und Leitungsschutz</h2></div>
+
+  <div class="card">
+    <h3>Theorie: Fehlerschutz (Schutz bei indirektem Berühren)</h3>
+    <p><b>Fehlerschutz</b> schützt Menschen, wenn im Fehlerfall ein Gehäuse unter Spannung steht. Die zulässige Berührungsspannung liegt bei <b>U<sub>L</sub> = 50 V AC</b> (120 V DC).</p>
+    <div class="two">
+      <div>
+        <h4>Schutzmaßnahmen</h4>
+        <ul>
+          <li><b>Automatische Abschaltung</b> mit LS-Schalter, Sicherung oder FI – in TN-Systemen bei 230 V in max. <b>0,4 s</b>, in TT-Systemen in max. <b>0,2 s</b> (Endstromkreise bis 32 A)</li>
+          <li><b>Doppelte oder verstärkte Isolierung</b> (Schutzklasse II)</li>
+          <li><b>Schutzkleinspannung</b> SELV/PELV (Schutzklasse III)</li>
+          <li><b>Schutztrennung</b> mit Trenntransformator</li>
+          <li><b>Zusätzlicher Schutz:</b> FI mit I<sub>Δn</sub> ≤ 30 mA, z. B. für Steckdosen</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Schutzklassen</h4>
+        <table class="t">
+          <tr><th>Klasse</th><th>Schutz durch</th><th>Beispiel</th></tr>
+          <tr><td>I</td><td>Schutzleiter am Metallgehäuse</td><td>Waschmaschine, Motor</td></tr>
+          <tr><td>II</td><td>Schutzisolierung (Symbol: zwei Quadrate)</td><td>Föhn, Bohrmaschine</td></tr>
+          <tr><td>III</td><td>Schutzkleinspannung</td><td>Handlampe 24 V, Spielzeug</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Schaubild und Simulator: So funktioniert der FI-Schutzschalter (RCD)</h3>
+    <div class="sim">
+      <div class="controls">
+        <label>Bemessungsfehlerstrom I<sub>Δn</sub></label>
+        <select id="fiN"><option value="10">10 mA</option><option value="30" selected>30 mA (Personenschutz)</option><option value="100">100 mA</option><option value="300">300 mA (Brandschutz)</option></select>
+        <label>Betriebsstrom <output id="fiLo"></output></label>
+        <input type="range" id="fiL" min="0" max="16" step="0.5" value="5">
+        <label>Fehlerstrom (über PE/Körper) <output id="fiEo"></output></label>
+        <input type="range" id="fiE" min="0" max="400" step="1" value="0">
+        <div class="readout">
+          <div class="ro"><small>I in L</small><b id="fiIL"></b></div>
+          <div class="ro"><small>I in N</small><b id="fiIN"></b></div>
+          <div class="ro"><small>Differenz ΔI</small><b id="fiD"></b></div>
+        </div>
+        <div class="status ok" id="fiMsg"></div>
+      </div>
+      <div>
+        <svg class="dia" viewBox="0 0 420 240" id="fiSvg"></svg>
+        <p class="hint">Der <b>Summenstromwandler</b> vergleicht den hinfließenden Strom (L) mit dem zurückfließenden Strom (N). Sind beide gleich groß, heben sich ihre Magnetfelder auf. Fließt ein Teil des Stroms über PE oder einen Menschen ab, entsteht eine Differenz. Diese induziert eine Spannung in der Auslösespule, und der FI schaltet ab. Er löst zwischen 50 % und 100 % von I<sub>Δn</sub> aus.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Theorie: Leitungsschutzschalter (LS)</h3>
+    <div class="two">
+      <div>
+        <h4>Aufbau und Funktion</h4>
+        <ul>
+          <li><b>Thermischer Auslöser (Bimetall):</b> erwärmt sich und biegt sich bei <b>Überlast</b> → Abschaltung verzögert (Sekunden bis Minuten)</li>
+          <li><b>Elektromagnetischer Auslöser (Spule mit Schlaganker):</b> reagiert bei <b>Kurzschluss</b> → Abschaltung sofort (&lt; 0,1 s)</li>
+          <li><b>Lichtbogenlöschkammer:</b> löscht den Schaltlichtbogen</li>
+        </ul>
+        <h4>Prüfströme nach Norm</h4>
+        <ul>
+          <li>1,13 · I<sub>n</sub>: darf in 1 h <b>nicht</b> auslösen</li>
+          <li>1,45 · I<sub>n</sub>: muss in 1 h <b>auslösen</b></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Auslösecharakteristiken</h4>
+        <table class="t">
+          <tr><th>Typ</th><th>Magnetauslöser bei</th><th>Einsatz</th></tr>
+          <tr><td><b>B</b></td><td>3 – 5 · I<sub>n</sub></td><td>Leitungen, Steckdosen, Licht</td></tr>
+          <tr><td><b>C</b></td><td>5 – 10 · I<sub>n</sub></td><td>Motoren, Leuchtstofflampen, höhere Einschaltströme</td></tr>
+          <tr><td><b>D</b></td><td>10 – 20 · I<sub>n</sub></td><td>Transformatoren, große Motoren</td></tr>
+        </table>
+        <h4>Dimensionierung</h4>
+        <span class="formula">I<sub>b</sub> ≤ I<sub>n</sub> ≤ I<sub>z</sub></span>
+        <p class="hint">I<sub>b</sub> Betriebsstrom · I<sub>n</sub> Nennstrom des LS · I<sub>z</sub> Strombelastbarkeit der Leitung</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Simulator: Auslösekennlinie des LS-Schalters</h3>
+    <div class="sim">
+      <div class="controls">
+        <label>Charakteristik</label>
+        <div class="seg" id="lsChar"><button data-v="B" class="on">B</button><button data-v="C">C</button><button data-v="D">D</button></div>
+        <label>Nennstrom I<sub>n</sub></label>
+        <select id="lsIn"><option>6</option><option>10</option><option>13</option><option selected>16</option><option>20</option><option>25</option><option>32</option></select>
+        <label>Strom I <output id="lsIo"></output></label>
+        <input type="range" id="lsI" min="0" max="1000" step="1" value="300">
+        <label>Beispiele</label>
+        <div class="seg" id="lsPre">
+          <button data-a="10">Normalbetrieb 10 A</button>
+          <button data-a="24">Überlast 24 A</button>
+          <button data-a="96">Motoranlauf 96 A</button>
+          <button data-a="600">Kurzschluss 600 A</button>
+        </div>
+        <div class="readout">
+          <div class="ro"><small>Vielfaches I / I<sub>n</sub></small><b id="lsX"></b></div>
+          <div class="ro"><small>Auslösezeit</small><b id="lsT"></b></div>
+        </div>
+        <div class="status ok" id="lsMsg"></div>
+      </div>
+      <div>
+        <canvas class="plot" id="lsPlot" style="height:400px"></canvas>
+        <p class="hint">Zeit-Strom-Kennlinie (logarithmische Achsen). Das farbige Band zeigt den Bereich, in dem der LS auslöst. Links vom Band: keine Auslösung. Steiler Abfall: Magnetauslöser. Vereinfachte Darstellung nach EN 60898.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Simulator: Leitung richtig absichern</h3>
+    <div class="sim">
+      <div class="controls">
+        <label>Betriebsstrom I<sub>b</sub> <output id="dIbo"></output></label>
+        <input type="range" id="dIb" min="1" max="45" step="0.5" value="12">
+        <label>Querschnitt Kupfer</label>
+        <select id="dA"><option value="16.5">1,5 mm²</option><option value="23" selected>2,5 mm²</option><option value="30">4 mm²</option><option value="38">6 mm²</option><option value="52">10 mm²</option></select>
+        <label>LS-Nennstrom I<sub>n</sub></label>
+        <select id="dIn"><option>6</option><option>10</option><option>13</option><option selected>16</option><option>20</option><option>25</option><option>32</option><option>40</option><option>50</option></select>
+      </div>
+      <div>
+        <table class="t" id="dTab"></table>
+        <div class="status ok" id="dMsg"></div>
+        <p class="hint">I<sub>z</sub>-Werte: vereinfachte Richtwerte für Kupfer, PVC-Isolierung, Verlegeart B2, 2 belastete Adern, 30 °C. In der Praxis Verlegeart, Häufung, Umgebungstemperatur und Spannungsfall laut Tabellenbuch berücksichtigen.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Probier's aus</h3>
+    <ol class="try">
+      <li>Klicke „Motoranlauf 96 A“ bei B16 und bei C16. Welcher LS-Typ ist für den Motor besser geeignet?</li>
+      <li>Wie lange dauert es ungefähr, bis ein B16 bei 24 A auslöst?</li>
+      <li>Ein Durchlauferhitzer braucht 21 A. Welchen Querschnitt und welchen LS wählst du?</li>
+      <li>Stelle beim FI einen Fehlerstrom von 20 mA ein. Löst ein 30-mA-FI sicher aus?</li>
+    </ol>
+  </div>
+</section>
+
+</div>
+
+<script>
+/* ======================= Hilfsfunktionen ======================= */
+const $ = id => document.getElementById(id);
+const nf = (v, d = 2) => Number(v).toLocaleString('de-AT', {minimumFractionDigits: 0, maximumFractionDigits: d});
+const redraws = [];
+window.addEventListener('resize', () => redraws.forEach(f => f()));
+const COL = {L: '#8b4513', L2: '#1d2433', L3: '#6b7280', N: '#1e66d0', PE: '#16a34a', Y: '#eab308', F: '#dc2626'};
+
+function segment(id, cb){
+  const box = $(id);
+  box.querySelectorAll('button').forEach(b => b.onclick = () => {
+    box.querySelectorAll('button').forEach(x => x.classList.remove('on'));
+    b.classList.add('on'); cb(b.dataset.v);
+  });
+}
+function segVal(id){ return $(id).querySelector('button.on').dataset.v; }
+
+function niceMax(v){
+  if (!(v > 0)) return 1;
+  const e = Math.pow(10, Math.floor(Math.log10(v))), m = v / e;
+  return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10) * e;
+}
+function fmtT(t){
+  if (!isFinite(t) || t > 36000) return '∞';
+  if (t < 1) return nf(t * 1000, 0) + ' ms';
+  if (t < 60) return nf(t, 1) + ' s';
+  if (t < 3600) return nf(t / 60, 1) + ' min';
+  return nf(t / 3600, 1) + ' h';
+}
+
+/* Lineares Diagramm */
+function plot(cv, o){
+  const dpr = window.devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight;
+  if (!w) return;
+  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+  const c = cv.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, w, h);
+  const L = 62, Rm = 16, T = 16, B = 46, pw = w - L - Rm, ph = h - T - B, x0 = o.xmin || 0;
+  const X = x => L + (x - x0) / (o.xmax - x0) * pw, Y = y => T + ph - y / o.ymax * ph;
+  c.font = '12px "Segoe UI", system-ui, sans-serif'; c.lineWidth = 1;
+  for (let i = 0; i <= 5; i++){
+    const v = x0 + (o.xmax - x0) * i / 5, px = X(v);
+    c.strokeStyle = '#e8ebf1'; c.beginPath(); c.moveTo(px, T); c.lineTo(px, T + ph); c.stroke();
+    c.fillStyle = '#5b6475'; c.textAlign = 'center'; c.fillText(nf(v, 1), px, T + ph + 16);
+    const vy = o.ymax * i / 5, py = Y(vy);
+    c.beginPath(); c.moveTo(L, py); c.lineTo(L + pw, py); c.stroke();
+    c.textAlign = 'right'; c.fillText(nf(vy, 2), L - 6, py + 4);
+  }
+  c.strokeStyle = '#1d2433'; c.lineWidth = 1.5;
+  c.beginPath(); c.moveTo(L, T); c.lineTo(L, T + ph); c.lineTo(L + pw, T + ph); c.stroke();
+  c.fillStyle = '#1d2433'; c.font = '600 13px "Segoe UI", system-ui, sans-serif';
+  c.textAlign = 'center'; c.fillText(o.xlabel, L + pw / 2, h - 8);
+  c.save(); c.translate(15, T + ph / 2); c.rotate(-Math.PI / 2); c.fillText(o.ylabel, 0, 0); c.restore();
+  c.save(); c.beginPath(); c.rect(L, T, pw, ph); c.clip();
+  (o.curves || []).forEach(cu => {
+    c.strokeStyle = cu.color; c.lineWidth = cu.width || 2.5; c.setLineDash(cu.dash || []); c.globalAlpha = cu.alpha || 1;
+    c.beginPath(); let st = false;
+    for (let i = 0; i <= 400; i++){
+      const x = x0 + (o.xmax - x0) * i / 400, y = cu.f(x);
+      if (!isFinite(y)) { st = false; continue; }
+      const py = Math.max(T - 40, Math.min(T + ph + 40, Y(y)));
+      st ? c.lineTo(X(x), py) : c.moveTo(X(x), py); st = true;
+    }
+    c.stroke(); c.setLineDash([]); c.globalAlpha = 1;
+  });
+  (o.labels || []).forEach(lb => {
+    c.fillStyle = lb.color || '#1d2433'; c.font = '600 12px "Segoe UI", system-ui, sans-serif'; c.textAlign = 'left';
+    c.beginPath(); c.arc(X(lb.x), Y(lb.y), 4, 0, Math.PI * 2); c.fill();
+    c.fillText(lb.text, X(lb.x) + 7, Y(lb.y) - 7);
+  });
+  if (o.marker){
+    const mx = X(o.marker.x), my = Y(o.marker.y);
+    c.strokeStyle = '#1d2433'; c.lineWidth = 1; c.setLineDash([4, 4]);
+    c.beginPath(); c.moveTo(mx, T + ph); c.lineTo(mx, my); c.lineTo(L, my); c.stroke(); c.setLineDash([]);
+    c.fillStyle = o.marker.color || '#1d2433'; c.strokeStyle = '#fff'; c.lineWidth = 2;
+    c.beginPath(); c.arc(mx, my, 7, 0, Math.PI * 2); c.fill(); c.stroke();
+  }
+  c.restore();
+  const leg = (o.curves || []).filter(cu => cu.label);
+  if (leg.length){
+    c.font = '12px "Segoe UI", system-ui, sans-serif'; c.textAlign = 'left';
+    const lw = Math.max(...leg.map(cu => c.measureText(cu.label).width)) + 40;
+    const lx = L + pw - lw - 8, ly = T + 8;
+    c.fillStyle = 'rgba(255,255,255,.92)'; c.strokeStyle = '#d5dae3'; c.lineWidth = 1;
+    c.fillRect(lx, ly, lw, leg.length * 18 + 8); c.strokeRect(lx, ly, lw, leg.length * 18 + 8);
+    leg.forEach((cu, i) => {
+      const yy = ly + 16 + i * 18;
+      c.strokeStyle = cu.color; c.lineWidth = 3; c.setLineDash(cu.dash || []); c.globalAlpha = Math.max(cu.alpha || 1, .6);
+      c.beginPath(); c.moveTo(lx + 8, yy - 4); c.lineTo(lx + 28, yy - 4); c.stroke(); c.setLineDash([]); c.globalAlpha = 1;
+      c.fillStyle = '#1d2433'; c.fillText(cu.label, lx + 34, yy);
+    });
+  }
+}
+
+/* Erdungssymbol und Blitz für SVG */
+const earth = (x, y, col = '#1d2433') =>
+  `<line x1="${x-12}" y1="${y}" x2="${x+12}" y2="${y}" stroke="${col}" stroke-width="2.5"/>` +
+  `<line x1="${x-8}" y1="${y+5}" x2="${x+8}" y2="${y+5}" stroke="${col}" stroke-width="2.5"/>` +
+  `<line x1="${x-4}" y1="${y+10}" x2="${x+4}" y2="${y+10}" stroke="${col}" stroke-width="2.5"/>`;
+function bolt(x1, y1, x2, y2, w = 3){
+  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2, dx = (y2 - y1) * 0.18, dy = (x1 - x2) * 0.18;
+  return `<polyline points="${x1},${y1} ${mx+dx},${my+dy} ${mx-dx},${my-dy} ${x2},${y2}" fill="none" stroke="${COL.F}" stroke-width="${w}" stroke-linejoin="round"/>`;
+}
+const wire = (x1, y1, x2, y2, col, w = 3) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/>`;
+const peWire = (x1, y1, x2, y2, w = 4) => wire(x1, y1, x2, y2, COL.PE, w) +
+  `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${COL.Y}" stroke-width="${w}" stroke-dasharray="7 7"/>`;
+const dot = (x, y, col = '#1d2433') => `<circle cx="${x}" cy="${y}" r="4" fill="${col}"/>`;
+const txt = (x, y, s, o = '') => `<text x="${x}" y="${y}" font-size="12" ${o}>${s}</text>`;
+const cross = (x, y) => `<rect x="${x-9}" y="${y-9}" width="18" height="18" fill="#fbfcfe"/>` +
+  `<line x1="${x-7}" y1="${y-7}" x2="${x+7}" y2="${y+7}" stroke="${COL.F}" stroke-width="3"/><line x1="${x+7}" y1="${y-7}" x2="${x-7}" y2="${y+7}" stroke="${COL.F}" stroke-width="3"/>`;
+
+/* ======================= MOTOREN ======================= */
+(() => {
+  // Klemmbrett-Schaubilder
+  function klemmbrett(svg, mode){
+    const xs = [60, 130, 200];
+    let s = '';
+    ['L1', 'L2', 'L3'].forEach((l, i) => {
+      const c = [COL.L, COL.L2, COL.L3][i];
+      s += wire(xs[i], 8, xs[i], 46, c) + txt(xs[i] + 6, 20, l, `fill="${c}" font-weight="700"`);
+    });
+    s += `<rect x="25" y="40" width="210" height="100" rx="8" fill="#f3f4f6" stroke="#9ca3af"/>`;
+    if (mode === 'y'){
+      s += `<line x1="60" y1="115" x2="200" y2="115" stroke="#b45309" stroke-width="7" stroke-linecap="round"/>`;
+    } else {
+      xs.forEach(x => s += `<line x1="${x}" y1="60" x2="${x}" y2="115" stroke="#b45309" stroke-width="7" stroke-linecap="round"/>`);
+    }
+    ['U1', 'V1', 'W1'].forEach((n, i) => s += `<circle cx="${xs[i]}" cy="60" r="9" fill="#fff" stroke="#1d2433" stroke-width="2"/>` + txt(xs[i] + 13, 64, n, 'font-weight="700"'));
+    ['W2', 'U2', 'V2'].forEach((n, i) => s += `<circle cx="${xs[i]}" cy="115" r="9" fill="#fff" stroke="#1d2433" stroke-width="2"/>` + txt(xs[i] + 13, 119, n, 'font-weight="700"'));
+    s += txt(130, 160, mode === 'y' ? 'Stern (Y): Brücke unten waagrecht' : 'Dreieck (Δ): drei senkrechte Brücken', 'text-anchor="middle" fill="#5b6475"');
+    svg.innerHTML = s;
+  }
+  klemmbrett($('kbStern'), 'y'); klemmbrett($('kbDreieck'), 'd');
+
+  // Läuferstäbe
+  let bars = '';
+  for (let i = 0; i < 12; i++){
+    const a = i * Math.PI / 6;
+    bars += `<line x1="${130 + 30 * Math.cos(a)}" y1="${125 + 30 * Math.sin(a)}" x2="${130 + 54 * Math.cos(a)}" y2="${125 + 54 * Math.sin(a)}"/>`;
+  }
+  $('mBars').innerHTML = bars;
+
+  const MN = 10;
+  let op = {n: 0, ns: 1500};
+  function model(){
+    const f = +$('mF').value, p = +$('mP').value, sch = segVal('mSch'), ML = +$('mL').value;
+    const ns = 60 * f / p, ns50 = 3000 / p, dnk = 0.25 * ns50;
+    const fac = (sch === 'y' ? 1 / 3 : 1) * (f > 50 ? Math.pow(50 / f, 2) : 1);
+    const Mk = 2.5 * MN * fac;
+    const M = n => { const dn = ns - n; if (dn <= 0) return 0; return 2 * Mk / (dn / dnk + dnk / dn); };
+    const M0 = M(0);
+    let n, state, st = 'ok';
+    if (ML === 0){ n = ns * 0.998; state = 'Leerlauf'; }
+    else if (ML > Mk){ n = 0; state = 'Motor kippt – Stillstand!'; st = 'bad'; }
+    else if (ML > M0){ n = 0; state = 'Anlaufmoment zu klein – läuft nicht an'; st = 'bad'; }
+    else {
+      const r = Mk / ML, dn = dnk * (r - Math.sqrt(r * r - 1));
+      n = ns - dn; state = 'Motor läuft im Arbeitspunkt';
+    }
+    return {f, p, sch, ML, ns, Mk, M, M0, n, state, st, dnk};
+  }
+  function upd(){
+    const m = model(); op = m;
+    $('mFo').textContent = m.f + ' Hz'; $('mLo').textContent = nf(m.ML, 1) + ' Nm';
+    $('mNs').textContent = nf(m.ns, 0) + ' min⁻¹';
+    $('mN').textContent = nf(m.n, 0) + ' min⁻¹';
+    $('mS').textContent = m.n > 0 ? nf((m.ns - m.n) / m.ns * 100, 1) + ' %' : '100 %';
+    $('mPw').textContent = nf(m.ML * 2 * Math.PI * m.n / 60 / 1000, 2) + ' kW';
+    $('mState').textContent = m.state; $('mState').setAttribute('fill', m.st === 'bad' ? '#b42318' : '#15803d');
+    $('mStart').textContent = m.sch === 'y' ? 'Anlaufstrom ≈ 2 · Iₙ (⅓)' : 'Anlaufstrom ≈ 6 · Iₙ';
+    $('mDir').textContent = $('mRev').checked ? 'Drehrichtung: Linkslauf ↺' : 'Drehrichtung: Rechtslauf ↻';
+    draw();
+  }
+  function draw(){
+    const m = model(), other = m.sch === 'y' ? 3 : 1 / 3;
+    const xmax = Math.ceil(m.ns * 1.05 / 250) * 250;
+    const labels = [{x: 0, y: m.M0, text: 'Anlaufmoment', color: '#0e7490'}];
+    const nk = m.ns - m.dnk;
+    if (nk > 0) labels.push({x: nk, y: m.Mk, text: 'Kippmoment', color: '#0e7490'});
+    plot($('mPlot'), {
+      xmax, ymax: 30, xlabel: 'Drehzahl n in min⁻¹', ylabel: 'Drehmoment M in Nm',
+      curves: [
+        {f: n => n <= m.ns ? m.M(n) : NaN, color: '#0e7490', width: 3.5, label: 'Motor ' + (m.sch === 'y' ? 'Stern' : 'Dreieck')},
+        {f: n => n <= m.ns ? m.M(n) * other : NaN, color: '#0e7490', width: 1.8, alpha: .35, dash: [6, 5], label: 'Motor ' + (m.sch === 'y' ? 'Dreieck' : 'Stern')},
+        {f: n => m.ML, color: '#c2410c', dash: [8, 5], width: 2.5, label: 'Lastmoment'}
+      ],
+      labels,
+      marker: m.n > 0 ? {x: m.n, y: m.ML, color: '#c2410c'} : {x: 0, y: Math.min(m.ML, 30), color: '#b42318'}
+    });
+  }
+  let aF = 0, aR = 0, last = performance.now();
+  function anim(t){
+    const dt = Math.min(0.05, (t - last) / 1000); last = t;
+    const dir = $('mRev').checked ? -1 : 1, k = 0.01 * 360 / 60;
+    aF += dir * op.ns * k * dt; aR += dir * op.n * k * dt;
+    $('mField').setAttribute('transform', `rotate(${aF % 360} 130 125)`);
+    $('mRotor').setAttribute('transform', `rotate(${aR % 360} 130 125)`);
+    requestAnimationFrame(anim);
+  }
+  ['mF', 'mP', 'mL', 'mRev'].forEach(id => $(id).addEventListener('input', upd));
+  segment('mSch', upd);
+  redraws.push(draw); upd(); requestAnimationFrame(anim);
+})();
+
+/* ======================= NETZSYSTEME ======================= */
+(() => {
+  let sys = 'TNCS', fault = false;
+  const INFO = {
+    TNC: {t: 'TN-C-System', d: 'N und PE sind im ganzen Netz als gemeinsamer <b>PEN-Leiter</b> geführt. Wird der PEN unterbrochen, kann das Gehäuse Spannung führen. Deshalb ist TN-C nur bei festen Leitungen ab 10 mm² Cu zulässig. Ein FI funktioniert im TN-C-System nicht.'},
+    TNS: {t: 'TN-S-System', d: 'N und PE sind ab dem Trafo <b>getrennt</b>. Das ist sicher und EMV-günstig, weil über den PE im Normalbetrieb kein Strom fließt. Es wird oft in Industrieanlagen mit eigenem Trafo verwendet.'},
+    TNCS: {t: 'TN-C-S-System', d: 'Das Verteilnetz führt den PEN. Im Hausanschluss bzw. Zählerverteiler wird er in <b>N und PE aufgeteilt</b> und dort mit dem Fundamenterder verbunden. Das ist das häufigste System in Österreich und Deutschland („Nullung“).'},
+    TT: {t: 'TT-System', d: 'Der Sternpunkt hat einen <b>Betriebserder R<sub>B</sub></b>, die Gehäuse haben einen eigenen <b>Anlagenerder R<sub>A</sub></b>. Der Fehlerstrom fließt über das Erdreich zurück und ist deshalb klein. Ein <b>FI-Schutzschalter ist nötig</b>.'},
+    IT: {t: 'IT-System', d: 'Der Sternpunkt ist <b>nicht geerdet</b>. Beim ersten Fehler gibt es keinen geschlossenen Stromkreis, und die Anlage darf weiterlaufen. Eine <b>Isolationsüberwachung</b> meldet den Fehler. Einsatz: OP-Säle, Intensivstationen, Bergbau, Prozessindustrie.'}
+  };
+  function svg(){
+    let s = '';
+    s += `<line x1="15" y1="232" x2="590" y2="232" stroke="#a16207" stroke-width="2" stroke-dasharray="6 4"/>` + txt(300, 252, 'Erdreich', 'fill="#a16207" text-anchor="middle"');
+    s += `<rect x="20" y="25" width="70" height="100" rx="6" fill="#fff" stroke="#1d2433" stroke-width="2"/>` +
+         `<circle cx="47" cy="65" r="16" fill="none" stroke="#1d2433" stroke-width="2"/><circle cx="63" cy="65" r="16" fill="none" stroke="#1d2433" stroke-width="2"/>` +
+         txt(55, 112, 'Trafo', 'text-anchor="middle" font-weight="700"');
+    // Gerät
+    s += `<rect x="440" y="22" width="120" height="148" rx="4" fill="#eef0f3" stroke="#6b7280" stroke-width="4"/>` +
+         txt(500, 162, 'Metallgehäuse', 'text-anchor="middle" fill="#5b6475"');
+    // Außenleiter
+    const ly = [40, 60, 80], lc = [COL.L, COL.L2, COL.L3];
+    ly.forEach((y, i) => { s += wire(90, y, 495, y, lc[i]) + txt(96 + 0, y - 4, 'L' + (i + 1), `fill="${lc[i]}" font-weight="700"`); });
+    s += `<circle cx="515" cy="62" r="24" fill="#fff" stroke="#1d2433" stroke-width="2.5"/>` + txt(515, 68, 'M', 'text-anchor="middle" font-size="18" font-weight="800"');
+    const N = (x1, x2) => wire(x1, 100, x2, 100, COL.N) + txt(x1 + 6, 96, 'N', `fill="${COL.N}" font-weight="700"`);
+    const PE = (x1, x2, y = 120, lab = 'PE') => peWire(x1, y, x2, y) + txt(x1 + 6, y - 5, lab, `fill="${COL.PE}" font-weight="700"`);
+    const starEarth = (y) => wire(110, y, 110, 200, '#1d2433', 2.5) + dot(110, y) + earth(110, 200) + txt(124, 206, 'Betriebserder R<tspan baseline-shift="sub" font-size="9">B</tspan>');
+    const devEarth = () => peWire(500, 170, 500, 200, 3) + earth(500, 200) + txt(514, 206, 'Anlagenerder R<tspan baseline-shift="sub" font-size="9">A</tspan>');
+    const nIn = () => wire(440, 100, 515, 100, COL.N) + wire(515, 100, 515, 86, COL.N);
+    if (sys === 'TNC'){
+      s += PE(90, 440, 110, 'PEN') + starEarth(110) + wire(440, 110, 515, 110, COL.N, 2) + wire(515, 110, 515, 86, COL.N, 2) + dot(440, 110) +
+           txt(300, 140, 'PEN = Schutzleiter + Neutralleiter', 'fill="#5b6475"');
+    } else if (sys === 'TNS'){
+      s += N(90, 440) + PE(90, 440) + starEarth(100) + dot(110, 120) + nIn() + dot(440, 120);
+    } else if (sys === 'TNCS'){
+      s += PE(90, 260, 110, 'PEN') + starEarth(110) + dot(260, 110) +
+           wire(260, 110, 260, 100, COL.N) + wire(260, 100, 440, 100, COL.N) + txt(272, 96, 'N', `fill="${COL.N}" font-weight="700"`) +
+           peWire(260, 110, 260, 120) + PE(260, 440) + nIn() + dot(440, 120) +
+           peWire(300, 120, 300, 200, 3) + dot(300, 120) + earth(300, 200) + txt(314, 206, 'Fundamenterder') +
+           txt(190, 150, 'Aufteilung PEN → N + PE', 'fill="#5b6475"');
+    } else if (sys === 'TT'){
+      s += N(90, 440) + starEarth(100) + nIn() + devEarth();
+    } else {
+      s += txt(22, 145, 'Sternpunkt isoliert', 'fill="#b42318" font-weight="700"') + devEarth() +
+           `<rect x="200" y="150" width="110" height="30" rx="4" fill="#fff" stroke="#7c3aed" stroke-width="2"/>` + txt(255, 170, 'Isolationswächter', 'text-anchor="middle" fill="#7c3aed" font-weight="700"') +
+           wire(255, 80, 255, 150, '#7c3aed', 1.5) + dot(255, 80, '#7c3aed') + wire(255, 180, 255, 200, '#7c3aed', 1.5) + earth(255, 200, '#7c3aed');
+    }
+    if (fault){
+      s += bolt(470, 40, 470, 22, 4) + txt(440, 14, 'Körperschluss L1', `fill="${COL.F}" font-weight="700"`);
+      const P = {
+        TNC:  'M90 40 H470 V22 H440 V110 H90',
+        TNS:  'M90 40 H470 V22 H440 V120 H110 V100 H90',
+        TNCS: 'M90 40 H470 V22 H440 V120 H260 V110 H90',
+        TT:   'M90 40 H470 V22 H560 V170 H500 V228 H110 V100 H90',
+        IT:   'M90 40 H470 V22 H560 V170 H500 V228 H200'
+      }[sys];
+      s += `<path d="${P}" fill="none" stroke="${sys === 'IT' ? '#f59e0b' : COL.F}" stroke-width="5" opacity=".75" class="flow"/>`;
+      if (sys === 'IT') s += txt(150, 224, '? kein Rückweg', 'fill="#b45309" font-weight="700"');
+    }
+    $('netSvg').innerHTML = s;
+  }
+  function ctl(){
+    const isTN = sys.startsWith('TN');
+    let h = '';
+    if (isTN){
+      h += `<label>Schleifenimpedanz Z<sub>S</sub> <output id="nZo"></output></label><input type="range" id="nZ" min="0.1" max="4" step="0.05" value="0.8">` +
+           `<label>Schutzorgan</label><select id="nLS"><option value="B10">LS B10</option><option value="B13">LS B13</option><option value="B16" selected>LS B16</option><option value="B20">LS B20</option><option value="C16">LS C16</option><option value="C32">LS C32</option><option value="D16">LS D16</option></select>`;
+    } else if (sys === 'TT'){
+      h += `<label>Anlagenerder R<sub>A</sub> <output id="nRAo"></output></label><input type="range" id="nRA" min="1" max="300" step="1" value="30">` +
+           `<label>Betriebserder R<sub>B</sub> <output id="nRBo"></output></label><input type="range" id="nRB" min="0.5" max="10" step="0.5" value="2">` +
+           `<label class="chk"><input type="checkbox" id="nFI" checked> FI 30 mA vorhanden</label>`;
+    } else {
+      h += `<label class="chk"><input type="checkbox" id="nF2"> Zweiter Fehler an L2 (anderes Gerät)</label>`;
+    }
+    $('netCtl').innerHTML = h;
+    $('netCtl').querySelectorAll('input,select').forEach(e => e.addEventListener('input', info));
+  }
+  function info(){
+    const i = INFO[sys];
+    let h = `<h4 style="margin-top:0">${i.t}</h4><p>${i.d}</p>`;
+    if (!fault){
+      h += `<div class="status ok">Normalbetrieb. Klicke auf „Körperschluss an L1 auslösen“, um den Fehlerstromweg zu sehen.</div>`;
+    } else if (sys.startsWith('TN')){
+      const Z = +$('nZ').value, ls = $('nLS').value, ch = ls[0], In = +ls.slice(1);
+      const Ia = In * {B: 5, C: 10, D: 20}[ch], Ik = 230 / Z, Zmax = 230 / Ia, okk = Ik >= Ia;
+      $('nZo').textContent = nf(Z, 2) + ' Ω';
+      h += `<div class="readout"><div class="ro"><small>Fehlerstrom I<sub>k</sub> = U₀ / Z<sub>S</sub></small><b>${nf(Ik, 0)} A</b></div>` +
+           `<div class="ro"><small>Nötig für Sofortauslösung I<sub>a</sub></small><b>${nf(Ia, 0)} A</b></div>` +
+           `<div class="ro"><small>Max. Z<sub>S</sub> = U₀ / I<sub>a</sub></small><b>${nf(Zmax, 2)} Ω</b></div></div>`;
+      h += okk
+        ? `<div class="status ok">✔ Der Fehlerstrom fließt über den ${sys === 'TNC' ? 'PEN' : 'Schutzleiter'} zurück zum Sternpunkt. I<sub>k</sub> ≥ I<sub>a</sub>: Der Magnetauslöser des ${ls} schaltet sofort ab (deutlich unter 0,4 s).</div>`
+        : `<div class="status danger">✘ Z<sub>S</sub> ist zu groß. Der Fehlerstrom reicht nicht für die Sofortauslösung des ${ls}. Die Abschaltung in 0,4 s ist nicht sicher. Abhilfe: größerer Querschnitt, kürzere Leitung, kleinerer LS oder FI-Schutzschalter.</div>`;
+    } else if (sys === 'TT'){
+      const RA = +$('nRA').value, RB = +$('nRB').value, fi = $('nFI').checked;
+      $('nRAo').textContent = RA + ' Ω'; $('nRBo').textContent = nf(RB, 1) + ' Ω';
+      const If = 230 / (RA + RB), UB = If * RA;
+      h += `<div class="readout"><div class="ro"><small>Fehlerstrom I<sub>F</sub> = U₀ / (R<sub>A</sub>+R<sub>B</sub>)</small><b>${nf(If, 2)} A</b></div>` +
+           `<div class="ro"><small>Berührungsspannung U<sub>B</sub> = I<sub>F</sub> · R<sub>A</sub></small><b>${nf(UB, 0)} V</b></div>` +
+           `<div class="ro"><small>Bedingung R<sub>A</sub> · I<sub>Δn</sub> ≤ 50 V</small><b>${nf(RA * 0.03, 1)} V</b></div></div>`;
+      h += fi
+        ? `<div class="status ok">✔ Der Fehlerstrom (${nf(If, 1)} A) ist zu klein für den LS, aber weit über 30 mA. Der <b>FI schaltet sofort ab</b>.</div>`
+        : `<div class="status danger">✘ Ohne FI: ${nf(If, 1)} A reichen nicht für die Sofortauslösung eines LS B16 (80 A). Das Gehäuse bleibt auf <b>${nf(UB, 0)} V</b>${UB > 50 ? ' – lebensgefährlich!' : '.'}</div>`;
+    } else {
+      const f2 = $('nF2').checked;
+      h += f2
+        ? `<div class="status danger">2. Fehler: L1 und L2 sind über die Gehäuse und die Erdungsanlage verbunden → <b>Kurzschluss zwischen zwei Außenleitern</b> (400 V). Jetzt muss das Schutzorgan sofort abschalten.</div>`
+        : `<div class="status warn">1. Fehler: Es fließt nur ein sehr kleiner Strom über die Leitungskapazitäten (mA-Bereich). Die Berührungsspannung bleibt gering, <b>keine Abschaltung nötig</b>. Der Isolationswächter meldet den Fehler, und er muss bald behoben werden.</div>`;
+    }
+    $('netInfo').innerHTML = h;
+  }
+  function all(){ svg(); ctl(); info(); }
+  segment('netSel', v => { sys = v; all(); });
+  $('netFault').onclick = () => { fault = !fault; $('netFault').textContent = fault ? 'Fehler entfernen' : '⚡ Körperschluss an L1 auslösen'; $('netFault').classList.toggle('ghost', !fault); svg(); info(); };
+  all();
+})();
+
+/* ======================= FEHLERARTEN (Schaubilder) ======================= */
+(() => {
+  const T = [
+    {k: 'kurz', n: 'Kurzschluss', d: 'Leitende Verbindung zwischen aktiven Leitern (L–N oder L–L) <b>ohne Verbraucher</b> dazwischen.', f: 'Sehr hoher Strom, Lichtbogen, Brandgefahr.', s: 'LS-Schalter (Magnetauslöser), Sicherung.'},
+    {k: 'koerper', n: 'Körperschluss', d: 'Leitende Verbindung zwischen einem aktiven Leiter und dem <b>leitfähigen Gehäuse</b> eines Geräts.', f: 'Gehäuse steht unter Spannung → Berührungsspannung.', s: 'Schutzleiter + automatische Abschaltung (LS/FI).'},
+    {k: 'erd', n: 'Erdschluss', d: 'Leitende Verbindung eines aktiven Leiters mit der <b>Erde</b> oder geerdeten Teilen (z. B. Wasserrohr, beschädigtes Erdkabel).', f: 'Fehlerstrom über das Erdreich, Schrittspannung, Brandgefahr.', s: 'FI-Schutzschalter.'},
+    {k: 'leiter', n: 'Leiterschluss', d: 'Unbeabsichtigte Verbindung zwischen aktiven Leitern <b>über einen Verbraucher</b> bzw. Überbrückung eines Schalters.', f: 'Gerät lässt sich nicht mehr ausschalten, läuft unkontrolliert an.', s: 'Kein Schutzorgan erkennt ihn → Prüfen und Messen!'},
+    {k: 'unter', n: 'Unterbrechung (Leiterbruch)', d: 'Ein Leiter ist gebrochen oder eine Klemme ist lose.', f: 'Gerät ohne Funktion. PE-Bruch: Schutz unwirksam! N-/PEN-Bruch im Drehstromnetz: Überspannung an Geräten.', s: 'Sichtprüfung, Durchgangsprüfung, Schutzleitermessung.'},
+    {k: 'iso', n: 'Isolationsfehler', d: 'Die Isolierung wird durch Alterung, Feuchtigkeit oder Beschädigung schlechter. Der Isolationswiderstand sinkt.', f: 'Ableitstrom, später Körper- oder Erdschluss.', s: 'FI, Isolationsmessung (Richtwert ≥ 1 MΩ bei 500 V Messspannung).'},
+    {k: 'ueber', n: 'Überlast', d: 'Der Strom liegt <b>länger</b> über dem zulässigen Wert der Leitung, z. B. weil zu viele Geräte an einem Stromkreis hängen.', f: 'Leitung erwärmt sich, Isolierung altert oder schmilzt, Brandgefahr.', s: 'LS-Schalter (thermischer Auslöser/Bimetall).'}
+  ];
+  function mini(k){
+    let s = `<line x1="5" y1="114" x2="215" y2="114" stroke="#a16207" stroke-width="1.5" stroke-dasharray="5 3"/>`;
+    s += `<rect x="150" y="10" width="62" height="92" rx="3" fill="#eef0f3" stroke="#6b7280" stroke-width="3"/>`;
+    // L mit Schalter
+    if (k === 'unter'){ s += wire(10, 25, 55, 25, COL.L) + wire(70, 25, 88, 25, COL.L) + cross(62, 25); }
+    else s += wire(10, 25, 88, 25, COL.L);
+    s += dot(88, 25) + dot(115, 25);
+    s += k === 'leiter' ? `<line x1="88" y1="25" x2="111" y2="12" stroke="#1d2433" stroke-width="2.5"/>` + wire(86, 25, 117, 25, COL.F, 3)
+                        : `<line x1="88" y1="25" x2="115" y2="25" stroke="#1d2433" stroke-width="2.5"/>`;
+    s += wire(115, 25, 181, 25, k === 'ueber' ? '#ef4444' : COL.L, k === 'ueber' ? 5 : 3) + wire(181, 25, 181, 34, COL.L);
+    s += wire(10, 55, 181, 55, COL.N) + wire(181, 55, 181, 48, COL.N);
+    s += `<circle cx="181" cy="41" r="8" fill="#fff" stroke="#1d2433" stroke-width="2"/>`;
+    s += peWire(10, 85, 150, 85, 3);
+    s += txt(10, 20, 'L', `fill="${COL.L}" font-weight="700"`) + txt(10, 50, 'N', `fill="${COL.N}" font-weight="700"`) + txt(10, 80, 'PE', `fill="${COL.PE}" font-weight="700"`);
+    if (k === 'kurz') s += bolt(165, 25, 165, 55);
+    if (k === 'koerper') s += bolt(197, 25, 212, 14) + wire(181, 25, 200, 25, COL.L);
+    if (k === 'erd') s += bolt(40, 25, 40, 112);
+    if (k === 'iso') s += `<line x1="130" y1="25" x2="130" y2="85" stroke="${COL.F}" stroke-width="2" stroke-dasharray="3 3"/><rect x="123" y="45" width="14" height="22" fill="#fff" stroke="${COL.F}" stroke-width="2"/>` + txt(120, 74, 'R<tspan font-size="8">iso</tspan>↓', `fill="${COL.F}" font-size="10" text-anchor="end"`);
+    if (k === 'ueber') s += `<path d="M60 16 q4 -6 0 -10 M75 16 q4 -6 0 -10 M90 16 q4 -6 0 -10" stroke="#ef4444" fill="none" stroke-width="2" transform="translate(40 0)"/>` + txt(20, 108, 'zu viele Verbraucher → I > Iz', 'fill="#b42318" font-size="10"');
+    return `<svg class="dia" viewBox="0 0 220 120">${s}</svg>`;
+  }
+  $('ftGrid').innerHTML = T.map(t => `<div class="ftype">${mini(t.k)}<h4>${t.n}</h4><p>${t.d}</p><p><span class="lbl">Folge:</span> ${t.f}</p><p><span class="lbl">Schutz:</span> ${t.s}</p></div>`).join('');
+})();
+
+/* ======================= FEHLER-SIMULATOR ======================= */
+(() => {
+  const NAMES = {none: 'kein Fehler', kurz: 'Kurzschluss L–N', koerper: 'Körperschluss (PE in Ordnung)', koerper_nope: 'Körperschluss + PE unterbrochen', erd: 'Erdschluss', leiter: 'Leiterschluss', unN: 'Unterbrechung N', unL: 'Unterbrechung L'};
+  const RL = 881, ZS = 0.8, RK = 1000, ILamp = 230 / RL;
+  let train = null;
+  $('fsAns').innerHTML = Object.entries(NAMES).map(([k, v]) => `<option value="${k}">${v}</option>`).join('');
+
+  function evalState(){
+    const f = train || $('fsF').value, sw = $('fsSw').checked, fi = $('fsFI').checked, touch = $('fsTouch').checked;
+    let r = {iL: sw ? ILamp : 0, iD: 0, ub: 0, ls: false, fi: false, lamp: sw, lvl: 'ok', msg: ''};
+    switch (f){
+      case 'none':
+        r.msg = sw ? 'Normalbetrieb: Die Lampe leuchtet, es fließen ca. 0,26 A. Strom in L und N ist gleich groß, deshalb kein Differenzstrom.' : 'Schalter aus – kein Strom.';
+        if (touch) r.msg += ' Das Gehäuse ist spannungsfrei, Berühren ist ungefährlich.';
+        break;
+      case 'kurz':
+        if (!sw){ r.msg = 'Der Kurzschluss liegt hinter dem Schalter. Solange der Schalter AUS ist, fließt kein Strom. Schalte EIN!'; r.lvl = 'warn'; }
+        else { r.iL = 230 / ZS; r.ls = true; r.lamp = false; r.lvl = 'warn';
+          r.msg = 'Kurzschluss: Es fließt ein sehr großer Strom (≈ 288 A). Der <b>Magnetauslöser des LS</b> schaltet sofort ab. Der FI reagiert nicht, weil der Strom über N zurückfließt (kein Differenzstrom).'; }
+        break;
+      case 'koerper':
+        r.iL = 230 / ZS + (sw ? ILamp : 0); r.iD = 230 / ZS; r.ub = 115; r.ls = true; r.fi = fi; r.lamp = false; r.lvl = 'warn';
+        r.msg = 'Körperschluss mit intaktem Schutzleiter: Der Fehlerstrom fließt über den PE zurück. <b>LS' + (fi ? ' und FI schalten' : ' schaltet') + '</b> in Millisekunden ab. Die Berührungsspannung (≈ 115 V) besteht nur ganz kurz. Das Gerät ist danach spannungsfrei.';
+        break;
+      case 'koerper_nope':
+        r.ub = 230;
+        if (touch){
+          const ib = 230 / RK; r.iD = ib; r.iL = ib + (sw ? ILamp : 0);
+          if (fi){ r.fi = true; r.lamp = false; r.lvl = 'warn'; r.ub = 230;
+            r.msg = 'Das Gehäuse steht unter 230 V, der Schutzleiter ist unterbrochen. Beim Berühren fließen ca. 230 mA durch den Körper. Der <b>FI</b> erkennt den Differenzstrom und schaltet in &lt; 40 ms ab. <b>Der FI rettet Leben!</b> Der Stromschlag ist trotzdem spürbar.'; }
+          else { r.lvl = 'danger';
+            r.msg = '<b>LEBENSGEFAHR!</b> Ca. 230 mA fließen dauerhaft durch den Körper (Herzkammerflimmern möglich). Der LS reagiert nicht, weil 0,23 A viel kleiner als 16 A sind. Ohne FI gibt es keinen Schutz.'; }
+        } else {
+          r.lvl = 'danger';
+          r.msg = 'Gefährlicher Zustand: Das Gehäuse steht unter <b>230 V</b>, aber es fließt kein Fehlerstrom. Kein Schutzorgan löst aus, und die Gefahr bleibt unbemerkt, bis jemand das Gehäuse berührt. Probiere „Person berührt das Gehäuse“.';
+        }
+        break;
+      case 'erd': {
+        const ie = 230 / 22; r.iD = ie; r.iL = ie + (sw ? ILamp : 0); r.ub = NaN;
+        if (fi){ r.fi = true; r.lamp = false; r.lvl = 'warn';
+          r.msg = 'Erdschluss: Ein Fehlerstrom von ca. 10 A fließt über das Erdreich zurück. Er ist zu klein für den Magnetauslöser des LS (80 A bei B16), deshalb löst der LS nicht aus. Der <b>FI</b> schaltet sofort ab.'; }
+        else { r.lvl = 'danger';
+          r.msg = 'Erdschluss ohne FI: Ca. 10 A fließen dauerhaft über das Erdreich. Der LS erkennt das nicht. <b>Brandgefahr</b> und gefährliche Spannungen in der Umgebung der Fehlerstelle!'; }
+        break; }
+      case 'leiter':
+        r.iL = ILamp; r.lamp = true; r.lvl = 'warn';
+        r.msg = 'Leiterschluss: Der Schalter ist überbrückt. Die Lampe lässt sich <b>nicht mehr ausschalten</b>. Alle Ströme sind normal, deshalb erkennt <b>kein Schutzorgan</b> diesen Fehler!';
+        break;
+      case 'unN':
+        r.iL = 0; r.lamp = false; r.lvl = sw ? 'warn' : 'ok';
+        r.msg = sw ? 'N-Leiter unterbrochen: Der Stromkreis ist offen, die Lampe bleibt dunkel. <b>Achtung:</b> Hinter der Unterbrechung liegt am N-Leiter über die Lampe <b>230 V gegen Erde</b> an. Der Spannungsprüfer zeigt am N Spannung an!'
+                   : 'N-Leiter unterbrochen, Schalter aus: kein Strom. Schalte EIN und beobachte.';
+        break;
+      case 'unL':
+        r.iL = 0; r.lamp = false; r.lvl = 'ok';
+        r.msg = 'Außenleiter unterbrochen: Die Lampe bleibt dunkel, hinter der Unterbrechung ist alles spannungsfrei. Fehlersuche: Spannung abschnittsweise zwischen L und N bzw. L und PE messen.';
+        break;
+    }
+    if (r.ls || r.fi) r.lamp = false;
+    return r;
+  }
+
+  function draw(r){
+    const f = train || $('fsF').value, sw = $('fsSw').checked, fi = $('fsFI').checked, touch = $('fsTouch').checked, hide = !!train;
+    let s = '';
+    s += `<line x1="0" y1="268" x2="640" y2="268" stroke="#a16207" stroke-width="2" stroke-dasharray="6 4"/>`;
+    s += `<rect x="10" y="40" width="50" height="190" rx="6" fill="#fff" stroke="#1d2433" stroke-width="2"/>` + txt(35, 135, '230 V', 'text-anchor="middle" font-weight="700"') + txt(35, 152, '~', 'text-anchor="middle" font-size="18"');
+    s += peWire(35, 230, 35, 245, 3) + earth(35, 245);
+    // L-Leitung
+    const brkL = f === 'unL' && !hide;
+    s += wire(60, 60, 90, 60, COL.L) + wire(140, 60, 170, 60, COL.L) + wire(230, 60, 300, 60, COL.L);
+    s += brkL ? wire(340, 60, 370, 60, COL.L) + wire(390, 60, 510, 60, COL.L) + cross(380, 60) : wire(340, 60, 510, 60, COL.L);
+    s += wire(510, 60, 510, 81, COL.L);
+    s += txt(66, 54, 'L', `fill="${COL.L}" font-weight="700"`);
+    // N-Leitung
+    const brkN = f === 'unN' && !hide;
+    s += wire(60, 150, 170, 150, COL.N) + (brkN ? wire(230, 150, 370, 150, COL.N) + wire(390, 150, 510, 150, COL.N) + cross(380, 150) : wire(230, 150, 510, 150, COL.N)) + wire(510, 150, 510, 129, COL.N);
+    s += txt(66, 144, 'N', `fill="${COL.N}" font-weight="700"`);
+    // PE
+    const brkPE = f === 'koerper_nope' && !hide;
+    s += brkPE ? peWire(60, 220, 370, 220) + peWire(390, 220, 460, 220) + cross(380, 220) : peWire(60, 220, 460, 220);
+    s += peWire(460, 220, 460, 200) + txt(66, 214, 'PE', `fill="${COL.PE}" font-weight="700"`);
+    // LS
+    s += `<rect x="90" y="44" width="50" height="32" rx="4" fill="${r.ls ? '#fecaca' : '#fff'}" stroke="${r.ls ? COL.F : '#1d2433'}" stroke-width="2"/>` + txt(115, 64, 'LS B16', 'text-anchor="middle" font-size="11" font-weight="700"');
+    // FI
+    if (fi){
+      s += `<rect x="170" y="40" width="60" height="122" rx="4" fill="${r.fi ? '#fecaca' : '#fff'}" stroke="${r.fi ? COL.F : '#1d2433'}" stroke-width="2"/>` +
+           wire(170, 60, 230, 60, COL.L, 2) + wire(170, 150, 230, 150, COL.N, 2) +
+           `<ellipse cx="200" cy="105" rx="14" ry="30" fill="none" stroke="#6b7280" stroke-width="3"/>` + txt(200, 178, 'FI 30 mA', 'text-anchor="middle" font-size="11" font-weight="700"');
+    } else {
+      s += wire(170, 60, 230, 60, COL.L) + wire(170, 150, 230, 150, COL.N) + txt(200, 178, 'kein FI', 'text-anchor="middle" font-size="11" fill="#9ca3af"');
+    }
+    // Schalter
+    s += dot(300, 60) + dot(340, 60) + (sw ? `<line x1="300" y1="60" x2="340" y2="60" stroke="#1d2433" stroke-width="3"/>` : `<line x1="300" y1="60" x2="336" y2="40" stroke="#1d2433" stroke-width="3"/>`) + txt(320, 88, 'Schalter', 'text-anchor="middle" fill="#5b6475"');
+    // Gehäuse + Lampe
+    s += `<rect x="440" y="30" width="140" height="170" rx="4" fill="none" stroke="#6b7280" stroke-width="4"/>` + txt(510, 192, 'Metallgehäuse', 'text-anchor="middle" fill="#5b6475"');
+    s += r.lamp ? `<circle cx="510" cy="105" r="40" fill="#fde047" opacity=".45"/>` : '';
+    s += `<circle cx="510" cy="105" r="24" fill="${r.lamp ? '#fde047' : '#fff'}" stroke="#1d2433" stroke-width="2.5"/>` +
+         `<line x1="493" y1="88" x2="527" y2="122" stroke="#1d2433" stroke-width="2"/><line x1="527" y1="88" x2="493" y2="122" stroke="#1d2433" stroke-width="2"/>`;
+    // Fehler einzeichnen
+    if (!hide){
+      if (f === 'kurz') s += bolt(470, 60, 470, 150, 3.5) + txt(476, 110, 'Kurzschluss', `fill="${COL.F}" font-size="11" font-weight="700"`);
+      if (f === 'koerper' || f === 'koerper_nope') s += bolt(480, 60, 480, 30, 3.5) + txt(445, 22, 'Körperschluss', `fill="${COL.F}" font-size="11" font-weight="700"`);
+      if (f === 'erd') s += bolt(410, 60, 410, 266, 3.5) + txt(416, 250, 'Erdschluss', `fill="${COL.F}" font-size="11" font-weight="700"`);
+      if (f === 'leiter') s += `<path d="M298 60 Q320 30 342 60" fill="none" stroke="${COL.F}" stroke-width="3.5"/>` + txt(290, 28, 'überbrückt', `fill="${COL.F}" font-size="11" font-weight="700"`);
+    }
+    // Person
+    if (touch){
+      const danger = r.ub >= 50 && !r.fi;
+      const pc = danger ? COL.F : '#1d2433';
+      s += `<g stroke="${pc}" stroke-width="3" fill="none" stroke-linecap="round">` +
+           `<circle cx="618" cy="128" r="10"/><line x1="618" y1="138" x2="618" y2="200"/><line x1="618" y1="152" x2="582" y2="140"/>` +
+           `<line x1="618" y1="200" x2="606" y2="266"/><line x1="618" y1="200" x2="630" y2="266"/></g>`;
+      if (r.iD > 0 && touch && f === 'koerper_nope') s += `<path d="M582 140 L618 152 L618 200 L606 266" fill="none" stroke="${COL.F}" stroke-width="4" opacity=".7" class="flow"/>`;
+    }
+    $('fsSvg').innerHTML = s;
+  }
+
+  function upd(){
+    const r = evalState();
+    draw(r);
+    const fmtI = i => i === 0 ? '0 A' : i < 1 ? nf(i * 1000, 0) + ' mA' : nf(i, 1) + ' A';
+    $('fsIL').textContent = fmtI(r.iL);
+    $('fsID').textContent = fmtI(r.iD);
+    $('fsUB').textContent = isNaN(r.ub) ? '—' : nf(r.ub, 0) + ' V';
+    $('fsUB').style.color = r.ub >= 50 ? '#b42318' : '';
+    $('fsLS').innerHTML = r.ls ? '<span class="pill n">ausgelöst</span>' : '<span class="pill y">ein</span>';
+    $('fsFIo').innerHTML = !$('fsFI').checked ? '<span style="color:#9ca3af">—</span>' : r.fi ? '<span class="pill n">ausgelöst</span>' : '<span class="pill y">ein</span>';
+    const m = $('fsMsg');
+    m.className = 'status ' + (train ? 'ok' : r.lvl);
+    m.innerHTML = train ? '<b>Trainingsmodus:</b> Der Fehler ist versteckt. Beobachte Lampe, LS, FI und die Messwerte. Schalte den Schalter um, nimm den FI weg oder lass die Person berühren. Dann wähle deine Antwort.' : r.msg;
+  }
+
+  $('fsTrain').onclick = () => {
+    const keys = Object.keys(NAMES);
+    train = keys[Math.floor(Math.random() * keys.length)];
+    $('fsF').disabled = true; $('fsQuiz').style.display = 'block'; $('fsRes').textContent = '';
+    $('fsSw').checked = true; $('fsTouch').checked = false; $('fsFI').checked = true;
+    upd();
+  };
+  function endTrain(){ $('fsF').value = train; train = null; $('fsF').disabled = false; upd(); }
+  $('fsCheck').onclick = () => {
+    if (!train) return;
+    const ok = $('fsAns').value === train;
+    $('fsRes').innerHTML = ok ? '<span style="color:#15803d">✔ Richtig! ' + NAMES[train] + '</span>' : '<span style="color:#b42318">✘ Leider falsch – untersuche weiter.</span>';
+    if (ok) setTimeout(endTrain, 900);
+  };
+  $('fsShow').onclick = () => { if (!train) return; $('fsRes').innerHTML = 'Lösung: ' + NAMES[train]; endTrain(); };
+  ['fsF', 'fsSw', 'fsFI', 'fsTouch'].forEach(id => $(id).addEventListener('input', upd));
+  upd();
+})();
+
+/* ======================= FI-SIMULATOR ======================= */
+(() => {
+  function upd(){
+    const In = +$('fiN').value, IL0 = +$('fiL').value, ie = +$('fiE').value / 1000;
+    $('fiLo').textContent = nf(IL0, 1) + ' A'; $('fiEo').textContent = nf(ie * 1000, 0) + ' mA';
+    const IL = IL0 + ie, IN = IL0, d = ie * 1000;
+    $('fiIL').textContent = nf(IL, 3) + ' A'; $('fiIN').textContent = nf(IN, 3) + ' A'; $('fiD').textContent = nf(d, 0) + ' mA';
+    let cls = 'ok', msg, trip = false;
+    if (d >= In){ cls = 'warn'; trip = true; msg = `ΔI = ${nf(d, 0)} mA ≥ I<sub>Δn</sub> = ${In} mA: Der FI <b>löst sicher aus</b> (bei 30 mA in max. 0,3 s, bei hohen Fehlerströmen in wenigen ms).`; }
+    else if (d >= In / 2){ cls = 'warn'; msg = `ΔI liegt zwischen 50 % und 100 % von I<sub>Δn</sub>: Der FI <b>kann auslösen</b>, muss aber nicht.`; }
+    else msg = d > 0 ? `ΔI = ${nf(d, 0)} mA ist kleiner als 50 % von I<sub>Δn</sub>: Der FI löst <b>nicht</b> aus.` : 'Kein Fehlerstrom: I<sub>L</sub> = I<sub>N</sub>, die Magnetfelder heben sich auf.';
+    $('fiMsg').className = 'status ' + cls; $('fiMsg').innerHTML = msg;
+    let s = '';
+    s += wire(10, 70, 410, 70, COL.L) + wire(10, 130, 410, 130, COL.N) + txt(14, 62, 'L → ' + nf(IL, 2) + ' A', `fill="${COL.L}" font-weight="700"`) + txt(14, 150, 'N ← ' + nf(IN, 2) + ' A', `fill="${COL.N}" font-weight="700"`);
+    s += `<rect x="100" y="30" width="200" height="180" rx="10" fill="${trip ? '#fee2e2' : 'rgba(230,240,251,.5)'}" stroke="${trip ? COL.F : '#0b6bcb'}" stroke-width="2"/>`;
+    s += `<ellipse cx="160" cy="100" rx="20" ry="55" fill="none" stroke="#6b7280" stroke-width="9"/>` + txt(160, 175, 'Summenstrom-', 'text-anchor="middle" font-size="11"') + txt(160, 188, 'wandler', 'text-anchor="middle" font-size="11"');
+    s += `<path d="M178 70 C200 70 205 40 230 40 H250" fill="none" stroke="#b45309" stroke-width="2"/><rect x="250" y="28" width="38" height="26" rx="4" fill="#fff" stroke="#b45309" stroke-width="2"/>` + txt(269, 46, 'Spule', 'text-anchor="middle" font-size="10"');
+    s += txt(269, 200, trip ? 'AUSGELÖST' : 'EIN', `text-anchor="middle" font-weight="800" fill="${trip ? COL.F : '#15803d'}"`);
+    if (trip){ s += `<rect x="226" y="62" width="16" height="16" fill="#fff"/><rect x="226" y="122" width="16" height="16" fill="#fff"/>` + `<line x1="226" y1="70" x2="240" y2="58" stroke="#1d2433" stroke-width="3"/><line x1="226" y1="130" x2="240" y2="118" stroke="#1d2433" stroke-width="3"/>`; }
+    s += `<rect x="340" y="55" width="50" height="90" rx="4" fill="#fff" stroke="#6b7280" stroke-width="3"/>` + txt(365, 104, 'Gerät', 'text-anchor="middle" font-size="11"');
+    if (ie > 0){ s += peWire(390, 140, 390, 215, 3) + earth(390, 218) + txt(330, 200, nf(ie * 1000, 0) + ' mA', `fill="${COL.F}" font-weight="700"`) + bolt(375, 70, 390, 90, 2.5); }
+    $('fiSvg').innerHTML = s;
+  }
+  ['fiN', 'fiL', 'fiE'].forEach(id => $(id).addEventListener('input', upd));
+  upd();
+})();
+
+/* ======================= LS-KENNLINIE ======================= */
+(() => {
+  const MAG = {B: [3, 5], C: [5, 10], D: [10, 20]}, CC = {B: '#15803d', C: '#0b6bcb', D: '#7c3aed'};
+  const tMaxT = x => x <= 1 ? Infinity : 3600 * Math.pow(0.45 / (x - 1), 3.31);
+  const tMinT = x => x <= 1.13 ? Infinity : 3600 * Math.pow(0.13 / (x - 1), 3.30);
+  const tMin = (x, ch) => x >= MAG[ch][0] ? 0.005 : tMinT(x);
+  const tMax = (x, ch) => x >= MAG[ch][1] ? 0.01 : tMaxT(x);
+  const sliderToI = v => Math.pow(10, v / 1000 * Math.log10(2000));
+  const iToSlider = i => Math.round(Math.log10(i) / Math.log10(2000) * 1000);
+
+  function lplot(cv, ch, x){
+    const dpr = window.devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight;
+    if (!w) return;
+    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+    const c = cv.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, w, h);
+    const L = 62, R = 16, T = 16, B = 46, pw = w - L - R, ph = h - T - B;
+    const xl0 = 0, xl1 = 2, yl0 = -3, yl1 = 4;
+    const X = v => L + (Math.log10(v) - xl0) / (xl1 - xl0) * pw;
+    const Y = t => T + ph - (Math.log10(Math.min(Math.max(t, 1e-3), 1e4)) - yl0) / (yl1 - yl0) * ph;
+    c.font = '12px "Segoe UI", system-ui, sans-serif';
+    [1, 2, 3, 5, 10, 20, 30, 50, 100].forEach(v => {
+      c.strokeStyle = '#e8ebf1'; c.lineWidth = 1; c.beginPath(); c.moveTo(X(v), T); c.lineTo(X(v), T + ph); c.stroke();
+      c.fillStyle = '#5b6475'; c.textAlign = 'center'; c.fillText(v, X(v), T + ph + 16);
+    });
+    [[0.001, '1 ms'], [0.01, '10 ms'], [0.1, '0,1 s'], [1, '1 s'], [10, '10 s'], [60, '1 min'], [600, '10 min'], [3600, '1 h']].forEach(([t, l]) => {
+      c.strokeStyle = '#e8ebf1'; c.beginPath(); c.moveTo(L, Y(t)); c.lineTo(L + pw, Y(t)); c.stroke();
+      c.fillStyle = '#5b6475'; c.textAlign = 'right'; c.fillText(l, L - 6, Y(t) + 4);
+    });
+    c.strokeStyle = '#1d2433'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(L, T); c.lineTo(L, T + ph); c.lineTo(L + pw, T + ph); c.stroke();
+    c.fillStyle = '#1d2433'; c.font = '600 13px "Segoe UI", system-ui, sans-serif'; c.textAlign = 'center';
+    c.fillText('Vielfaches des Nennstroms I / Iₙ', L + pw / 2, h - 8);
+    c.save(); c.translate(15, T + ph / 2); c.rotate(-Math.PI / 2); c.fillText('Auslösezeit t', 0, 0); c.restore();
+    c.save(); c.beginPath(); c.rect(L, T, pw, ph); c.clip();
+    // andere Charakteristiken als dünne Linien
+    Object.keys(MAG).forEach(k => {
+      const xs = sampleXs(k);
+      const band = (fn, a) => { c.beginPath(); xs.forEach((v, i) => { const y = Y(fn(v, k)); i ? c.lineTo(X(v), y) : c.moveTo(X(v), y); }); c.strokeStyle = CC[k]; c.globalAlpha = a; c.lineWidth = k === ch ? 2.5 : 1.2; c.stroke(); c.globalAlpha = 1; };
+      if (k === ch){
+        c.beginPath();
+        xs.forEach((v, i) => { const y = Y(tMax(v, k)); i ? c.lineTo(X(v), y) : c.moveTo(X(v), y); });
+        [...xs].reverse().forEach(v => c.lineTo(X(v), Y(tMin(v, k))));
+        c.closePath(); c.fillStyle = CC[k]; c.globalAlpha = .18; c.fill(); c.globalAlpha = 1;
+      }
+      band(tMax, k === ch ? 1 : .35); band(tMin, k === ch ? 1 : .35);
+    });
+    // Marker
+    const xm = Math.min(Math.max(x, 1), 100), a = tMin(x, ch), b = tMax(x, ch);
+    c.strokeStyle = '#b42318'; c.lineWidth = 2; c.setLineDash([5, 4]);
+    c.beginPath(); c.moveTo(X(xm), T); c.lineTo(X(xm), T + ph); c.stroke(); c.setLineDash([]);
+    if (isFinite(a) || isFinite(b)){
+      c.strokeStyle = '#b42318'; c.lineWidth = 6; c.globalAlpha = .7;
+      c.beginPath(); c.moveTo(X(xm), Y(isFinite(a) ? a : 1e4)); c.lineTo(X(xm), Y(isFinite(b) ? b : 1e4)); c.stroke(); c.globalAlpha = 1;
+    }
+    c.restore();
+    c.font = '600 12px "Segoe UI", system-ui, sans-serif'; c.textAlign = 'left';
+    Object.keys(MAG).forEach((k, i) => { c.fillStyle = CC[k]; c.fillText('— ' + k, L + pw - 50, T + 18 + i * 16); });
+  }
+  function sampleXs(ch){
+    const xs = [];
+    for (let i = 0; i <= 300; i++) xs.push(Math.pow(10, 0.02 + i / 300 * 1.98));
+    const [m1, m2] = MAG[ch];
+    xs.push(m1 - 1e-6, m1, m2 - 1e-6, m2, 1.13001, 1.45);
+    return xs.filter(v => v > 1.01).sort((a, b) => a - b);
+  }
+  function upd(){
+    const ch = segVal('lsChar'), In = +$('lsIn').value, I = sliderToI(+$('lsI').value), x = I / In;
+    $('lsIo').textContent = nf(I, I < 10 ? 1 : 0) + ' A';
+    $('lsX').textContent = nf(x, 2) + ' × Iₙ';
+    const a = tMin(x, ch), b = tMax(x, ch), [m1, m2] = MAG[ch];
+    let msg, cls = 'ok', tt;
+    if (x <= 1.13){ msg = `I ≤ 1,13 · I<sub>n</sub>: <b>Keine Auslösung</b>. Dieser Strom darf dauerhaft fließen.`; tt = '∞'; }
+    else if (x < 1.45){ msg = `Leichte Überlast: Auslösung durch das <b>Bimetall</b> möglich, aber eventuell erst nach mehr als 1 Stunde.`; cls = 'warn'; tt = '> ' + fmtT(Math.min(a, 36000)); }
+    else if (x < m1){ msg = `<b>Überlast</b>: Der thermische Auslöser (Bimetall) schaltet nach ca. <b>${fmtT(a)} bis ${fmtT(b)}</b> ab.`; cls = 'warn'; tt = fmtT(a) + ' – ' + fmtT(b); }
+    else if (x < m2){ msg = `Übergangsbereich (${m1}–${m2} · I<sub>n</sub>): Der Magnetauslöser <b>kann</b> sofort auslösen. Spätestens schaltet das Bimetall nach ${fmtT(b)} ab. Bei Motoranlauf kann es zu Fehlauslösungen kommen.`; cls = 'warn'; tt = '< 0,1 s – ' + fmtT(b); }
+    else { msg = `<b>Kurzschluss</b>: Der elektromagnetische Auslöser schaltet <b>sofort</b> ab (&lt; 0,1 s).`; cls = 'danger'; tt = '< 0,1 s'; }
+    $('lsT').textContent = tt;
+    $('lsMsg').className = 'status ' + cls; $('lsMsg').innerHTML = msg;
+    lplot($('lsPlot'), ch, x);
+  }
+  segment('lsChar', upd);
+  $('lsPre').querySelectorAll('button').forEach(b => b.onclick = () => { $('lsI').value = iToSlider(+b.dataset.a); upd(); });
+  ['lsIn', 'lsI'].forEach(id => $(id).addEventListener('input', upd));
+  $('lsI').value = iToSlider(24);
+  redraws.push(upd); upd();
+})();
+
+/* ======================= DIMENSIONIERUNG ======================= */
+(() => {
+  function upd(){
+    const Ib = +$('dIb').value, Iz = +$('dA').value, In = +$('dIn').value, A = $('dA').selectedOptions[0].text;
+    $('dIbo').textContent = nf(Ib, 1) + ' A';
+    const c1 = Ib <= In, c2 = In <= Iz;
+    const y = '<span class="pill y">✔ erfüllt</span>', n = '<span class="pill n">✘ nicht erfüllt</span>';
+    $('dTab').innerHTML =
+      `<tr><th>Größe</th><th>Wert</th></tr>` +
+      `<tr><td>Betriebsstrom I<sub>b</sub></td><td>${nf(Ib, 1)} A</td></tr>` +
+      `<tr><td>LS-Nennstrom I<sub>n</sub></td><td>${In} A</td></tr>` +
+      `<tr><td>Belastbarkeit I<sub>z</sub> (${A})</td><td>${nf(Iz, 1)} A</td></tr>` +
+      `<tr><td>Bedingung 1: I<sub>b</sub> ≤ I<sub>n</sub></td><td>${c1 ? y : n}</td></tr>` +
+      `<tr><td>Bedingung 2: I<sub>n</sub> ≤ I<sub>z</sub></td><td>${c2 ? y : n}</td></tr>`;
+    const m = $('dMsg');
+    if (c1 && c2){ m.className = 'status ok'; m.innerHTML = '✔ Die Leitung ist richtig abgesichert. Der LS schützt die Leitung vor Überlast, und der Betriebsstrom löst ihn nicht aus.'; }
+    else if (!c1){ m.className = 'status warn'; m.innerHTML = '✘ Der LS ist zu klein. Der Betriebsstrom ist größer als I<sub>n</sub>, deshalb löst der LS im Normalbetrieb aus. Wähle einen größeren LS und prüfe dann den Querschnitt.'; }
+    else { m.className = 'status danger'; m.innerHTML = '✘ <b>Gefährlich:</b> Der LS ist größer als die Belastbarkeit der Leitung. Die Leitung kann überhitzen, bevor der LS auslöst. Brandgefahr! Größeren Querschnitt oder kleineren LS wählen.'; }
+  }
+  ['dIb', 'dA', 'dIn'].forEach(id => $(id).addEventListener('input', upd));
+  upd();
+})();
+</script>
+</body>
+</html>

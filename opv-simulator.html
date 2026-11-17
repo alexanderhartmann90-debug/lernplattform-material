@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OPV-Simulator</title>
+<style>
+:root{
+  --bg:#f5f7fa; --card:#ffffff; --ink:#1c2230; --muted:#5d6675; --line:#8a93a3;
+  --accent:#2a6fd0; --pos:#e0621b; --neg:#1f9d6b; --warn:#c23a3a; --grid:#e3e7ee; --tint:#eef3fb;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#12151b; --card:#1b2029; --ink:#e8ebf1; --muted:#9aa3b2; --line:#6c7686;
+    --accent:#5b9cf0; --pos:#ff8a4c; --neg:#3fcf95; --warn:#ff6b6b; --grid:#2a313d; --tint:#1f2836; }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:18px 24px 6px}
+h1{margin:0;font-size:22px}
+header p{margin:4px 0 0;color:var(--muted)}
+main{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;padding:12px 24px 24px}
+@media (max-width:900px){main{grid-template-columns:1fr;padding:12px 16px}}
+.card{background:var(--card);border-radius:12px;padding:14px 16px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.tabs button{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:6px 12px;font:inherit;cursor:pointer}
+.tabs button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+svg#c{width:100%;height:auto;display:block}
+.wire{fill:none;stroke:var(--line);stroke-width:2}
+.res{fill:var(--card);stroke:var(--ink);stroke-width:1.6}
+.opv{fill:var(--tint);stroke:var(--accent);stroke-width:2.2}
+.t{fill:var(--ink);font-size:14px}
+.tm{fill:var(--muted);font-size:12.5px}
+.tb{fill:var(--ink);font-size:14px;font-weight:600}
+.ti{font-size:13px;font-weight:600}
+.term{fill:var(--card);stroke:var(--ink);stroke-width:1.6}
+.ctl{margin:12px 0}
+.ctl label{display:flex;justify-content:space-between;font-size:14px}
+.ctl label b{font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.hide{display:none}
+table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+td{padding:4px 0;border-bottom:1px solid var(--grid)}
+td:last-child{text-align:right;font-weight:600}
+.status{margin-top:8px;padding:6px 10px;border-radius:8px;font-size:14px}
+.ok{background:color-mix(in srgb,var(--neg) 16%,transparent)}
+.bad{background:color-mix(in srgb,var(--warn) 18%,transparent)}
+.formula{margin-top:10px;font-size:14px;color:var(--muted)}
+.formula b{color:var(--ink)}
+canvas{width:100%;height:170px;display:block}
+.legend{display:flex;gap:16px;font-size:13px;color:var(--muted);margin-top:4px;flex-wrap:wrap}
+.legend span::before{content:"";display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:5px;background:var(--c)}
+.note{font-size:13px;color:var(--muted);margin-top:8px}
+.chk{display:flex;gap:8px;align-items:center;font-size:14px;margin-top:6px}
+h2{font-size:16px;margin:0 0 6px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Operationsverstärker-Simulator</h1>
+  <p>Spannungen und Widerstände einstellen – die Punkte zeigen den Stromfluss (technische Stromrichtung, von + nach −). Je schneller die Punkte, desto größer der Strom.</p>
+</header>
+<main>
+  <section>
+    <div class="card">
+      <div class="tabs" id="tabs">
+        <button data-m="inv" class="on">Invertierender Verstärker</button>
+        <button data-m="noninv">Nichtinvertierender Verstärker</button>
+        <button data-m="follow">Spannungsfolger</button>
+        <button data-m="comp">Komparator</button>
+      </div>
+      <svg id="c" viewBox="0 0 800 400" role="img" aria-label="Schaltplan mit Stromfluss"></svg>
+      <p class="note">Bewegte Punkte = Stromfluss in Bewegungsrichtung. Stehen die Punkte still bzw. fehlen sie, fließt (fast) kein Strom – z. B. in die OPV-Eingänge.</p>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h2>Oszilloskop</h2>
+      <canvas id="scope" width="900" height="200"></canvas>
+      <div class="legend">
+        <span style="--c:var(--accent)">Eingang U<sub>E</sub></span>
+        <span style="--c:var(--pos)">Ausgang U<sub>A</sub></span>
+        <span style="--c:var(--line)">Versorgung ±U<sub>B</sub></span>
+      </div>
+    </div>
+  </section>
+  <aside>
+    <div class="card">
+      <h2>Einstellungen</h2>
+      <div class="ctl"><label><span>Eingangsspannung U<sub>E</sub></span> <b id="vUE"></b></label><input id="UE" type="range" min="-10" max="10" step="0.1" value="0.5"></div>
+      <div class="chk"><input id="ac" type="checkbox"><label for="ac">Wechselspannung (Sinus, U<sub>E</sub> = Amplitude)</label></div>
+      <div class="ctl" id="fBox"><label><span>Frequenz f</span> <b id="vf"></b></label><input id="f" type="range" min="0.05" max="2" step="0.05" value="0.3"></div>
+      <div class="ctl" id="refBox"><label><span>Vergleichsspannung U<sub>ref</sub></span> <b id="vUref"></b></label><input id="Uref" type="range" min="-10" max="10" step="0.1" value="2"></div>
+      <div class="ctl" id="r1Box"><label><span>Widerstand R<sub>1</sub></span> <b id="vR1"></b></label><input id="R1" type="range" min="-1" max="2" step="0.01" value="0"></div>
+      <div class="ctl" id="r2Box"><label><span>Widerstand R<sub>2</sub></span> <b id="vR2"></b></label><input id="R2" type="range" min="-1" max="2" step="0.01" value="1"></div>
+      <div class="ctl"><label><span>Lastwiderstand R<sub>L</sub></span> <b id="vRL"></b></label><input id="RL" type="range" min="-1" max="2" step="0.01" value="1"></div>
+      <div class="ctl"><label><span>Versorgung ±U<sub>B</sub></span> <b id="vUB"></b></label><input id="UB" type="range" min="5" max="18" step="0.5" value="15"></div>
+      <p class="note">Der Ausgang erreicht höchstens U<sub>B</sub> − 1,5 V (Sättigung).</p>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h2>Messwerte</h2>
+      <table id="vals"></table>
+      <div id="status" class="status"></div>
+      <div id="formula" class="formula"></div>
+    </div>
+  </aside>
+</main>
+
+<script>
+(() => {
+const $ = id => document.getElementById(id);
+const svg = $('c'), NS = 'http://www.w3.org/2000/svg';
+let mode = 'inv';
+const de = (x, d=2) => x.toLocaleString('de-AT', {minimumFractionDigits:d, maximumFractionDigits:d});
+const fU = v => de(v, 2) + ' V';
+const fR = k => k >= 10 ? de(k, 1) + ' kΩ' : k >= 1 ? de(k, 2) + ' kΩ' : de(k*1000, 0) + ' Ω';
+const fI = mA => Math.abs(mA) < 1e-6 ? '0 mA' : Math.abs(mA) >= 1 ? de(mA, 2) + ' mA' : Math.abs(mA) >= 0.001 ? de(mA*1000, 1) + ' µA' : de(mA*1e6, 0) + ' nA';
+const kOhm = id => Math.pow(10, +$(id).value);
+
+function el(tag, attrs, parent = svg, text){
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (text !== undefined) e.textContent = text;
+  parent.appendChild(e); return e;
+}
+
+/* ---------- Schaltungen ---------- */
+// Pfade: Punktfolge in positiver Stromrichtung; key = welcher Strom fließt
+const common = {
+  out:  {pts:[[500,230],[600,230]], key:'Iop', lbl:'I_OPV', lp:[550,252]},
+  load: {pts:[[600,230],[690,230],[690,372]], key:'IL', lbl:'I_L', lp:[674,326], a:'end'},
+};
+const CIRC = {
+  inv: {
+    paths:[
+      {pts:[[86,200],[330,200]], key:'I1', lbl:'I₁', lp:[210,228]},
+      {pts:[[330,200],[330,110],[600,110],[600,230]], key:'I1', lbl:'I₂ = I₁', lp:[450,140]},
+      {pts:[[330,200],[380,200]], key:'zero'},
+      {pts:[[380,260],[330,260],[330,330]], key:'zero'},
+      common.out, common.load],
+    res:[{x:210,y:200,h:true,n:'R1'},{x:450,y:110,h:true,n:'R2'},{x:690,y:300,h:false,n:'RL'}],
+    gnd:[[330,330],[690,372]],
+    terms:[{x:80,y:200,t:'U_E'}],
+  },
+  noninv: {
+    paths:[
+      {pts:[[86,330],[300,330],[300,260],[380,260]], key:'zero', lbl:'I_E ≈ 0', lp:[190,350]},
+      {pts:[[600,230],[600,110],[330,110],[330,200]], key:'If', lbl:'I₂', lp:[450,140]},
+      {pts:[[330,200],[160,200],[160,250]], key:'If', lbl:'I₁ = I₂', lp:[245,228]},
+      {pts:[[330,200],[380,200]], key:'zero'},
+      common.out, common.load],
+    res:[{x:245,y:200,h:true,n:'R1'},{x:450,y:110,h:true,n:'R2'},{x:690,y:300,h:false,n:'RL'}],
+    gnd:[[160,250],[690,372]],
+    terms:[{x:80,y:330,t:'U_E'}],
+  },
+  follow: {
+    paths:[
+      {pts:[[86,260],[380,260]], key:'zero', lbl:'I_E ≈ 0', lp:[210,282]},
+      {pts:[[600,230],[600,110],[330,110],[330,200],[380,200]], key:'zero', lbl:'Rückführung (kein Strom)', lp:[465,98]},
+      common.out, common.load],
+    res:[{x:690,y:300,h:false,n:'RL'}],
+    gnd:[[690,372]],
+    terms:[{x:80,y:260,t:'U_E'}],
+  },
+  comp: {
+    paths:[
+      {pts:[[86,260],[380,260]], key:'zero', lbl:'I ≈ 0', lp:[210,282]},
+      {pts:[[86,200],[380,200]], key:'zero', lbl:'I ≈ 0', lp:[210,188]},
+      common.out, common.load],
+    res:[{x:690,y:300,h:false,n:'RL'}],
+    gnd:[[690,372]],
+    terms:[{x:80,y:260,t:'U_E'},{x:80,y:200,t:'U_ref'}],
+  },
+};
+
+let built = null; // {paths:[{data,len,segs,dots,label,phase}], resLabels, nodeTexts}
+
+function polyInfo(pts){
+  const segs = []; let len = 0;
+  for (let i=1;i<pts.length;i++){
+    const [x1,y1]=pts[i-1],[x2,y2]=pts[i], l=Math.hypot(x2-x1,y2-y1);
+    segs.push({x1,y1,x2,y2,l,s:len}); len+=l;
+  }
+  return {segs,len};
+}
+function pointAt(info, s){
+  for (const g of info.segs){
+    if (s <= g.s + g.l){ const t=(s-g.s)/g.l; return [g.x1+(g.x2-g.x1)*t, g.y1+(g.y2-g.y1)*t]; }
+  }
+  const g=info.segs[info.segs.length-1]; return [g.x2,g.y2];
+}
+
+function build(){
+  svg.innerHTML = '';
+  const C = CIRC[mode];
+  const defs = el('defs',{});
+  const wires = el('g',{});
+  const dotLayer = el('g',{});
+  const top = el('g',{});
+  built = {paths:[], res:{}, nodes:{}};
+  for (const p of C.paths){
+    el('polyline',{points:p.pts.map(q=>q.join(',')).join(' '), class:'wire'}, wires);
+    const info = polyInfo(p.pts);
+    const n = Math.ceil(info.len/26)+1;
+    const g = el('g',{}, dotLayer);
+    const dots = [];
+    for (let i=0;i<n;i++) dots.push(el('circle',{r:3.6, cx:-20, cy:-20}, g));
+    let label = null;
+    if (p.lbl) label = el('text',{x:p.lp[0], y:p.lp[1], 'text-anchor':p.a||'middle', class:'ti'}, top);
+    built.paths.push({p, info, dots, label, phase:0});
+  }
+  // Knotenpunkte
+  const nodePts = mode==='inv' ? [[330,200],[600,230]] : mode==='noninv' ? [[330,200],[600,230]] : mode==='follow' ? [[600,230]] : [];
+  if (mode!=='comp') nodePts.forEach(([x,y])=>el('circle',{cx:x,cy:y,r:4,fill:'var(--line)'}, top));
+  if (mode==='comp') el('circle',{cx:600,cy:230,r:4,fill:'var(--line)'}, top);
+  // Widerstände
+  for (const r of C.res){
+    const w = r.h?80:22, h = r.h?22:70;
+    el('rect',{x:r.x-w/2, y:r.y-h/2, width:w, height:h, rx:3, class:'res'}, top);
+    const t = r.h ? el('text',{x:r.x, y:r.y-18, 'text-anchor':'middle', class:'tb'}, top)
+                  : el('text',{x:r.x-18, y:r.y+2, 'text-anchor':'end', class:'tb'}, top);
+    built.res[r.n] = t;
+  }
+  // Masse
+  for (const [x,y] of C.gnd){
+    el('path',{d:`M${x-15} ${y}H${x+15}M${x-9} ${y+6}H${x+9}M${x-4} ${y+12}H${x+4}`, class:'wire'}, top);
+  }
+  // OPV
+  el('polygon',{points:'380,170 380,290 500,230', class:'opv'}, top);
+  el('text',{x:388,y:207,class:'t','font-size':22}, top, '−');
+  el('text',{x:388,y:268,class:'t','font-size':20}, top, '+');
+  el('text',{x:425,y:235,class:'tm'}, top, 'OPV');
+  el('path',{d:'M440 200V160M440 260V300', class:'wire'}, top);
+  built.nodes.UBp = el('text',{x:448,y:168,class:'tm'}, top);
+  built.nodes.UBm = el('text',{x:448,y:300,class:'tm'}, top);
+  // Klemmen
+  for (const tm of C.terms){
+    el('circle',{cx:tm.x, cy:tm.y, r:6, class:'term'}, top);
+    built.nodes[tm.t] = el('text',{x:tm.x, y:tm.y-14, 'text-anchor':'middle', class:'tb'}, top);
+  }
+  el('circle',{cx:690, cy:230, r:0}, top);
+  built.nodes.UA = el('text',{x:690, y:216, 'text-anchor':'middle', class:'tb'}, top);
+  // Sichtbarkeit der Regler
+  $('refBox').classList.toggle('hide', mode!=='comp');
+  $('r1Box').classList.toggle('hide', !(mode==='inv'||mode==='noninv'));
+  $('r2Box').classList.toggle('hide', !(mode==='inv'||mode==='noninv'));
+}
+
+/* ---------- Berechnung (Ströme in mA, R in kΩ) ---------- */
+function compute(UE){
+  const R1=kOhm('R1'), R2=kOhm('R2'), RL=kOhm('RL'), UB=+$('UB').value, Um=UB-1.5, Uref=+$('Uref').value;
+  const clamp = v => Math.max(-Um, Math.min(Um, v));
+  let r = {UE, R1, R2, RL, UB, Umax:Um, Uref, sat:false, I1:0, If:0};
+  if (mode==='inv'){
+    let UA = -R2/R1*UE, I1 = UE/R1, Uminus = 0;
+    if (Math.abs(UA) > Um){ r.sat=true; UA=clamp(UA); I1=(UE-UA)/(R1+R2); Uminus = UE - I1*R1; }
+    Object.assign(r,{UA, I1, Uminus, Uplus:0});
+    r.IL = UA/RL; r.Iop = r.IL - I1;
+  } else if (mode==='noninv'){
+    let UA = UE*(1+R2/R1);
+    if (Math.abs(UA) > Um){ r.sat=true; UA=clamp(UA); }
+    r.UA=UA; r.If = UA/(R1+R2); r.Uminus = r.If*R1; r.Uplus=UE;
+    r.IL = UA/RL; r.Iop = r.IL + r.If;
+  } else if (mode==='follow'){
+    let UA = UE; if (Math.abs(UA) > Um){ r.sat=true; UA=clamp(UA); }
+    r.UA=UA; r.Uminus=UA; r.Uplus=UE; r.IL=UA/RL; r.Iop=r.IL;
+  } else {
+    const d = UE - Uref;
+    r.UA = d > 0 ? Um : d < 0 ? -Um : 0; r.sat = true;
+    r.Uplus=UE; r.Uminus=Uref; r.IL=r.UA/RL; r.Iop=r.IL;
+  }
+  r.zero = 0;
+  return r;
+}
+
+/* ---------- Anzeige ---------- */
+function updateTexts(r){
+  $('vUE').textContent = fU(+$('UE').value) + ($('ac').checked ? ' (Ampl.)' : '');
+  $('vf').textContent = de(+$('f').value, 2) + ' Hz';
+  $('vUref').textContent = fU(r.Uref);
+  $('vR1').textContent = fR(r.R1); $('vR2').textContent = fR(r.R2); $('vRL').textContent = fR(r.RL);
+  $('vUB').textContent = '±' + de(r.UB,1) + ' V';
+  $('fBox').classList.toggle('hide', !$('ac').checked);
+
+  if (built.res.R1) built.res.R1.textContent = 'R₁ = ' + fR(r.R1);
+  if (built.res.R2) built.res.R2.textContent = 'R₂ = ' + fR(r.R2);
+  if (built.res.RL) built.res.RL.textContent = 'R_L = ' + fR(r.RL);
+  const N = built.nodes;
+  if (N.U_E) N.U_E.textContent = 'U_E = ' + fU(r.UE);
+  if (N.U_ref) N.U_ref.textContent = 'U_ref = ' + fU(r.Uref);
+  N.UA.textContent = 'U_A = ' + fU(r.UA);
+  N.UBp.textContent = '+U_B = ' + de(r.UB,1) + ' V';
+  N.UBm.textContent = '−U_B = −' + de(r.UB,1) + ' V';
+  for (const bp of built.paths){
+    if (!bp.label) continue;
+    const I = r[bp.p.key];
+    bp.label.textContent = bp.p.key==='zero' ? bp.p.lbl : bp.p.lbl + ' = ' + fI(Math.abs(I));
+    bp.label.setAttribute('fill', bp.p.key==='zero' ? 'var(--muted)' : 'var(--pos)');
+  }
+
+  const rows = [['Ausgangsspannung U_A', fU(r.UA)], ['Spannung am Minus-Eingang U₋', fU(r.Uminus)], ['Spannung am Plus-Eingang U₊', fU(r.Uplus)]];
+  if (mode==='inv'||mode==='noninv') rows.push(['Verstärkung U_A / U_E', Math.abs(r.UE)<1e-9 ? '–' : de(r.UA/r.UE,2)]);
+  if (mode==='inv') rows.push(['Strom durch R₁ und R₂', fI(r.I1)]);
+  if (mode==='noninv') rows.push(['Strom durch R₂ und R₁', fI(r.If)]);
+  rows.push(['Laststrom I_L', fI(r.IL)], ['Strom aus dem OPV-Ausgang', fI(r.Iop)], ['Leistung in R_L', de(r.UA*r.IL,2) + ' mW']);
+  $('vals').innerHTML = rows.map(([a,b])=>`<tr><td>${a}</td><td>${b}</td></tr>`).join('');
+
+  const st = $('status');
+  if (mode==='comp'){ st.className='status ok'; st.textContent = r.UE>r.Uref ? 'U₊ > U₋ → Ausgang springt nach oben (+U_max).' : r.UE<r.Uref ? 'U₊ < U₋ → Ausgang springt nach unten (−U_max).' : 'U₊ = U₋ → Grenzfall.'; }
+  else if (r.sat){ st.className='status bad'; st.textContent = 'Sättigung! Der OPV kann nicht mehr als ±' + de(r.Umax,1) + ' V ausgeben – das Signal wird abgeschnitten.'; }
+  else { st.className='status ok'; st.textContent = 'Linearer Betrieb: U₊ ≈ U₋ (virtueller Kurzschluss).'; }
+
+  const F = $('formula');
+  if (mode==='inv') F.innerHTML = `<b>V = −R₂ / R₁</b> = −${de(r.R2,2)} / ${de(r.R1,2)} = ${de(-r.R2/r.R1,2)}<br>Ideal: U_A = ${de(-r.R2/r.R1,2)} × ${fU(r.UE)} = ${fU(-r.R2/r.R1*r.UE)}`;
+  if (mode==='noninv') F.innerHTML = `<b>V = 1 + R₂ / R₁</b> = 1 + ${de(r.R2,2)} / ${de(r.R1,2)} = ${de(1+r.R2/r.R1,2)}<br>Ideal: U_A = ${de(1+r.R2/r.R1,2)} × ${fU(r.UE)} = ${fU((1+r.R2/r.R1)*r.UE)}`;
+  if (mode==='follow') F.innerHTML = `<b>V = 1</b> – der Ausgang folgt dem Eingang. Die Quelle liefert fast keinen Strom, der Laststrom kommt aus dem OPV.`;
+  if (mode==='comp') F.innerHTML = `<b>Keine Gegenkopplung</b> – der OPV vergleicht U_E mit U_ref und kennt nur ±U_max = ±${de(r.Umax,1)} V.`;
+}
+
+/* ---------- Oszilloskop ---------- */
+const cv = $('scope'), cx = cv.getContext('2d');
+const hist = []; const WIN = 6; // Sekunden
+function css(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+function drawScope(t, UB){
+  const dpr = window.devicePixelRatio||1, W = cv.clientWidth, H = cv.clientHeight;
+  if (cv.width !== W*dpr){ cv.width = W*dpr; cv.height = H*dpr; }
+  cx.setTransform(dpr,0,0,dpr,0,0); cx.clearRect(0,0,W,H);
+  const vmax = 18, y = v => H/2 - v/vmax*(H/2-8), x = tt => W - (t-tt)/WIN*W;
+  cx.strokeStyle = css('--grid'); cx.lineWidth = 1;
+  for (let v=-15; v<=15; v+=5){ cx.beginPath(); cx.moveTo(0,y(v)); cx.lineTo(W,y(v)); cx.stroke(); }
+  cx.fillStyle = css('--muted'); cx.font = '11px system-ui';
+  for (let v=-15; v<=15; v+=5) cx.fillText(v+' V', 4, y(v)-2);
+  cx.setLineDash([5,4]); cx.strokeStyle = css('--line');
+  [UB,-UB].forEach(v=>{ cx.beginPath(); cx.moveTo(0,y(v)); cx.lineTo(W,y(v)); cx.stroke(); });
+  cx.setLineDash([]);
+  const line = (k, col) => { cx.strokeStyle = col; cx.lineWidth = 2.2; cx.beginPath();
+    hist.forEach((h,i)=>{ const X=x(h.t), Y=y(h[k]); i?cx.lineTo(X,Y):cx.moveTo(X,Y); }); cx.stroke(); };
+  line('UE', css('--accent')); line('UA', css('--pos'));
+}
+
+/* ---------- Animation ---------- */
+let last = performance.now(), t0 = last;
+function frame(now){
+  const dt = Math.min(0.05, (now-last)/1000); last = now;
+  const t = (now - t0)/1000;
+  const amp = +$('UE').value;
+  const UE = $('ac').checked ? amp*Math.sin(2*Math.PI*(+$('f').value)*t) : amp;
+  const r = compute(UE);
+  updateTexts(r);
+  const pos = css('--pos'), neg = css('--neg');
+  for (const bp of built.paths){
+    const I = r[bp.p.key] || 0, a = Math.abs(I);
+    if (a < 1e-6){ bp.dots.forEach(d=>d.setAttribute('cx',-20)); continue; }
+    const speed = 30*Math.log10(1 + a*1000);   // px/s, logarithmisch: 1 µA langsam, mA schnell
+    bp.phase = (bp.phase + Math.sign(I)*speed*dt) % 26; if (bp.phase<0) bp.phase += 26;
+    const col = pos, op = Math.min(1, 0.35 + 0.22*Math.log10(1 + a*1000));
+    bp.dots.forEach((d,i)=>{
+      const s = bp.phase + i*26;
+      if (s > bp.info.len){ d.setAttribute('cx',-20); return; }
+      const [px,py] = pointAt(bp.info, s);
+      d.setAttribute('cx',px); d.setAttribute('cy',py); d.setAttribute('fill',col); d.setAttribute('opacity',op);
+    });
+  }
+  hist.push({t, UE, UA:r.UA}); while (hist.length && hist[0].t < t-WIN) hist.shift();
+  drawScope(t, r.UB);
+  requestAnimationFrame(frame);
+}
+
+$('tabs').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  [...$('tabs').children].forEach(x=>x.classList.toggle('on', x===b));
+  mode = b.dataset.m; build();
+});
+const h=location.hash.slice(1); if (CIRC[h]){ mode=h; [...$('tabs').children].forEach(x=>x.classList.toggle('on', x.dataset.m===h)); }
+build();
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

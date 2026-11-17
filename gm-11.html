@@ -1,0 +1,1030 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GM 11 Überspannung und Unterspannung – Ursachen, Schutzverfahren, Geräte – Grundmodul</title>
+<style>:root{
+  --bg:#f3f5f7;--card:#ffffff;--ink:#17202b;--muted:#5a6573;--line:#d6dce3;--soft:#eef3f6;
+  --accent:#0a6a85;--accent-ink:#ffffff;--accent-soft:#e1f0f4;--warm:#d9731c;--warm-soft:#fbeee2;
+  --ok:#1b8049;--ok-soft:#e3f3ea;--bad:#b93226;--bad-soft:#f8e4e1;
+  --press:#1d64c8;--press-soft:#dbe7f8;--exh:#8d97a3;--crit:#c8362a;
+  --L:#8B4513;--N:#1d64c8;--PE:#1b8049;--live:#d9361c;
+  --mono:ui-monospace,"Cascadia Mono",Consolas,"Liberation Mono",monospace;
+  --sans:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+@media screen and (prefers-color-scheme:dark){
+  :root{--bg:#11161c;--card:#19212a;--ink:#e4e9ee;--muted:#9aa6b3;--line:#2f3a46;--soft:#202a35;
+  --accent:#4cb3cf;--accent-ink:#06222b;--accent-soft:#163846;--warm:#f0a35c;--warm-soft:#3a2a1a;
+  --ok:#57c487;--ok-soft:#173726;--bad:#ef7b6e;--bad-soft:#3d1f1b;--press:#6aa5ff;--press-soft:#1b2c48;--exh:#7d8794;--crit:#ff7a6b;
+  --L:#d08a52;--N:#6aa5ff;--PE:#57c487;--live:#ff7a5c}
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--sans)}
+a{color:var(--accent)}
+h1,h2,h3,h4{line-height:1.25;margin:1.2em 0 .5em}
+h1{font-size:1.7rem;margin:0}
+h2{font-size:1.3rem;border-bottom:2px solid var(--accent);padding-bottom:.25em}
+h3{font-size:1.08rem}
+p{margin:.5em 0}
+ul,ol{padding-left:1.3em;margin:.4em 0}
+li{margin:.15em 0}
+code,.mono{font-family:var(--mono);font-size:.92em}
+svg{max-width:100%;height:auto}
+.wrap{max-width:1000px;margin:0 auto;padding:0 16px}
+
+/* Kopf */
+.topbar{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.topbar .wrap{display:flex;align-items:center;gap:12px;min-height:52px;flex-wrap:wrap}
+.brand{font-weight:700;letter-spacing:.02em;color:var(--accent);text-decoration:none}
+.brand small{color:var(--muted);font-weight:500;margin-left:6px}
+.topbar .sp{flex:1}
+.hero{padding:22px 0 8px}
+.kicker{font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.lead{color:var(--muted);max-width:70ch}
+
+/* Tabs */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 18px;position:sticky;top:52px;z-index:10;background:var(--bg);padding:8px 0}
+.tabs button{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 14px;border-radius:999px;font:inherit;font-size:.95rem;cursor:pointer}
+.tabs button[aria-selected=true]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.tabs button.prbtn{border-color:var(--warm);color:var(--warm);font-weight:600}
+.panel{display:none}
+.panel.on{display:block}
+.paper{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px 24px;margin-bottom:24px}
+.paper>h2:first-child,.paper>.ph+h2{margin-top:.2em}
+
+/* Bausteine */
+.goals{background:var(--accent-soft);border-radius:8px;padding:10px 16px;margin:10px 0}
+.goals b{display:block;margin-bottom:2px}
+.box{border-left:4px solid var(--accent);background:var(--soft);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
+.merk{border-left:4px solid var(--ok);background:var(--ok-soft);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
+.merk::before{content:"Merke: ";font-weight:700}
+.warn{border-left:4px solid var(--warm);background:var(--warm-soft);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
+.deep{border:1px dashed var(--accent);border-radius:8px;padding:4px 16px 10px;margin:18px 0}
+.deep>h3:first-child,.deep>h2:first-child{margin-top:.6em}
+.book{border:1px solid var(--line);background:var(--soft);border-radius:8px;padding:8px 14px;margin:10px 0;font-size:.9rem}
+.book::before{content:"📗 Fachkunde Elektrotechnik: ";font-weight:700;color:var(--accent)}
+.newbadge{display:inline-block;font-size:.68rem;font-weight:700;padding:1px 7px;border-radius:999px;background:var(--accent);color:var(--accent-ink);vertical-align:middle;margin-left:6px;letter-spacing:.04em}
+.badge{display:inline-block;font-size:.72rem;font-weight:700;padding:1px 8px;border-radius:999px;vertical-align:middle;margin-left:6px;letter-spacing:.03em}
+.b1{background:var(--ok-soft);color:var(--ok)}
+.b2{background:var(--warm-soft);color:var(--warm)}
+.formula{font-family:var(--mono);background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:8px 12px;margin:8px 0;display:inline-block;min-width:min(100%,280px)}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px 16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:720px){.grid2{grid-template-columns:1fr}}
+.fig{margin:12px 0;text-align:center}
+.fig figcaption{font-size:.85rem;color:var(--muted);margin-top:4px}
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table.t{border-collapse:collapse;width:100%;margin:10px 0;font-size:.93rem}
+table.t th,table.t td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+table.t th{background:var(--soft);font-weight:600}
+table.t td.num,table.t th.num{text-align:right;font-variant-numeric:tabular-nums}
+table.t tr.sum td{font-weight:700;background:var(--accent-soft)}
+.steps{counter-reset:s;list-style:none;padding:0}
+.steps>li{counter-increment:s;position:relative;padding-left:34px;margin:6px 0}
+.steps>li::before{content:counter(s);position:absolute;left:0;top:1px;width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+
+/* Simulatoren */
+.sim{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px 18px;margin-bottom:22px;scroll-margin-top:110px}
+.sim>h3{margin-top:0;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.sim>h3 .no{background:var(--accent);color:var(--accent-ink);border-radius:6px;padding:0 8px;font-size:.85rem}
+.sim .how{color:var(--muted);font-size:.92rem;margin:0 0 10px}
+.ctrls{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:flex-end;margin:8px 0 12px}
+.ctrl{display:flex;flex-direction:column;gap:3px;min-width:140px;font-size:.88rem}
+.ctrl label{color:var(--muted)}
+.ctrl output{font-weight:700;color:var(--ink)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number],input[type=text],select{font:inherit;font-size:.95rem;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);min-width:0}
+.btn{font:inherit;font-size:.92rem;border:1px solid var(--accent);background:var(--card);color:var(--accent);padding:7px 14px;border-radius:8px;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.btn:hover{background:var(--accent-soft)}
+.btn.pri,.btn.on{background:var(--accent);color:var(--accent-ink)}
+.btn.sm{padding:4px 10px;font-size:.85rem}
+.btn:disabled{opacity:.45;cursor:default}
+.seg{display:inline-flex;border:1px solid var(--accent);border-radius:8px;overflow:hidden;flex-wrap:wrap}
+.seg button{border:0;background:var(--card);color:var(--accent);font:inherit;font-size:.9rem;padding:7px 12px;cursor:pointer;border-right:1px solid var(--accent)}
+.seg button:last-child{border-right:0}
+.seg button.on{background:var(--accent);color:var(--accent-ink)}
+.stage{background:var(--soft);border-radius:10px;padding:8px;margin:8px 0}
+.stage svg{display:block;margin:0 auto}
+.out{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:10px 0}
+.out div{background:var(--soft);border-radius:8px;padding:8px 10px}
+.out small{display:block;color:var(--muted);font-size:.78rem}
+.out b{font-size:1.1rem;font-variant-numeric:tabular-nums}
+.calc{font-family:var(--mono);font-size:.86rem;background:var(--soft);border-radius:8px;padding:10px 12px;white-space:pre-wrap;line-height:1.6;margin:8px 0;overflow-x:auto}
+.status{background:var(--accent-soft);border-radius:8px;padding:8px 12px;font-size:.92rem;margin:8px 0}
+.fb{padding:8px 12px;border-radius:8px;margin:8px 0;font-size:.93rem}
+.fb.ok{background:var(--ok-soft);color:var(--ok)}
+.fb.bad{background:var(--bad-soft);color:var(--bad)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 10px;font:inherit;font-size:.88rem;cursor:pointer;text-align:left}
+.chip.sel{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 2px var(--accent) inset}
+.chip.ok{border-color:var(--ok);background:var(--ok-soft)}
+.chip.bad{border-color:var(--bad);background:var(--bad-soft)}
+.olist{list-style:none;padding:0;margin:8px 0}
+.olist li{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 8px;margin:5px 0}
+.olist li .n{width:26px;height:26px;border-radius:50%;background:var(--soft);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex:none}
+.olist li .tx{flex:1}
+.olist li.ok{border-color:var(--ok);background:var(--ok-soft)}
+.olist li.bad{border-color:var(--bad);background:var(--bad-soft)}
+.olist li .mv{display:flex;gap:4px}
+.olist li .mv button{width:34px;height:30px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:6px;cursor:pointer;font-size:1rem}
+.svgtxt{font-family:var(--sans)}
+.sv{color:var(--ink)}
+.hl{outline:2px solid var(--warm);outline-offset:1px}
+.clk{cursor:pointer}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.8rem;color:var(--muted);margin:4px 0}
+.legend i{display:inline-block;width:18px;height:4px;border-radius:2px;vertical-align:middle;margin-right:5px}
+
+/* Arbeitsblatt */
+.ab-head{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:10px;margin:4px 0 16px}
+.ab-head div{border-bottom:1px solid var(--ink);padding:16px 0 2px;font-size:.78rem;color:var(--muted)}
+@media (max-width:640px){.ab-head{grid-template-columns:1fr 1fr}}
+.task{margin:16px 0 10px;break-inside:avoid;page-break-inside:avoid}
+.task>h3{margin:0 0 6px;display:flex;gap:8px;align-items:baseline}
+.task>h3 .pts{margin-left:auto;font-size:.8rem;color:var(--muted);font-weight:500;white-space:nowrap}
+.lines{margin:6px 0}
+.lines .l{border-bottom:1px solid #9aa4ae;height:30px}
+.fill{display:inline-block;min-width:90px;border-bottom:1px solid #9aa4ae;height:1.2em;vertical-align:bottom}
+.fill.w2{min-width:180px}
+table.t td.blank{height:30px}
+.sketch{border:1px solid var(--line);border-radius:6px;margin:8px 0}
+.ab-intro{font-size:.9rem;color:var(--muted)}
+.sol{color:var(--ok)}
+.lo .task>h3{color:var(--ink)}
+.lo .ans{border-left:3px solid var(--ok);padding:4px 12px;margin:4px 0 8px;background:var(--ok-soft);border-radius:0 6px 6px 0}
+
+/* Gesamtseite */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin:14px 0 26px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:8px}
+.card h3{margin:0;font-size:1.05rem}
+.card .nr{font-size:.75rem;font-weight:700;color:var(--accent);letter-spacing:.06em}
+.card p{color:var(--muted);font-size:.9rem;margin:0}
+.card .acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}
+.card .sims{display:flex;flex-direction:column;gap:4px}
+.card .sims button{text-align:left;font:inherit;font-size:.88rem;border:0;background:var(--soft);color:var(--ink);border-radius:6px;padding:6px 10px;cursor:pointer}
+.card .sims button:hover{background:var(--accent-soft)}
+.card .sims button::before{content:"▶ ";color:var(--accent)}
+.prmatrix{width:100%;border-collapse:collapse;font-size:.93rem}
+.prmatrix th,.prmatrix td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left}
+.prmatrix td.c,.prmatrix th.c{text-align:center}
+.prmatrix input{width:20px;height:20px;accent-color:var(--accent)}
+.printbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:10px 0}
+.printbar label{display:flex;align-items:center;gap:6px;font-size:.93rem}
+.printbar input{width:18px;height:18px;accent-color:var(--accent)}
+.view{display:none}.view.on{display:block}
+.backlink{font-size:.9rem}
+.print-head,.cover{display:none}
+.foot{color:var(--muted);font-size:.8rem;padding:20px 0 40px}
+
+/* Präsentationsmodus */
+.pres{position:fixed;inset:0;z-index:100;background:var(--bg);display:none;flex-direction:column}
+.pres.on{display:flex}
+body.pres-open{overflow:hidden}
+.pres-bar{display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--card);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.pres-bar .t{font-weight:700;color:var(--accent);flex:1;min-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.92rem}
+.pres-bar .n{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.9rem;min-width:64px;text-align:center}
+.pres-bar button{font:inherit;font-size:.9rem;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 11px;cursor:pointer}
+.pres-bar button.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.pres-bar select{max-width:220px}
+.pres-prog{height:4px;background:var(--line)}
+.pres-prog i{display:block;height:100%;background:var(--warm);width:0;transition:width .25s}
+.pres-stage{flex:1;overflow:hidden;position:relative;display:flex;align-items:stretch;justify-content:center;padding:18px 3vw}
+.pres-slide{width:min(1200px,100%);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:3vh 4vw;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.pres-slide.scroll{overflow:auto}
+.pres-inner{transform-origin:top left;font-size:clamp(17px,1.55vw + .5vh,27px);line-height:1.45}
+.pres-inner h2.ps-title{font-size:1.6em;margin:0 0 .5em;border-bottom:3px solid var(--accent);padding-bottom:.2em}
+.pres-inner h3{font-size:1.15em}
+.pres-inner table.t{font-size:.86em}
+.pres-inner .formula{font-size:.92em}
+.pres-inner .fig svg,.pres-inner .sv svg{max-height:48vh;width:auto}
+.pres-inner .badge{font-size:.55em}
+.pres-inner .ps-kicker{font-size:.7em;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.pres-inner .ps-cover{display:flex;flex-direction:column;justify-content:center;min-height:60vh}
+.pres-inner .ps-cover h1{font-size:2.3em;margin:.2em 0}
+.pres-inner .ps-cover .lead{font-size:1em;max-width:none}
+.pres-inner .ps-simlist{display:flex;flex-direction:column;gap:.4em;margin-top:.6em}
+.pres-inner .ps-simlist button{font:inherit;text-align:left;border:1px solid var(--line);background:var(--soft);color:var(--ink);border-radius:10px;padding:.45em .8em;cursor:pointer}
+.pres-inner .ps-simlist button::before{content:"▶ ";color:var(--accent)}
+.pres-inner .sim{border:0;padding:0;margin:0;font-size:.8em}
+.pres-inner .ps-step{opacity:.18;transition:opacity .25s}
+.pres-inner .ps-step.shown{opacity:1}
+.pres-help{position:absolute;right:16px;bottom:10px;font-size:.75rem;color:var(--muted)}
+.pres.black .pres-stage{background:#000}.pres.black .pres-slide{visibility:hidden}
+.pres.pointer .pres-slide{cursor:none}
+.pres-dot{position:fixed;width:22px;height:22px;border-radius:50%;background:rgba(230,40,30,.55);box-shadow:0 0 14px 4px rgba(230,40,30,.45);pointer-events:none;z-index:120;display:none;transform:translate(-50%,-50%)}
+.pres.pointer~.pres-dot{display:block}
+.pres-ov{position:absolute;inset:0;overflow:auto;background:var(--bg);padding:16px;display:none;z-index:5}
+.pres-ov.on{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;align-content:start}
+.pres-ov button{font:inherit;font-size:.85rem;text-align:left;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:10px;cursor:pointer;min-height:64px}
+.pres-ov button.cur{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+.pres-ov button small{display:block;color:var(--muted)}
+@media (max-width:640px){.pres-stage{padding:8px}.pres-slide{padding:14px;border-radius:10px}.pres-help{display:none}.pres-inner{font-size:16px}}
+
+/* Druck */
+@page{size:A4;margin:14mm 14mm 16mm}
+@media print{
+  :root{--bg:#fff;--card:#fff;--ink:#000;--muted:#444;--line:#999;--soft:#f1f1f1;--accent:#0a6a85;--accent-soft:#e6f1f4}
+  body{background:#fff;font-size:10.5pt;line-height:1.45}
+  .noprint,.topbar,.tabs,.printbar,.sim,.panel.sim,.view.home .cards,.hero .lead,.backlink,.pres,.pres-dot{display:none!important}
+  .view{display:block!important}
+  .topic{display:none!important}
+  .topic.pr-topic{display:block!important}
+  .hero{display:none!important}
+  .panel{display:none!important}
+  .panel.pr-show{display:block!important;break-before:page;page-break-before:always}
+  .panel.pr-show.pr-first{break-before:auto;page-break-before:auto}
+  .paper{border:0;padding:0;margin:0;border-radius:0}
+  .print-head{display:flex;justify-content:space-between;border-bottom:1.5px solid #000;font-size:8.5pt;padding-bottom:3px;margin-bottom:10px}
+  .wrap{max-width:none;padding:0}
+  h2{break-after:avoid}
+  h3{break-after:avoid}
+  table,figure,.box,.merk,.warn,.formula,.fig{break-inside:avoid}
+  .tscroll{overflow:visible}
+  .home-inner{display:none!important}
+  .cover.pr-on{display:block!important}
+  .lines .l{border-bottom:.6pt solid #777;height:8.5mm}
+  .ab-head div{border-bottom:.8pt solid #000}
+  a{color:#000;text-decoration:none}
+  .fb,.status{display:none}
+}
+.cover{padding-top:60mm;text-align:center}
+.cover h1{font-size:28pt;margin-bottom:6mm}
+.cover .toc{text-align:left;max-width:140mm;margin:20mm auto 0;font-size:11pt}
+.cover .toc li{margin:2mm 0}
+[data-hold]{touch-action:none;-webkit-touch-callout:none}
+@media screen and (max-width:640px){
+  .topbar{position:static}
+  .brand small{display:none}
+  .tabs{top:0}
+  .tabs button{padding:7px 11px;font-size:.88rem}
+  .sim{scroll-margin-top:60px;padding:14px 12px}
+  .paper{padding:16px 14px}
+}
+</style>
+<script>/* ===== Gemeinsame Hilfsfunktionen ===== */
+var TOPIC_INIT = {};
+function fmt(x, d) {
+  if (d === undefined) d = 2;
+  if (!isFinite(x)) return "–";
+  return Number(x).toLocaleString("de-AT", { minimumFractionDigits: d, maximumFractionDigits: d });
+}
+function fmtAuto(x) { // bis 3 signifikante Nachkommastellen, ohne unnötige Nullen
+  if (!isFinite(x)) return "–";
+  var a = Math.abs(x), d = a >= 1000 ? 0 : a >= 100 ? 1 : a >= 10 ? 2 : 3;
+  return Number(x).toLocaleString("de-AT", { minimumFractionDigits: 0, maximumFractionDigits: d });
+}
+function eur(x) { return fmt(x, 2) + " €"; }
+function refFn(root) { return function (n) { return root.querySelector('[data-ref="' + n + '"]'); }; }
+function refsFn(root) { return function (n) { return Array.prototype.slice.call(root.querySelectorAll('[data-ref="' + n + '"]')); }; }
+function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function rnd(a, b, step) { step = step || 1; var n = Math.floor((b - a) / step); return a + step * Math.floor(Math.random() * (n + 1)); }
+function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+function parseNum(s) { if (typeof s === "number") return s; s = String(s).trim().replace(/\s/g, "").replace(/\.(?=\d{3}(\D|$))/g, "").replace(",", "."); return parseFloat(s); }
+function segInit(seg, cb) {
+  seg.addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    Array.prototype.forEach.call(seg.querySelectorAll("button"), function (x) { x.classList.toggle("on", x === b); });
+    cb(b.dataset.v, b);
+  });
+}
+function bindRange(input, out, f) {
+  function upd() { out.textContent = f ? f(+input.value) : input.value; }
+  input.addEventListener("input", upd); upd();
+}
+function simVisible(el) { return !!(el && el.closest(".panel.on")); }
+
+/* ===== Tabs ===== */
+function showTab(topic, name) {
+  Array.prototype.forEach.call(topic.querySelectorAll(".tabs button[data-tab]"), function (b) { b.setAttribute("aria-selected", b.dataset.tab === name ? "true" : "false"); });
+  Array.prototype.forEach.call(topic.querySelectorAll(":scope > .panel"), function (p) { p.classList.toggle("on", p.dataset.panel === name); });
+}
+function initTabs(topic) {
+  topic.querySelector(".tabs").addEventListener("click", function (e) {
+    if (e.target.closest("[data-pres]")) { PRES.start([topic]); return; }
+    var b = e.target.closest("button[data-tab]"); if (!b) return;
+    showTab(topic, b.dataset.tab);
+    if (history.replaceState) history.replaceState(null, "", "#" + topic.dataset.topic + "/" + b.dataset.tab);
+  });
+  showTab(topic, "lu");
+}
+function openSim(topicId, idx) {
+  var topic = document.querySelector('.topic[data-topic="' + topicId + '"]'); if (!topic) return;
+  if (window.showView) window.showView(topicId);
+  showTab(topic, "sim");
+  var s = topic.querySelectorAll(".panel.sim .sim")[idx || 0];
+  setTimeout(function () { (s || topic).scrollIntoView({ behavior: "smooth", block: "start" }); }, 30);
+}
+
+/* ===== Druck ===== */
+function applyPrint() {
+  Array.prototype.forEach.call(document.querySelectorAll(".pr-topic"), function (x) { x.classList.remove("pr-topic"); });
+  Array.prototype.forEach.call(document.querySelectorAll(".pr-show,.pr-first"), function (x) { x.classList.remove("pr-show", "pr-first"); });
+  var cover = document.querySelector(".cover"); var coverOn = false;
+  var cbs = document.querySelectorAll("input[data-pr-kind]:checked");
+  var any = false;
+  Array.prototype.forEach.call(cbs, function (cb) {
+    if (cb.dataset.prKind === "cover") { coverOn = true; return; }
+    var t = document.querySelector('.topic[data-topic="' + cb.dataset.prTopic + '"]'); if (!t) return;
+    var p = t.querySelector(':scope > .panel[data-panel="' + cb.dataset.prKind + '"]'); if (!p) return;
+    t.classList.add("pr-topic"); p.classList.add("pr-show"); any = true;
+  });
+  if (cover) { cover.classList.toggle("pr-on", coverOn); if (coverOn) buildToc(); }
+  if (!any && !coverOn) { // Fallback: aktuelle Ansicht drucken
+    var vis = document.querySelector(".topic .panel.on");
+    if (vis) { vis.closest(".topic").classList.add("pr-topic"); vis.classList.add("pr-show"); }
+  }
+  var first = document.querySelector(".panel.pr-show");
+  if (first && !coverOn) first.classList.add("pr-first");
+}
+function buildToc() {
+  var ol = document.querySelector(".cover .toc ol"); if (!ol) return;
+  var names = { lu: "Lernunterlage", ab: "Arbeitsblatt", lo: "Lösungen" };
+  var items = [];
+  Array.prototype.forEach.call(document.querySelectorAll(".topic.pr-topic"), function (t) {
+    var kinds = []; Array.prototype.forEach.call(t.querySelectorAll(":scope > .panel.pr-show"), function (p) { kinds.push(names[p.dataset.panel]); });
+    items.push("<li><b>" + esc(t.dataset.title) + "</b> – " + kinds.join(", ") + "</li>");
+  });
+  ol.innerHTML = items.join("");
+}
+function doPrint() { applyPrint(); setTimeout(function () { window.print(); }, 60); }
+window.addEventListener("beforeprint", applyPrint);
+
+/* ===== Start ===== */
+document.addEventListener("DOMContentLoaded", function () {
+  Array.prototype.forEach.call(document.querySelectorAll(".topic"), function (t) {
+    initTabs(t);
+    var f = TOPIC_INIT[t.dataset.topic];
+    if (f) { try { f(t); } catch (e) { console.error("Init " + t.dataset.topic, e); } }
+  });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-print]"), function (b) { b.addEventListener("click", doPrint); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-pres-all]"), function (b) { b.addEventListener("click", function () { PRES.start(Array.prototype.slice.call(document.querySelectorAll(".topic"))); }); });
+  if (window.routeInit) window.routeInit();
+  else {
+    var h = location.hash.replace("#", "").split("/");
+    var t = document.querySelector(".topic");
+    if (t && h[1] && t.querySelector('.panel[data-panel="' + h[1] + '"]')) showTab(t, h[1]);
+    if (t && h[1] === "sim" && h[2]) openSim(t.dataset.topic, +h[2]);
+    if (t && h[1] === "pres") PRES.start([t]);
+  }
+});
+
+/* ===== SVG-Helfer ===== */
+function zig(x1, x2, y, a, n) { var d = "M" + x1 + " " + y, w = (x2 - x1) / n; for (var i = 0; i < n; i++) d += " L" + (x1 + w * (i + .5)) + " " + (y + (i % 2 ? a : -a)); return d + " L" + x2 + " " + y; }
+function arrow(x1, y1, x2, y2, attr) { var a = Math.atan2(y2 - y1, x2 - x1), L = 8; return '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" ' + (attr || 'stroke="currentColor" stroke-width="2"') + '/><polygon points="' + x2 + ',' + y2 + ' ' + (x2 - L * Math.cos(a - .45)) + ',' + (y2 - L * Math.sin(a - .45)) + ' ' + (x2 - L * Math.cos(a + .45)) + ',' + (y2 - L * Math.sin(a + .45)) + '" fill="currentColor" stroke="none"/>'; }
+function svgOpen(w, h, extra) { return '<svg viewBox="0 0 ' + w + ' ' + h + '" width="' + w + '" class="sv" font-family="Segoe UI,Arial,sans-serif" ' + (extra || "") + '>'; }
+function txt(x, y, s, o) { o = o || {}; return '<text x="' + x + '" y="' + y + '" font-size="' + (o.fs || 12) + '"' + (o.a ? ' text-anchor="' + o.a + '"' : '') + (o.b ? ' font-weight="700"' : '') + ' fill="' + (o.c || "currentColor") + '">' + s + '</text>'; }
+function outGrid(rows) { return rows.map(function (x) { return "<div><small>" + x[0] + "</small><b>" + x[1] + "</b></div>"; }).join(""); }
+/* Liniendiagramm: series [{pts:[[x,y]...], c:color, n:name}] */
+function plotSVG(series, o) {
+  o = o || {}; var W = o.w || 500, H = o.h || 220, L = 52, B = 30, T = 12, Rr = 12;
+  var xs = [], ys = []; series.forEach(function (s) { s.pts.forEach(function (p) { xs.push(p[0]); ys.push(p[1]); }); });
+  var x0 = o.x0 !== undefined ? o.x0 : Math.min.apply(null, xs), x1 = o.x1 !== undefined ? o.x1 : Math.max.apply(null, xs);
+  var y0 = o.y0 !== undefined ? o.y0 : Math.min(0, Math.min.apply(null, ys)), y1 = o.y1 !== undefined ? o.y1 : Math.max.apply(null, ys) * 1.08 || 1;
+  if (y1 === y0) y1 = y0 + 1;
+  var X = function (x) { return L + (x - x0) / (x1 - x0) * (W - L - Rr); }, Y = function (y) { return H - B - (y - y0) / (y1 - y0) * (H - B - T); };
+  var h = [svgOpen(W, H)];
+  for (var i = 0; i <= 4; i++) { var yv = y0 + (y1 - y0) * i / 4; h.push('<line x1="' + L + '" y1="' + Y(yv) + '" x2="' + (W - Rr) + '" y2="' + Y(yv) + '" stroke="var(--line)"/>' + txt(L - 6, Y(yv) + 4, fmtAuto(yv), { fs: 10, a: "end" })); }
+  for (i = 0; i <= 5; i++) { var xv = x0 + (x1 - x0) * i / 5; h.push(txt(X(xv), H - B + 14, fmtAuto(xv), { fs: 10, a: "middle" })); }
+  if (y0 < 0 && y1 > 0) h.push('<line x1="' + L + '" y1="' + Y(0) + '" x2="' + (W - Rr) + '" y2="' + Y(0) + '" stroke="currentColor" stroke-width="1"/>');
+  h.push('<line x1="' + L + '" y1="' + T + '" x2="' + L + '" y2="' + (H - B) + '" stroke="currentColor"/>');
+  series.forEach(function (s, k) {
+    var d = s.pts.map(function (p, j) { return (j ? "L" : "M") + X(p[0]).toFixed(1) + " " + Y(p[1]).toFixed(1); }).join(" ");
+    h.push('<path d="' + d + '" fill="none" stroke="' + (s.c || "var(--accent)") + '" stroke-width="' + (s.w || 2.4) + '"' + (s.dash ? ' stroke-dasharray="6 4"' : '') + '/>');
+    if (s.n) h.push(txt(W - Rr - 4, T + 12 + k * 14, s.n, { fs: 11, a: "end", c: s.c || "var(--accent)", b: 1 }));
+  });
+  (o.marks || []).forEach(function (m) { h.push('<circle cx="' + X(m[0]) + '" cy="' + Y(m[1]) + '" r="5" fill="' + (m[2] || "var(--warm)") + '"/>' + (m[3] ? txt(X(m[0]) + 8, Y(m[1]) - 8, m[3], { fs: 11 }) : "")); });
+  if (o.xl) h.push(txt((W + L) / 2, H - 2, o.xl, { fs: 10, a: "middle" }));
+  if (o.yl) h.push('<text x="12" y="' + (H / 2) + '" font-size="10" fill="currentColor" transform="rotate(-90 12 ' + (H / 2) + ')" text-anchor="middle">' + o.yl + '</text>');
+  h.push('</svg>'); return h.join("");
+}
+
+/* ===== Schaltzeichen-Bibliothek (IEC 60617), senkrechte Strompfade =====
+   Alle Elemente werden zwischen y1 (oben) und y2 (unten) auf der Senkrechten x gezeichnet,
+   die Anschlussleitungen gehören dazu – so entstehen keine Lücken in den Leitungen. */
+var EL = {
+  col: function (live, c) { return live ? (c || "var(--live)") : "currentColor"; },
+  w: function (d, live, c, sw) { return '<path d="' + d + '" fill="none" stroke="' + EL.col(live, c) + '" stroke-width="' + (sw || 2.4) + '" stroke-linejoin="round" stroke-linecap="round"/>'; },
+  dot: function (x, y, live) { return '<circle cx="' + x + '" cy="' + y + '" r="3.6" fill="' + EL.col(live) + '"/>'; },
+  /* Schließer: geschlossen = Kontakt zu */
+  no: function (x, y1, y2, closed, liveTop, label, o) { o = o || {}; var m = (y1 + y2) / 2, a = m - 14, b = m + 14, liveBot = liveTop && closed;
+    return EL.w("M" + x + " " + y1 + " V" + a, liveTop) + EL.w("M" + x + " " + b + " V" + y2, liveBot) + EL.w("M" + x + " " + b + " L" + (closed ? x + 1 : x - 13) + " " + (closed ? a : a - 3), liveBot, null, 2.6) +
+      (o.push ? EL.w("M" + (x - (closed ? 3 : 8)) + " " + m + " H" + (x - 24) + " M" + (x - 24) + " " + (m - 7) + " V" + (m + 7) + " M" + (x - 24) + " " + (m - 7) + " h-4 M" + (x - 24) + " " + (m + 7) + " h-4", false, null, 1.6).replace('stroke-width="1.6"', 'stroke-width="1.6" stroke-dasharray="3 2"') : "") +
+      (label ? txt(x - (o.push ? 32 : 18), m + 4, label, { a: "end", fs: 11, b: 1 }) : "") + (o.t1 ? txt(x + 5, a + 2, o.t1, { fs: 9 }) : "") + (o.t2 ? txt(x + 5, b + 6, o.t2, { fs: 9 }) : ""); },
+  /* Öffner: geschlossen = Ruhelage (nicht betätigt) */
+  nc: function (x, y1, y2, closed, liveTop, label, o) { o = o || {}; var m = (y1 + y2) / 2, a = m - 14, b = m + 14, liveBot = liveTop && closed;
+    return EL.w("M" + x + " " + y1 + " V" + a + " H" + (x + 11), liveTop) + EL.w("M" + x + " " + b + " V" + y2, liveBot) + EL.w("M" + x + " " + b + " L" + (closed ? x + 13 : x + 18) + " " + (closed ? a - 2 : a - 10), liveBot, null, 2.6) +
+      (o.push ? EL.w("M" + (x + 6) + " " + m + " H" + (x - 22), false, null, 1.6).replace('stroke-width="1.6"', 'stroke-width="1.6" stroke-dasharray="3 2"') + EL.w("M" + (x - 22) + " " + (m - 7) + " V" + (m + 7) + " M" + (x - 22) + " " + (m - 7) + " h-4 M" + (x - 22) + " " + (m + 7) + " h-4", false, null, 1.6) : "") +
+      (label ? txt(x - (o.push ? 30 : 10), m + 4, label, { a: "end", fs: 11, b: 1 }) : "") + (o.t1 ? txt(x + 14, a + 2, o.t1, { fs: 9 }) : "") + (o.t2 ? txt(x + 5, b + 6, o.t2, { fs: 9 }) : ""); },
+  /* Spule (Schütz/Relais) */
+  coil: function (x, y1, y2, on, live, label) { var m = (y1 + y2) / 2; return EL.w("M" + x + " " + y1 + " V" + (m - 13), live) + EL.w("M" + x + " " + (m + 13) + " V" + y2, live) + '<rect x="' + (x - 15) + '" y="' + (m - 13) + '" width="30" height="26" fill="' + (on ? "var(--press-soft)" : "var(--card)") + '" stroke="currentColor" stroke-width="2"/>' + (label ? txt(x + 20, m + 4, label, { fs: 11, b: 1 }) : "") + txt(x + 5, m - 16, "A1", { fs: 8.5 }) + txt(x + 5, m + 22, "A2", { fs: 8.5 }); },
+  /* Leuchte */
+  lamp: function (x, y1, y2, on, live, label, color) { var m = (y1 + y2) / 2, r = 14; return EL.w("M" + x + " " + y1 + " V" + (m - r), live) + EL.w("M" + x + " " + (m + r) + " V" + y2, live) + '<circle cx="' + x + '" cy="' + m + '" r="' + r + '" fill="' + (on ? (color || "rgba(255,200,40,.92)") : "var(--card)") + '" stroke="currentColor" stroke-width="2"/>' + EL.w("M" + (x - 10) + " " + (m - 10) + " L" + (x + 10) + " " + (m + 10) + " M" + (x + 10) + " " + (m - 10) + " L" + (x - 10) + " " + (m + 10), false, null, 1.8) + (label ? txt(x + r + 5, m + 4, label, { fs: 11, b: 1 }) : ""); },
+  /* Widerstand (Rechteck) senkrecht */
+  res: function (x, y1, y2, live, label, val) { var m = (y1 + y2) / 2; return EL.w("M" + x + " " + y1 + " V" + (m - 18), live) + EL.w("M" + x + " " + (m + 18) + " V" + y2, live) + '<rect x="' + (x - 8) + '" y="' + (m - 18) + '" width="16" height="36" fill="var(--card)" stroke="currentColor" stroke-width="2"/>' + (label ? txt(x + 13, m - 2, label, { fs: 11, b: 1 }) : "") + (val ? txt(x + 13, m + 12, val, { fs: 10 }) : ""); },
+  /* Widerstand waagrecht */
+  resH: function (x1, x2, y, live, label, val) { var m = (x1 + x2) / 2; return EL.w("M" + x1 + " " + y + " H" + (m - 22), live) + EL.w("M" + (m + 22) + " " + y + " H" + x2, live) + '<rect x="' + (m - 22) + '" y="' + (y - 8) + '" width="44" height="16" fill="var(--card)" stroke="currentColor" stroke-width="2"/>' + (label ? txt(m, y - 13, label, { a: "middle", fs: 11, b: 1 }) : "") + (val ? txt(m, y + 23, val, { a: "middle", fs: 10 }) : ""); },
+  /* Gleichspannungsquelle: langer Strich = +, oben */
+  src: function (x, y1, y2, label, live) { var m = (y1 + y2) / 2; return EL.w("M" + x + " " + y1 + " V" + (m - 5), live) + EL.w("M" + x + " " + (m + 5) + " V" + y2, false) + '<line x1="' + (x - 16) + '" y1="' + (m - 5) + '" x2="' + (x + 16) + '" y2="' + (m - 5) + '" stroke="currentColor" stroke-width="2.6"/><line x1="' + (x - 8) + '" y1="' + (m + 5) + '" x2="' + (x + 8) + '" y2="' + (m + 5) + '" stroke="currentColor" stroke-width="5"/>' + txt(x - 22, m - 4, "+", { a: "end", b: 1, fs: 13 }) + txt(x - 22, m + 13, "−", { a: "end", b: 1, fs: 13 }) + (label ? txt(x + 22, m + 5, label, { fs: 11, b: 1 }) : ""); },
+  /* Wechselspannungsquelle (Kreis mit ~) */
+  srcAC: function (x, y1, y2, label) { var m = (y1 + y2) / 2; return EL.w("M" + x + " " + y1 + " V" + (m - 15)) + EL.w("M" + x + " " + (m + 15) + " V" + y2) + '<circle cx="' + x + '" cy="' + m + '" r="15" fill="var(--card)" stroke="currentColor" stroke-width="2"/><path d="M' + (x - 9) + ' ' + m + ' q4.5 -9 9 0 t9 0" fill="none" stroke="currentColor" stroke-width="2"/>' + (label ? txt(x + 21, m + 4, label, { fs: 11, b: 1 }) : ""); },
+  /* Erdungszeichen */
+  gnd: function (x, y) { return '<path d="M' + (x - 12) + ' ' + y + ' H' + (x + 12) + ' M' + (x - 8) + ' ' + (y + 5) + ' H' + (x + 8) + ' M' + (x - 4) + ' ' + (y + 10) + ' H' + (x + 4) + '" stroke="currentColor" stroke-width="2"/>'; },
+  /* Wechsler-Schalter, senkrecht: gemeinsamer Anschluss unten (xc,yc), Ausgänge oben bei xa/xb (y = yt) */
+  changeoverUp: function (xc, yc, xa, xb, yt, pos, live, label) { var tipX = pos ? xb : xa; return EL.w("M" + xc + " " + yc + " L" + (tipX + (pos ? -3 : 3)) + " " + (yt + 6), live, null, 2.6) + EL.dot(xc, yc, live) + '<circle cx="' + xa + '" cy="' + yt + '" r="3" fill="var(--card)" stroke="currentColor" stroke-width="1.6"/><circle cx="' + xb + '" cy="' + yt + '" r="3" fill="var(--card)" stroke="currentColor" stroke-width="1.6"/>' + (label ? txt(Math.min(xa, xb) - 8, (yc + yt) / 2 + 4, label, { a: "end", fs: 11, b: 1 }) : ""); },
+  changeoverDown: function (xc, yc, xa, xb, yb, pos, live, label) { var tipX = pos ? xb : xa; return EL.w("M" + xc + " " + yc + " L" + (tipX + (pos ? -3 : 3)) + " " + (yb - 6), live, null, 2.6) + EL.dot(xc, yc, live) + '<circle cx="' + xa + '" cy="' + yb + '" r="3" fill="var(--card)" stroke="currentColor" stroke-width="1.6"/><circle cx="' + xb + '" cy="' + yb + '" r="3" fill="var(--card)" stroke="currentColor" stroke-width="1.6"/>' + (label ? txt(Math.min(xa, xb) - 8, (yc + yb) / 2 + 4, label, { a: "end", fs: 11, b: 1 }) : ""); }
+,
+  /* Diode senkrecht (IEC 60617): up = Durchlassrichtung nach oben (Kathode oben) */
+  diodeV: function (x, y1, y2, up, live, label, z) { var m = (y1 + y2) / 2, a = up ? m + 8 : m - 8, k = up ? m - 8 : m + 8, bar = z ? "M" + (x - 13) + " " + (k + (up ? 4 : -4)) + " L" + (x - 9) + " " + k + " H" + (x + 9) + " L" + (x + 13) + " " + (k + (up ? -4 : 4)) : "M" + (x - 10) + " " + k + " H" + (x + 10);
+    return EL.w("M" + x + " " + y1 + " V" + Math.min(a, k) + " M" + x + " " + Math.max(a, k) + " V" + y2, live) + '<polygon points="' + (x - 10) + ',' + a + ' ' + (x + 10) + ',' + a + ' ' + x + ',' + k + '" fill="var(--card)" stroke="currentColor" stroke-width="2"/>' + EL.w(bar, false, null, 2.4) + (label ? txt(x + 16, m + 4, label, { fs: 11, b: 1 }) : ""); },
+  /* Varistor (VDR) senkrecht: Rechteck mit geknickter Kennlinie und U */
+  vdrV: function (x, y1, y2, live, label) { var m = (y1 + y2) / 2; return EL.w("M" + x + " " + y1 + " V" + (m - 18) + " M" + x + " " + (m + 18) + " V" + y2, live) + '<rect x="' + (x - 8) + '" y="' + (m - 18) + '" width="16" height="36" fill="var(--card)" stroke="currentColor" stroke-width="2"/>' + EL.w("M" + (x - 16) + " " + (m + 16) + " H" + (x - 10) + " L" + (x + 12) + " " + (m - 16), false, null, 1.6) + txt(x - 18, m + 14, "U", { a: "end", fs: 10, b: 1 }) + (label ? txt(x + 14, m + 4, label, { fs: 11, b: 1 }) : ""); },
+  /* Kondensator senkrecht */
+  capV: function (x, y1, y2, live, label) { var m = (y1 + y2) / 2; return EL.w("M" + x + " " + y1 + " V" + (m - 4) + " M" + x + " " + (m + 4) + " V" + y2, live) + EL.w("M" + (x - 13) + " " + (m - 4) + " H" + (x + 13) + " M" + (x - 13) + " " + (m + 4) + " H" + (x + 13), false, null, 3) + (label ? txt(x + 17, m + 4, label, { fs: 11, b: 1 }) : ""); },
+  /* Messgerät (Kreis mit Formelzeichen V, A, Ω …) */
+  meter: function (x, y, letter, hi) { return '<circle cx="' + x + '" cy="' + y + '" r="15" fill="' + (hi ? "var(--warm-soft)" : "var(--card)") + '" stroke="currentColor" stroke-width="2"/>' + txt(x, y + 5, letter, { a: "middle", fs: 14, b: 1 }); },
+  /* Leitungsschutzschalter waagrecht (Schließer mit Leistungsschalter-Kreuz, Überstromauslöser I>) */
+  lsH: function (x1, x2, y, closed, live, label, below, cl) { var m = (x1 + x2) / 2, a = m - 14, b = m + 14, lo = live && closed, d = below ? 1 : -1;
+    return EL.w("M" + x1 + " " + y + " H" + a, live, cl) + EL.w("M" + b + " " + y + " H" + x2, lo, cl) + EL.w("M" + a + " " + y + " L" + (closed ? b : b - 4) + " " + (closed ? y : y - 13), live, cl, 2.6) + EL.w("M" + (b - 4) + " " + (y - 4) + " l8 8 M" + (b + 4) + " " + (y - 4) + " l-8 8", false, null, 1.8) +
+      '<path d="M' + m + ' ' + (y + d * (closed ? 2 : 7)) + ' V' + (y + d * 9) + '" stroke="currentColor" stroke-width="1.4" stroke-dasharray="3 2"/><rect x="' + (m - 12) + '" y="' + (below ? y + 9 : y - 23) + '" width="24" height="14" fill="var(--card)" stroke="currentColor" stroke-width="1.6"/>' + txt(m, (below ? y + 9 : y - 23) + 11, "I&gt;", { a: "middle", fs: 9, b: 1 }) + (label ? txt(m, below ? y - 9 : y + 18, label, { a: "middle", fs: 10, b: 1 }) : ""); },
+  /* Fehlerstrom-Schutzeinrichtung (2-polig) waagrecht über zwei Leitern y1 (L) und y2 (N) */
+  rcdH: function (x1, x2, y1, y2, closed, label, cL, cN) { var m = (x1 + x2) / 2, a = m - 14, b = m + 14, h = "";
+    [[y1, cL], [y2, cN]].forEach(function (p) { h += EL.w("M" + x1 + " " + p[0] + " H" + a, !!p[1], p[1]) + EL.w("M" + b + " " + p[0] + " H" + x2, !!(p[1] && closed), p[1]) + EL.w("M" + a + " " + p[0] + " L" + (closed ? b : b - 4) + " " + (closed ? p[0] : p[0] - 12), !!p[1], p[1], 2.4); });
+    h += '<path d="M' + (m - 2) + ' ' + (y1 - 6) + ' V' + (y2 + 22) + '" stroke="currentColor" stroke-width="1.4" stroke-dasharray="3 2"/><ellipse cx="' + (m - 26) + '" cy="' + ((y1 + y2) / 2) + '" rx="7" ry="' + ((y2 - y1) / 2 + 9) + '" fill="none" stroke="currentColor" stroke-width="1.6"/>' + EL.w("M" + (m - 19) + " " + ((y1 + y2) / 2) + " H" + (m - 2), false, null, 1.4).replace('stroke-width="1.4"', 'stroke-width="1.4" stroke-dasharray="3 2"') + '<rect x="' + (m - 12) + '" y="' + (y2 + 22) + '" width="24" height="14" fill="var(--card)" stroke="currentColor" stroke-width="1.6"/>' + txt(m, y2 + 33, "IΔ", { a: "middle", fs: 9, b: 1 });
+    return h + (label ? txt(m, y2 + 50, label, { a: "middle", fs: 10, b: 1 }) : ""); }
+};
+
+/* ===== Wiederverwendbare Simulatoren ===== */
+var SIM = {};
+/* Quiz: qs = [[Frage, [Antworten], Index richtig, Erklärung], ...] */
+SIM.quiz = function (el, qs) {
+  var st = { order: shuffle(qs.map(function (_, i) { return i; })), p: 0, ok: 0, n: 0, done: false };
+  el.innerHTML = '<div class="box" data-q style="font-size:1.02rem"></div><div class="chips" data-o style="flex-direction:column;max-width:640px"></div><div data-f></div><div class="ctrls"><button class="btn pri" data-n>Nächste Frage</button><b data-s></b></div>';
+  var Q = el.querySelector("[data-q]"), O = el.querySelector("[data-o]"), F = el.querySelector("[data-f]"), S = el.querySelector("[data-s]");
+  function show() {
+    if (st.p >= st.order.length) { st.order = shuffle(st.order); st.p = 0; }
+    var q = qs[st.order[st.p]]; st.done = false; st.cur = q;
+    Q.innerHTML = "<b>Frage " + (st.p + 1) + "/" + qs.length + ":</b> " + q[0];
+    st.map = shuffle(q[1].map(function (_, i) { return i; }));
+    O.innerHTML = st.map.map(function (i) { return '<button class="chip" data-i="' + i + '">' + q[1][i] + '</button>'; }).join(""); F.innerHTML = "";
+  }
+  O.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-i]"); if (!b || st.done) return; st.done = true; st.n++;
+    var ok = +b.dataset.i === st.cur[2]; if (ok) st.ok++;
+    Array.prototype.forEach.call(O.children, function (x) { if (+x.dataset.i === st.cur[2]) x.classList.add("ok"); else if (x === b) x.classList.add("bad"); });
+    F.innerHTML = '<div class="fb ' + (ok ? "ok" : "bad") + '">' + (ok ? "Richtig! " : "Leider falsch. ") + (st.cur[3] || "") + '</div>';
+    S.textContent = "Punkte: " + st.ok + " / " + st.n;
+  });
+  el.querySelector("[data-n]").addEventListener("click", function () { st.p++; show(); });
+  show();
+};
+/* Zuordnen: cats = [[key, Bezeichnung], ...], items = [[Text, key], ...] */
+SIM.sort = function (el, cats, items, hint) {
+  var st = { put: {}, sel: null };
+  el.innerHTML = '<div class="chips" data-p></div><div data-r style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:12px"></div><div class="ctrls"><button class="btn pri" data-c>Prüfen</button><button class="btn" data-x>Zurücksetzen</button></div><div data-f></div>';
+  var P = el.querySelector("[data-p]"), Rg = el.querySelector("[data-r]"), F = el.querySelector("[data-f]");
+  var order = shuffle(items.map(function (_, i) { return i; }));
+  function render(check) {
+    P.innerHTML = order.map(function (i) { return st.put[i] !== undefined ? "" : '<button class="chip' + (st.sel === i ? " sel" : "") + '" data-i="' + i + '">' + items[i][0] + '</button>'; }).join("") || '<span class="ab-intro">Alles zugeordnet – jetzt prüfen.</span>';
+    Rg.innerHTML = cats.map(function (c) {
+      return '<div data-k="' + c[0] + '" class="clk" style="border:2px dashed var(--line);border-radius:10px;padding:8px;min-height:80px;background:var(--soft)"><b style="display:block;margin-bottom:6px">' + c[1] + '</b><div class="chips" style="flex-direction:column">' +
+        order.map(function (i) { return st.put[i] === c[0] ? '<button class="chip' + (check ? (items[i][1] === c[0] ? " ok" : " bad") : "") + '" data-b="' + i + '">' + items[i][0] + '</button>' : ""; }).join("") + '</div></div>';
+    }).join("");
+  }
+  P.addEventListener("click", function (e) { var b = e.target.closest("[data-i]"); if (!b) return; st.sel = st.sel === +b.dataset.i ? null : +b.dataset.i; render(); });
+  Rg.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-b]"); if (b) { delete st.put[+b.dataset.b]; F.innerHTML = ""; render(); return; }
+    var k = e.target.closest("[data-k]"); if (!k) return;
+    if (st.sel === null) { F.innerHTML = '<div class="fb bad">Zuerst oben eine Karte antippen, dann das Feld.</div>'; return; }
+    st.put[st.sel] = k.dataset.k; st.sel = null; F.innerHTML = ""; render();
+  });
+  el.querySelector("[data-c]").addEventListener("click", function () {
+    var ok = items.filter(function (it, i) { return st.put[i] === it[1]; }).length; render(true);
+    F.innerHTML = '<div class="fb ' + (ok === items.length ? "ok" : "bad") + '">' + ok + " von " + items.length + " richtig." + (ok < items.length ? " Rote Karten antippen, um sie zurückzulegen." + (hint ? " " + hint : "") : " Perfekt!") + '</div>';
+  });
+  el.querySelector("[data-x]").addEventListener("click", function () { st.put = {}; st.sel = null; order = shuffle(order); F.innerHTML = ""; render(); });
+  render();
+};
+/* Reihenfolge: sc = [{t: Titel, s: [Schritte in richtiger Reihenfolge], h: Tipp}] */
+SIM.order = function (el, sc) {
+  var st = { k: 0, o: [] };
+  el.innerHTML = (sc.length > 1 ? '<div class="seg" data-g>' + sc.map(function (s, i) { return '<button data-v="' + i + '"' + (i ? "" : ' class="on"') + '>' + s.t + '</button>'; }).join("") + '</div>' : '') + '<ol class="olist" data-l></ol><div class="ctrls"><button class="btn pri" data-c>Prüfen</button><button class="btn" data-m>Neu mischen</button><button class="btn" data-s>Lösung zeigen</button></div><div data-f></div>';
+  var Lst = el.querySelector("[data-l]"), F = el.querySelector("[data-f]");
+  function mix() { var n = sc[st.k].s.length, a; do { a = shuffle(Array.apply(null, { length: n }).map(function (_, i) { return i; })); } while (n > 1 && a.every(function (v, i) { return v === i; })); st.o = a; F.innerHTML = ""; render(); }
+  function render(check) { Lst.innerHTML = st.o.map(function (s, i) { return '<li class="' + (check ? (s === i ? "ok" : "bad") : "") + '"><span class="n">' + (i + 1) + '</span><span class="tx">' + sc[st.k].s[s] + '</span><span class="mv"><button data-mv="' + i + '" data-d="-1" aria-label="nach oben">↑</button><button data-mv="' + i + '" data-d="1" aria-label="nach unten">↓</button></span></li>'; }).join(""); }
+  Lst.addEventListener("click", function (e) { var b = e.target.closest("[data-mv]"); if (!b) return; var i = +b.dataset.mv, j = i + +b.dataset.d; if (j < 0 || j >= st.o.length) return; var t = st.o[i]; st.o[i] = st.o[j]; st.o[j] = t; F.innerHTML = ""; render(); });
+  el.querySelector("[data-c]").addEventListener("click", function () { var ok = st.o.filter(function (s, i) { return s === i; }).length, n = st.o.length; render(true); F.innerHTML = '<div class="fb ' + (ok === n ? "ok" : "bad") + '">' + ok + " von " + n + " Schritten an der richtigen Stelle." + (ok === n ? " Perfekt!" : (sc[st.k].h ? " Tipp: " + sc[st.k].h : "")) + '</div>'; });
+  el.querySelector("[data-m]").addEventListener("click", mix);
+  el.querySelector("[data-s]").addEventListener("click", function () { st.o = sc[st.k].s.map(function (_, i) { return i; }); render(true); });
+  var g = el.querySelector("[data-g]"); if (g) segInit(g, function (v) { st.k = +v; mix(); });
+  mix();
+};
+/* Rechner: cfg.in = [{k, l, min, max, step, v, u, opts:[[wert, text]]}], cfg.f(v) -> {out:[[l,w]], calc:"", svg:""} */
+SIM.calc = function (el, cfg) {
+  el.innerHTML = '<div class="ctrls">' + cfg.in.map(function (c) {
+    if (c.opts) return '<div class="ctrl"><label>' + c.l + '</label><select data-k="' + c.k + '">' + c.opts.map(function (o) { return '<option value="' + o[0] + '"' + (String(o[0]) === String(c.v) ? " selected" : "") + '>' + o[1] + '</option>'; }).join("") + '</select></div>';
+    if (c.num) return '<div class="ctrl"><label>' + c.l + (c.u ? " in " + c.u : "") + '</label><input type="number" data-k="' + c.k + '" min="' + c.min + '" max="' + c.max + '" step="' + (c.step || 1) + '" value="' + c.v + '"></div>';
+    return '<div class="ctrl"><label>' + c.l + '</label><input type="range" data-k="' + c.k + '" min="' + c.min + '" max="' + c.max + '" step="' + (c.step || 1) + '" value="' + c.v + '"><output data-o="' + c.k + '"></output></div>';
+  }).join("") + '</div><div class="stage sv" data-svg></div><div class="out" data-out></div><div class="calc" data-calc></div><div data-note></div>';
+  var Sv = el.querySelector("[data-svg]"), O = el.querySelector("[data-out]"), C = el.querySelector("[data-calc]"), N = el.querySelector("[data-note]");
+  function upd() {
+    var v = {};
+    cfg.in.forEach(function (c) { var i = el.querySelector('[data-k="' + c.k + '"]'); v[c.k] = c.opts && isNaN(+i.value) ? i.value : +i.value; var o = el.querySelector('[data-o="' + c.k + '"]'); if (o) o.textContent = (c.fmt ? c.fmt(v[c.k]) : fmtAuto(v[c.k])) + (c.u ? " " + c.u : ""); });
+    var r = cfg.f(v) || {};
+    Sv.style.display = r.svg ? "" : "none"; if (r.svg) Sv.innerHTML = r.svg;
+    O.style.display = r.out ? "" : "none"; if (r.out) O.innerHTML = outGrid(r.out);
+    C.style.display = r.calc ? "" : "none"; if (r.calc) C.textContent = r.calc;
+    N.innerHTML = r.note || "";
+  }
+  el.addEventListener("input", upd); el.addEventListener("change", upd);
+  if (cfg.anim) { (function loop() { if (el.closest(".panel.on")) upd(); requestAnimationFrame(loop); })(); }
+  upd(); return upd;
+};
+/* Aufgabengenerator: gens = {key: [Bezeichnung, function(){ return {t, u, a, s, tol} }]} */
+SIM.gen = function (el, gens) {
+  var keys = Object.keys(gens), st = { ok: 0, n: 0, cur: null, done: false };
+  el.innerHTML = '<div class="ctrls"><div class="ctrl" style="min-width:230px"><label>Aufgabentyp</label><select data-t><option value="mix">Gemischt</option>' + keys.map(function (k) { return '<option value="' + k + '">' + gens[k][0] + '</option>'; }).join("") + '</select></div><button class="btn pri" data-n>Neue Aufgabe</button><b data-sc></b></div><div class="box" data-q></div><div class="ctrls"><div class="ctrl"><label data-l>Ergebnis</label><input type="text" inputmode="decimal" data-i></div><button class="btn" data-c>Prüfen</button><button class="btn" data-w>Lösungsweg</button></div><div data-f></div><div class="calc" data-s style="display:none"></div>';
+  var q = function (s) { return el.querySelector(s); };
+  function nw() { var t = q("[data-t]").value; if (t === "mix") t = pick(keys); st.cur = gens[t][1](); st.done = false; q("[data-q]").innerHTML = "<b>Aufgabe:</b> " + st.cur.t; q("[data-l]").textContent = "Ergebnis" + (st.cur.u ? " in " + st.cur.u : ""); q("[data-i]").value = ""; q("[data-f]").innerHTML = ""; q("[data-s]").style.display = "none"; q("[data-s]").textContent = st.cur.s; }
+  q("[data-n]").addEventListener("click", nw); q("[data-t]").addEventListener("change", nw);
+  q("[data-c]").addEventListener("click", function () {
+    var raw = q("[data-i]").value, ok;
+    if (typeof st.cur.a === "string") { var nz = function (x) { return String(x).trim().toUpperCase().replace(/[\s%]/g, "").replace(",", "."); }; ok = nz(raw) === nz(st.cur.a); }
+    else { var v = parseNum(raw); if (!isFinite(v)) { q("[data-f]").innerHTML = '<div class="fb bad">Bitte eine Zahl eingeben.</div>'; return; } ok = Math.abs(v - st.cur.a) <= Math.max(Math.abs(st.cur.a) * (st.cur.tol === undefined ? .02 : st.cur.tol), 1e-9); }
+    if (!st.done) { st.n++; if (ok) st.ok++; st.done = true; }
+    q("[data-sc]").textContent = "Richtig: " + st.ok + " / " + st.n;
+    q("[data-f]").innerHTML = '<div class="fb ' + (ok ? "ok" : "bad") + '">' + (ok ? "Richtig! " : "Nicht ganz. ") + "Ergebnis: " + (typeof st.cur.a === "string" ? st.cur.a : fmtAuto(st.cur.a)) + " " + (st.cur.u || "") + '</div>';
+    if (!ok) q("[data-s]").style.display = "";
+  });
+  q("[data-i]").addEventListener("keydown", function (e) { if (e.key === "Enter") q("[data-c]").click(); });
+  q("[data-w]").addEventListener("click", function () { q("[data-s]").style.display = ""; });
+  nw();
+};
+/* Schalter-Logik: inputs = [[Name, Tastend?, Text, Startwert]], f(state)->{svg, out, note} */
+SIM.toggles = function (el, inputs, f) {
+  var st = {}; inputs.forEach(function (i) { st[i[0]] = i[3] || 0; });
+  el.innerHTML = '<div class="chips" data-b>' + inputs.map(function (i) { return '<button class="btn" data-n="' + i[0] + '"' + (i[1] ? ' data-hold="1"' : '') + '>' + (i[2] || i[0]) + (i[1] ? " (halten)" : "") + '</button>'; }).join("") + '</div><div class="stage sv" data-svg></div><div class="out" data-out></div><div class="status" data-note></div>';
+  var B = el.querySelector("[data-b]");
+  function upd() { Array.prototype.forEach.call(B.children, function (b) { b.classList.toggle("on", !!st[b.dataset.n]); }); var r = f(st) || {}; el.querySelector("[data-svg]").innerHTML = r.svg || ""; var o = el.querySelector("[data-out]"); o.style.display = r.out ? "" : "none"; o.innerHTML = r.out ? outGrid(r.out) : ""; var n = el.querySelector("[data-note]"); n.style.display = r.note ? "" : "none"; n.innerHTML = r.note || ""; }
+  B.addEventListener("click", function (e) { var b = e.target.closest("[data-n]"); if (!b || b.dataset.hold) return; st[b.dataset.n] = st[b.dataset.n] ? 0 : 1; upd(); });
+  B.addEventListener("pointerdown", function (e) { var b = e.target.closest("[data-hold]"); if (!b) return; e.preventDefault(); st[b.dataset.n] = 1; try { b.setPointerCapture(e.pointerId); } catch (x) { } upd(); });
+  ["pointerup", "pointercancel", "lostpointercapture"].forEach(function (ev) { B.addEventListener(ev, function (e) { var b = e.target.closest("[data-hold]"); if (!b || !st[b.dataset.n]) return; st[b.dataset.n] = 0; upd(); }); });
+  B.addEventListener("keydown", function (e) { var b = e.target.closest("[data-hold]"); if (b && (e.key === " " || e.key === "Enter")) { e.preventDefault(); st[b.dataset.n] = 1; upd(); } });
+  B.addEventListener("keyup", function (e) { var b = e.target.closest("[data-hold]"); if (b) { st[b.dataset.n] = 0; upd(); } });
+  upd(); return { st: st, upd: upd };
+};
+
+/* ===== Präsentationsmodus =====
+   Erzeugt aus den Lernunterlagen Folien: Titel, Lernziele, je Abschnitt (h3) eine Folie,
+   die echten Simulatoren als Live-Folien, „Das Wichtigste“ (alle Merke-Kästen) und Abschluss.
+   Bedienung: → / Leertaste / Klick rechts = weiter, ← = zurück, S = Schrittweise einblenden,
+   P = Laserpointer, B = Schwarzbild, Ü = Übersicht, F = Vollbild, Esc = Ende. */
+var PRES = (function () {
+  var el, stage, slideBox, inner, bar, prog, ov, dot, slides = [], i = 0, moved = null, stepMode = false;
+  function make() {
+    if (el) return;
+    el = document.createElement("div"); el.className = "pres"; el.setAttribute("role", "dialog"); el.setAttribute("aria-label", "Präsentation");
+    el.innerHTML = '<div class="pres-bar"><span class="t" data-t></span><button data-a="prev" title="zurück (←)">◀</button><span class="n" data-n></span><button data-a="next" title="weiter (→)">▶</button><button data-a="ov" title="Übersicht (Ü)">▦ Übersicht</button><button data-a="step" title="Inhalte schrittweise einblenden (S)">☰ Schritte</button><button data-a="ptr" title="Laserpointer (P)">◉ Pointer</button><button data-a="blk" title="Schwarzbild (B)">■</button><button data-a="fs" title="Vollbild (F)">⛶</button><button data-a="x" title="Beenden (Esc)">✕</button></div><div class="pres-prog"><i></i></div><div class="pres-stage"><div class="pres-slide"><div class="pres-inner"></div></div><div class="pres-ov"></div><div class="pres-help">← → blättern · S Schritte · P Pointer · B Schwarz · Esc Ende</div></div>';
+    document.body.appendChild(el);
+    dot = document.createElement("div"); dot.className = "pres-dot"; document.body.appendChild(dot);
+    bar = el.querySelector(".pres-bar"); prog = el.querySelector(".pres-prog i"); stage = el.querySelector(".pres-stage"); slideBox = el.querySelector(".pres-slide"); inner = el.querySelector(".pres-inner"); ov = el.querySelector(".pres-ov");
+    bar.addEventListener("click", function (e) { var b = e.target.closest("[data-a]"); if (!b) return; act(b.dataset.a); });
+    ov.addEventListener("click", function (e) { var b = e.target.closest("[data-go]"); if (!b) return; ov.classList.remove("on"); go(+b.dataset.go); });
+    inner.addEventListener("click", function (e) { var b = e.target.closest("[data-sim]"); if (b) { var k = slides.findIndex(function (s) { return s.simEl && s.simKey === b.dataset.sim; }); if (k >= 0) go(k); } });
+    document.addEventListener("keydown", key);
+    var sx = null; stage.addEventListener("touchstart", function (e) { sx = e.touches[0].clientX; }, { passive: true });
+    stage.addEventListener("touchend", function (e) { if (sx === null) return; var dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 60 && !e.target.closest(".sim")) act(dx < 0 ? "next" : "prev"); sx = null; });
+    el.addEventListener("mousemove", function (e) { dot.style.left = e.clientX + "px"; dot.style.top = e.clientY + "px"; });
+    window.addEventListener("resize", function () { if (el.classList.contains("on")) fit(); });
+  }
+  function key(e) {
+    if (!el || !el.classList.contains("on")) return;
+    if (e.target.closest && e.target.closest("input,select,textarea")) return;
+    var k = e.key;
+    if (k === "ArrowRight" || k === "PageDown" || k === " ") { e.preventDefault(); act("next"); }
+    else if (k === "ArrowLeft" || k === "PageUp") { e.preventDefault(); act("prev"); }
+    else if (k === "Home") go(0); else if (k === "End") go(slides.length - 1);
+    else if (k === "Escape") { if (ov.classList.contains("on")) ov.classList.remove("on"); else stop(); }
+    else if (k === "f" || k === "F") act("fs"); else if (k === "b" || k === "B" || k === ".") act("blk");
+    else if (k === "p" || k === "P") act("ptr"); else if (k === "s" || k === "S") act("step");
+    else if (k === "ü" || k === "Ü" || k === "o" || k === "O") act("ov");
+  }
+  function act(a) {
+    if (a === "next") { if (stepMode && reveal(1)) return; go(i + 1); }
+    else if (a === "prev") { if (stepMode && reveal(-1)) return; go(i - 1); }
+    else if (a === "x") stop();
+    else if (a === "fs") { if (!document.fullscreenElement) { if (el.requestFullscreen) el.requestFullscreen().catch(function () { }); } else if (document.exitFullscreen) document.exitFullscreen(); }
+    else if (a === "blk") el.classList.toggle("black");
+    else if (a === "ptr") { el.classList.toggle("pointer"); bar.querySelector('[data-a="ptr"]').classList.toggle("on", el.classList.contains("pointer")); }
+    else if (a === "step") { stepMode = !stepMode; bar.querySelector('[data-a="step"]').classList.toggle("on", stepMode); render(); }
+    else if (a === "ov") { if (ov.classList.contains("on")) { ov.classList.remove("on"); return; } ov.innerHTML = slides.map(function (s, k) { return '<button data-go="' + k + '" class="' + (k === i ? "cur" : "") + '"><small>' + (k + 1) + " · " + esc(s.topicTitle) + '</small>' + esc(s.title) + '</button>'; }).join(""); ov.classList.add("on"); var c = ov.querySelector(".cur"); if (c) c.scrollIntoView({ block: "center" }); }
+  }
+  function stripBadges(h) { var c = h.cloneNode(true); Array.prototype.forEach.call(c.querySelectorAll(".badge,.newbadge"), function (b) { b.remove(); }); return c.textContent.trim().replace(/^\d+\s+/, ""); }
+  function cloneClean(n) { var c = n.cloneNode(true); if (c.querySelectorAll) Array.prototype.forEach.call(c.querySelectorAll("[data-ref]"), function (x) { x.removeAttribute("data-ref"); }); if (c.removeAttribute) c.removeAttribute("data-ref"); return c; }
+  function build(topics) {
+    slides = [];
+    topics.forEach(function (t) {
+      var tt = t.dataset.title, paper = t.querySelector(':scope > .panel[data-panel="lu"] .paper'); if (!paper) return;
+      var hero = t.querySelector(".hero"), book = paper.querySelector(".book");
+      slides.push({ topicTitle: tt, topic: t, title: "Titel", html: '<div class="ps-cover"><div class="ps-kicker">' + (hero ? hero.querySelector(".kicker").innerHTML : "") + '</div><h1>' + esc(tt.replace(/^\d+\.\d+\s*/, "")) + '</h1><p class="lead">' + (hero && hero.querySelector(".lead") ? hero.querySelector(".lead").innerHTML : "") + '</p>' + (book ? '<div class="book">' + book.innerHTML + '</div>' : '') + '</div>' });
+      var goals = paper.querySelector(".goals"); if (goals) slides.push({ topicTitle: tt, topic: t, title: "Lernziele", nodes: [cloneClean(goals)], h: "Lernziele" });
+      var cur = null;
+      function flush() { if (cur && cur.nodes.length) slides.push(cur); cur = null; }
+      Array.prototype.forEach.call(paper.children, function (n) {
+        if (n.classList.contains("print-head") || n.tagName === "H2" || n.classList.contains("goals") || n.classList.contains("book") || (n.classList.contains("ab-intro") && n.querySelector(".badge"))) return;
+        if (n.tagName === "H3") { flush(); cur = { topicTitle: tt, topic: t, title: stripBadges(n), h: n.innerHTML, nodes: [] }; return; }
+        if (n.classList.contains("deep")) { flush(); var h3 = n.querySelector("h3"); var s = { topicTitle: tt, topic: t, title: h3 ? stripBadges(h3) : "Vertiefung", h: h3 ? h3.innerHTML : "Vertiefung", nodes: [] }; Array.prototype.forEach.call(n.children, function (c) { if (c !== h3) s.nodes.push(cloneClean(c)); }); slides.push(s); return; }
+        if (!cur) cur = { topicTitle: tt, topic: t, title: "Einführung", h: "Einführung", nodes: [] };
+        cur.nodes.push(cloneClean(n));
+      });
+      flush();
+      var sims = Array.prototype.slice.call(t.querySelectorAll(":scope > .panel.sim .sim"));
+      if (sims.length) {
+        slides.push({ topicTitle: tt, topic: t, title: "Simulatoren", html: '<h2 class="ps-title">Simulatoren – live ausprobieren</h2><div class="ps-simlist">' + sims.map(function (s, k) { return '<button data-sim="' + t.dataset.topic + ":" + k + '">' + s.querySelector("h3").textContent.trim() + '</button>'; }).join("") + '</div><p class="ab-intro" style="margin-top:1em">Tipp: Mit ▶ geht es der Reihe nach durch alle Simulatoren.</p>' });
+        sims.forEach(function (s, k) { slides.push({ topicTitle: tt, topic: t, title: s.querySelector("h3").textContent.trim(), simEl: s, simKey: t.dataset.topic + ":" + k }); });
+      }
+      var merk = paper.querySelectorAll(".merk");
+      if (merk.length) slides.push({ topicTitle: tt, topic: t, title: "Das Wichtigste", h: "Das Wichtigste in Kürze", nodes: Array.prototype.map.call(merk, cloneClean) });
+      slides.push({ topicTitle: tt, topic: t, title: "Abschluss", html: '<div class="ps-cover"><div class="ps-kicker">' + esc(tt) + '</div><h1>Fragen?</h1><p class="lead">Weiter mit dem Arbeitsblatt (✏️) – Lösungen zum Vergleichen (✅).</p></div>' });
+    });
+  }
+  function restore() { if (moved) { moved.ph.parentNode.replaceChild(moved.el, moved.ph); moved = null; } }
+  function render() {
+    restore(); var s = slides[i]; if (!s) return;
+    inner.style.transform = ""; inner.style.width = ""; slideBox.classList.remove("scroll"); slideBox.classList.remove("panel", "on");
+    if (s.simEl) {
+      inner.innerHTML = '<div class="ps-kicker">Live-Simulator · ' + esc(s.topicTitle) + '</div>';
+      var ph = document.createComment("sim"); s.simEl.parentNode.replaceChild(ph, s.simEl); moved = { el: s.simEl, ph: ph };
+      inner.appendChild(s.simEl); slideBox.classList.add("panel", "on"); showTab(s.topic, "sim");
+    } else if (s.html) { inner.innerHTML = s.html; }
+    else { inner.innerHTML = '<h2 class="ps-title">' + s.h + '</h2>'; s.nodes.forEach(function (n) { var c = n.cloneNode(true); if (stepMode) c.classList.add("ps-step"); inner.appendChild(c); }); if (stepMode) { var f = inner.querySelector(".ps-step"); if (f) f.classList.add("shown"); } }
+    el.querySelector("[data-t]").textContent = s.topicTitle + " – " + s.title;
+    el.querySelector("[data-n]").textContent = (i + 1) + " / " + slides.length;
+    prog.style.width = ((i + 1) / slides.length * 100) + "%";
+    slideBox.scrollTop = 0; fit();
+  }
+  function reveal(d) { var st = inner.querySelectorAll(".ps-step"); if (!st.length) return false; var sh = inner.querySelectorAll(".ps-step.shown").length; if (d > 0 && sh < st.length) { st[sh].classList.add("shown"); return true; } if (d < 0 && sh > 1) { st[sh - 1].classList.remove("shown"); return true; } return false; }
+  function fit() {
+    var s = slides[i]; if (!s) return; inner.style.transform = ""; inner.style.width = "";
+    if (s.simEl) { slideBox.classList.add("scroll"); return; }
+    var avail = slideBox.clientHeight - parseFloat(getComputedStyle(slideBox).paddingTop) * 2, need = inner.scrollHeight;
+    if (need > avail) { var k = Math.max(0.58, avail / need); inner.style.transform = "scale(" + k + ")"; inner.style.width = (100 / k) + "%"; if (need * k > avail + 2) slideBox.classList.add("scroll"); }
+  }
+  function go(n) { n = Math.max(0, Math.min(slides.length - 1, n)); i = n; render(); }
+  function start(topics, at) {
+    make(); build(topics); if (!slides.length) return;
+    i = at || 0; el.classList.add("on"); document.body.classList.add("pres-open"); render();
+  }
+  function stop() { restore(); if (!el) return; el.classList.remove("on", "black", "pointer"); document.body.classList.remove("pres-open"); if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen(); var s = slides[i]; if (s && s.topic) { showTab(s.topic, s.simEl ? "sim" : "lu"); } }
+  return { start: start, stop: stop, go: go };
+})();
+</script>
+
+</head>
+<body>
+<div class="topbar"><div class="wrap"><a class="brand" href="/">Grundmodul<small>Grundmodul · Grundmodul – Elektrotechnik und Elektronik</small></a><span class="sp"></span><a class="btn sm noprint" href="/">Grundmodul · Übersicht</a><button class="btn sm noprint" data-print>🖨 Drucken</button></div></div>
+<main class="wrap">
+<article class="topic" data-topic="gm11" data-title="GM 11 Überspannung und Unterspannung – Ursachen, Schutzverfahren, Geräte">
+  <header class="hero">
+    <div class="kicker">Grundmodul · Grundmodul – Elektrotechnik und Elektronik · Thema GM 11</div>
+    <h1>Überspannung und Unterspannung – Ursachen, Schutzverfahren, Geräte</h1>
+    <p class="lead">Transiente und zeitweilige Überspannungen, Überspannungskategorien, Überspannungs-Schutzgeräte Typ 1/2/3 und ihr Anschluss, Unterspannung und Spannungseinbrüche, Netzüberwachung, Unterspannungsauslöser, USV und Wiederanlaufschutz.</p>
+  </header>
+  <nav class="tabs noprint" role="tablist">
+    <button data-tab="lu" role="tab">📘 Lernunterlage</button>
+    <button data-tab="sim" role="tab">🧪 Simulatoren (9)</button>
+    <button data-tab="ab" role="tab">✏️ Arbeitsblatt</button>
+    <button data-tab="lo" role="tab">✅ Lösungen</button>
+    <button class="prbtn" data-pres="1" title="Lernunterlage als Folien vortragen">🎤 Präsentation</button>
+  </nav>
+  <section class="panel lu" data-panel="lu"><div class="paper"><div class="print-head"><span>Elektrotechnik & Mechatronik – Grundmodul · GM 11 Überspannung und Unterspannung – Ursachen, Schutzverfahren, Geräte</span><span>Lernunterlage</span></div>
+    <h2>Überspannung und Unterspannung – Ursachen, Schutzverfahren, Geräte</h2>
+    <div class="goals"><b>Lernziele – nach diesem Kapitel kannst du …</b><ul><li>transiente und zeitweilige Überspannungen sowie Unterspannungen nach Ursache, Höhe und Dauer unterscheiden</li><li>Überspannungskategorien und Bemessungs-Stoßspannungen zuordnen</li><li>Überspannungsschutzgeräte (SPD Typ 1, 2, 3) nach Aufbau, Prüfstrom und Schutzpegel auswählen und richtig anschließen</li><li>das Blitzschutzzonenkonzept und die Koordination von Schutzgeräten erklären</li><li>Geräte gegen Unterspannung und Spannungsausfall einsetzen: Unterspannungsauslöser, Netzüberwachungsrelais, USV</li><li>den Wiederanlaufschutz nach EN 60204-1 begründen und umsetzen</li></ul></div>
+    <div class="book">Kap. 11 „Schutzmaßnahmen“ (Überspannungsschutz, Blitzschutz), Kap. 10 „Energieversorgung“ (Spannungsqualität, Netzrückwirkungen), Kap. 12 „Steuerungen“ (Unterspannungsschutz, Wiederanlaufsperre), Kap. 6 „Bauelemente“ (Varistor, Suppressordiode, Gasableiter). Normen: ÖVE/ÖNORM E 8101 Teil 4-44 und 5-534, ÖVE/ÖNORM EN 62305, EN 61643-11, EN 50160, EN 60204-1.</div>
+    <p class="ab-intro"><span class="badge b1">★ Grundlagen</span> für alle · <span class="badge b2">★★ Vertiefung</span> für Fortgeschrittene / LAP-Vorbereitung · <span class="newbadge">Fachkunde</span> = nach dem Buch ergänzt</p>
+
+<h3>1 Überblick: Wenn die Spannung nicht passt <span class="badge b1">★</span></h3>
+<p>Geräte sind für eine Nennspannung gebaut, im österreichischen Niederspannungsnetz 230/400 V. Nach EN 50160 darf sie im Normalbetrieb um ±10 % schwanken. Abweichungen darüber hinaus unterscheidet man nach <b>Höhe</b> und <b>Dauer</b>:</p>
+<figure class="fig"><div class="sv" data-ref="figueb"></div><figcaption>Bild: Spannungsereignisse nach Höhe und Dauer (schematisch, eigene Darstellung)</figcaption></figure>
+<div class="tscroll"><table class="t"><tr><th>Ereignis</th><th>Dauer</th><th>Höhe (Beispiel)</th><th>typische Ursache</th></tr>
+<tr><td><b>Transiente Überspannung</b> (Stoßspannung)</td><td>µs … ms</td><td>einige kV bis über 100 kV</td><td>Blitzeinschlag direkt oder in der Nähe, Schalthandlungen (Abschalten von Spulen, Sicherungsauslösung), elektrostatische Entladung (ESD)</td></tr>
+<tr><td><b>Zeitweilige Überspannung</b> (TOV)</td><td>ms … Stunden</td><td>bis 400 V statt 230 V</td><td><b>N-Unterbrechung</b> (Sternpunktverschiebung), Erdschluss im Mittelspannungsnetz, Fehler im Trafo, Spannungsanhebung durch PV-Einspeisung</td></tr>
+<tr><td><b>Spannungseinbruch</b> (Dip)</td><td>10 ms … 1 min</td><td>auf 10 … 90 % U<sub>N</sub></td><td>Kurzschluss im Netz bis zur Abschaltung, Anlauf großer Motoren, Zuschalten von Transformatoren</td></tr>
+<tr><td><b>Unterspannung</b> (dauernd)</td><td>&gt; 1 min</td><td>&lt; 90 % U<sub>N</sub></td><td>lange oder zu dünne Leitungen, überlastetes Netz, Schieflast</td></tr>
+<tr><td><b>Spannungsunterbrechung</b></td><td>ms … Stunden</td><td>&lt; 5 % U<sub>N</sub></td><td>Netzfehler, Kurzunterbrechung (AWE) im Freileitungsnetz, Ausfall</td></tr></table></div>
+<div class="merk"><b>Folgen:</b> Überspannung zerstört Isolationen und Elektronik, etwa Netzteile, Steuerungen, Wechselrichter und LED-Treiber. Unterspannung lässt Schütze abfallen oder flattern. Motoren ziehen dann mehr Strom und überhitzen, Steuerungen und Rechner stürzen ab. Nach einer Unterbrechung kann eine Maschine <b>unerwartet wieder anlaufen</b>, wenn kein Wiederanlaufschutz vorhanden ist.</div>
+
+<h3>2 Transiente Überspannungen: Ursachen und Stoßströme <span class="badge b1">★</span><span class="newbadge">Fachkunde</span></h3>
+<div class="grid2"><div>
+<ul><li><b>Direkter Blitzeinschlag</b> ins Gebäude oder in die Freileitung: Ein Teil des Blitzstroms (bis 100 kA und mehr) fließt über die Erdungsanlage und die Versorgungsleitungen ab. Man prüft mit der Stoßstromform <b>10/350 µs</b>, die viel Energie enthält.</li><li><b>Naheinschlag und Ferneinschlag</b>: Das Magnetfeld des Blitzstroms induziert Spannungen in Leitungsschleifen. Außerdem hebt der Blitzstrom das Erdpotential an. Prüfstromform <b>8/20 µs</b>.</li><li><b>Schaltüberspannungen</b>: beim Abschalten von Induktivitäten (Motoren, Transformatoren, Schützspulen), durch Sicherungsauslösung oder Kompensationsanlagen. Sie sind häufiger als Blitzüberspannungen, aber energieärmer.</li><li><b>ESD</b>: Entladung eines aufgeladenen Menschen (bis 15 kV) auf Elektronik</li></ul>
+<p>Die Angabe 10/350 bedeutet: 10 µs Anstiegszeit bis zum Scheitel, nach 350 µs ist der Strom auf die Hälfte abgefallen.</p></div>
+<figure class="fig"><div class="sv" data-ref="figstoss"></div><figcaption>Bild: Prüfstromformen 10/350 µs (Blitzstrom) und 8/20 µs (Stoßstrom), gleicher Scheitelwert (eigene Darstellung)</figcaption></figure></div>
+
+<h3>3 Überspannungskategorien und Isolationskoordination <span class="badge b1">★</span></h3>
+<div class="grid2"><div>
+<p>Jedes Betriebsmittel hält nur eine bestimmte <b>Bemessungs-Stoßspannung</b> U<sub>W</sub> aus. Je näher es am Netzeingang sitzt, desto höher muss sie sein. Der Überspannungsschutz muss die Spannung am Gerät <b>unter</b> diesen Wert begrenzen.</p>
+<div class="tscroll"><table class="t"><tr><th>Kategorie</th><th>Einbauort / Beispiele</th><th class="num">U<sub>W</sub> bei 230/400 V</th></tr>
+<tr><td><b>IV</b></td><td>Netzanschluss: Hausanschlusskasten, Zähler, Vorzählersicherungen</td><td class="num">6 kV</td></tr>
+<tr><td><b>III</b></td><td>feste Installation: Verteiler, LS-Schalter, Schalter, Steckdosen, ortsfeste Motoren</td><td class="num">4 kV</td></tr>
+<tr><td><b>II</b></td><td>Verbrauchsgeräte am Steckdosenkreis: Haushaltsgeräte, Werkzeuge</td><td class="num">2,5 kV</td></tr>
+<tr><td><b>I</b></td><td>besonders geschützte Elektronik: Rechner, Steuerungen, Messgeräte</td><td class="num">1,5 kV</td></tr></table></div></div>
+<figure class="fig"><div class="sv" data-ref="figkat"></div><figcaption>Bild: Überspannungskategorien und gestaffelter Schutz (eigene Darstellung)</figcaption></figure></div>
+<p>Dieselben Kategorien stehen als <b>CAT II–IV</b> auch auf Messgeräten. Dort geben sie an, wo man mit dem Gerät sicher messen darf.</p>
+
+<h3>4 Überspannungsschutzgeräte (SPD) <span class="badge b1">★</span><span class="newbadge">Fachkunde</span></h3>
+<div class="tscroll"><table class="t"><tr><th>Typ (EN 61643-11)</th><th>Aufgabe</th><th>Prüfstrom / Kenngröße</th><th>Schutzpegel U<sub>p</sub></th><th>Einbauort</th></tr>
+<tr><td><b>Typ 1</b> (Blitzstromableiter)</td><td>leitet Teilblitzströme ab</td><td>I<sub>imp</sub> (10/350 µs), z. B. 12,5 kA je Pol</td><td>≤ 4 kV (oft ≤ 1,5 kV als Kombiableiter Typ 1+2)</td><td>Gebäudeeintritt, Hauptverteiler – Pflicht bei äußerem Blitzschutz bzw. Freileitungsanschluss</td></tr>
+<tr><td><b>Typ 2</b> (Überspannungsableiter)</td><td>begrenzt Schalt- und induzierte Überspannungen</td><td>I<sub>n</sub> bzw. I<sub>max</sub> (8/20 µs), z. B. 20/40 kA</td><td>≤ 1,5 kV</td><td>Haupt- und Unterverteiler</td></tr>
+<tr><td><b>Typ 3</b> (Geräteschutz)</td><td>Feinschutz für empfindliche Geräte</td><td>U<sub>oc</sub> (Hybridgenerator), I<sub>n</sub> einige kA</td><td>≤ 1 kV</td><td>Steckdosenleiste, Zwischenstecker, in der Nähe des Geräts (≤ 10 m)</td></tr></table></div>
+<div class="grid2"><div>
+<h4>Bauelemente in SPD</h4>
+<ul><li><b>Funkenstrecke</b>: Sie zündet bei Überspannung und kann sehr große Blitzströme führen (Typ 1). Nach dem Zünden kann aus dem Netz ein <b>Folgestrom</b> fließen, den sie selbst löschen muss.</li><li><b>Varistor (MOV)</b>: Sein Widerstand sinkt ab einer bestimmten Spannung stark. Er reagiert schnell und ist der Standard für Typ 2. Er altert mit jeder Ableitung und hat eine thermische Abtrennvorrichtung mit Anzeige (grün/rot).</li><li><b>Gasableiter</b>: eine kleine gasgefüllte Funkenstrecke. Sie wird in der N-PE-Strecke (bei der „3+1-Schaltung“) und in Datenleitungen eingesetzt.</li><li><b>Suppressordiode</b> (TVS): sehr schnell und genau, aber nur kleine Energie. Sie dient als Feinschutz in Elektronik und Datenleitungen.</li></ul></div>
+<figure class="fig"><div class="sv" data-ref="figspd"></div><figcaption>Bild: Kennlinien – Varistor, Funkenstrecke, Suppressordiode (schematisch, eigene Darstellung)</figcaption></figure></div>
+
+<h3>5 SPD richtig anschließen <span class="badge b1">★</span></h3>
+<div class="grid2"><div>
+<ul><li><b>Kurze Anschlussleitungen!</b> Jede Leitung hat etwa 1 µH/m Induktivität. Bei Stoßströmen mit großer Steilheit (z. B. 10 kA in 8 µs) fallen daran rund <b>1 kV je Meter</b> ab. Diese Spannung addiert sich zum Schutzpegel. Richtwert: Gesamtlänge der Anschlussleitungen ≤ <b>0,5 m</b>.</li><li>Besser ist die <b>V-Verdrahtung</b> (Durchgangsverdrahtung): Die Leitung führt direkt über die Klemmen des Ableiters, dann gibt es keine zusätzliche Stichleitung.</li><li>Querschnitt: Typ 2 mindestens 4 mm² Cu (bzw. nach Hersteller), Typ 1 mindestens 16 mm² Cu zur Haupterdungsschiene</li><li><b>Vorsicherung</b> nach Herstellerangabe. Ist die Vorsicherung der Anlage größer als erlaubt, braucht der SPD eine eigene Sicherung.</li><li>Im TN-C-S-System: SPD von jedem Außenleiter gegen PE bzw. PEN. Im TT-System: <b>3+1-Schaltung</b>, also Varistoren L–N und eine Funkenstrecke N–PE, vor dem RCD.</li><li><b>Koordination</b>: Typ 1, 2 und 3 müssen aufeinander abgestimmt sein (Herstellerangaben, Mindestleitungslänge oder Kombiableiter), sonst übernimmt der Feinschutz die Energie und wird zerstört.</li></ul></div>
+<figure class="fig"><div class="sv" data-ref="figanschl"></div><figcaption>Bild: Stichverdrahtung und V-Verdrahtung (eigene Darstellung)</figcaption></figure></div>
+<p>Nach ÖVE/ÖNORM E 8101 Teil 4-44 ist ein Überspannungsschutz in neuen Anlagen in der Regel <b>gefordert</b>, wenn eine Überspannung Folgen für Menschenleben, öffentliche Einrichtungen, gewerbliche Tätigkeiten oder viele Personen hätte. Sonst entscheidet eine Risikobewertung. In der Praxis baut man in Wohnungs- und Hauptverteilern standardmäßig einen Typ 2 ein, bei äußerem Blitzschutz oder Freileitungseinspeisung einen Typ 1 bzw. Kombiableiter. Für <b>Daten- und Signalleitungen</b> (Netzwerk, Antenne, Bus, Telefon) gibt es eigene Ableiter. Jede Leitung, die das Gebäude betritt, gehört in den <b>Blitzschutz-Potentialausgleich</b>.</p>
+
+<h3>6 Unterspannung und Spannungsausfall: Schutzverfahren <span class="badge b1">★</span></h3>
+<div class="tscroll"><table class="t"><tr><th>Gerät / Verfahren</th><th>Funktion</th><th>Einsatz</th></tr>
+<tr><td><b>Unterspannungsauslöser</b> (am Leistungs- oder Motorschutzschalter)</td><td>Spule hält den Schalter eingeschaltet; fällt die Spannung unter ca. 35 … 70 % U<sub>N</sub>, löst der Schalter aus. Wiedereinschalten nur von Hand.</td><td>Wiederanlaufschutz von Maschinen, Not-Halt über Ruhestromprinzip</td></tr>
+<tr><td><b>Schütz mit Selbsthaltung</b></td><td>Bei Spannungsausfall fällt das Schütz ab, die Selbsthaltung ist aufgehoben. Nach Spannungswiederkehr muss neu gestartet werden.</td><td>Standard-Wiederanlaufschutz (EN 60204-1)</td></tr>
+<tr><td><b>Netz-/Spannungsüberwachungsrelais</b></td><td>überwacht Über- und Unterspannung, Phasenausfall, Phasenfolge, Asymmetrie; Schwellen und Verzögerung einstellbar; Relaisausgang</td><td>Pumpen, Kompressoren, Aufzüge, drehrichtungsabhängige Antriebe</td></tr>
+<tr><td><b>NA-Schutz</b> (Netz- und Anlagenschutz)</td><td>trennt Erzeugungsanlagen bei Spannungs- oder Frequenzabweichung vom Netz; Grenzwerte nach den TOR des Netzbetreibers</td><td>PV-Wechselrichter, Blockheizkraftwerke</td></tr>
+<tr><td><b>USV</b> (unterbrechungsfreie Stromversorgung)</td><td>Batterie überbrückt Ausfall und Einbrüche; Bauarten: Offline (VFD), Line-Interactive (VI), Online-Doppelwandler (VFI)</td><td>Server, Steuerungen, Alarmanlagen, Medizintechnik</td></tr>
+<tr><td><b>24-V-DC-Puffermodul</b> / Kondensatorpuffer</td><td>überbrückt kurze Einbrüche (ms … s) der Steuerspannung</td><td>SPS, HMI, Sensorik</td></tr>
+<tr><td><b>Notstromaggregat / Ersatzstrom</b></td><td>übernimmt nach Umschaltzeit (s) die Versorgung</td><td>Spitäler, Rechenzentren, Sicherheitseinrichtungen</td></tr></table></div>
+<div class="merk"><b>Wiederanlaufschutz:</b> Nach EN 60204-1 darf eine Maschine nach Spannungswiederkehr <b>nicht selbsttätig</b> anlaufen, wenn dadurch eine Gefährdung entsteht. Ein Dauerkontakt-Schalter, der direkt den Motor schaltet, ist deshalb ungeeignet. Die richtige Lösung ist eine Schützschaltung mit Selbsthaltung, ein Unterspannungsauslöser oder eine SPS-Logik mit Startflanke.</div>
+
+<h3>7 Schütze bei Unterspannung <span class="badge b1">★</span></h3>
+<p>Ein Schütz zieht erst ab etwa 85 % der Steuerspannung sicher an. Abfallen kann es je nach Bauart schon bei 20 … 75 %. Dazwischen „<b>flattert</b>“ es: Die Kontakte öffnen und schließen schnell hintereinander, brennen ab und können verschweißen. Lange 24-V-Steuerleitungen und schwache Netzteile verstärken das Problem. Abhilfe schaffen ein ausreichend großer Querschnitt, eine kurze Leitungsführung, ein stabiles Netzteil (bei Bedarf mit Puffermodul) und die Abschaltung über ein Spannungsüberwachungsrelais.</p>
+
+<div class="deep"><h3>8 Vertiefung: Blitzschutzzonen und USV-Bauarten <span class="badge b2">★★</span></h3>
+<div class="grid2"><div>
+<h4>Blitzschutzzonenkonzept (EN 62305-4)</h4>
+<ul><li><b>LPZ 0<sub>A</sub></b>: außen, direkter Einschlag möglich</li><li><b>LPZ 0<sub>B</sub></b>: außen, durch Fangeinrichtung geschützt, aber volles Feld</li><li><b>LPZ 1</b>: im Gebäude – an der Grenze Typ 1</li><li><b>LPZ 2</b>: Schaltschrank, Raum mit Schirmung – Typ 2</li><li><b>LPZ 3</b>: Gerät – Typ 3</li></ul>
+<p>An <b>jeder</b> Zonengrenze werden alle Leitungen (Energie, Daten, Rohre) in den Potentialausgleich einbezogen, direkt oder über SPD. So sinken Energie und Spannung von Zone zu Zone.</p></div>
+<div><h4>USV-Bauarten (EN 62040-3)</h4>
+<div class="tscroll"><table class="t"><tr><th>Klasse</th><th>Prinzip</th><th>Umschaltzeit</th></tr>
+<tr><td><b>VFD</b> (Offline/Standby)</td><td>Last direkt am Netz, bei Ausfall Umschalten auf Wechselrichter</td><td>2 … 10 ms</td></tr>
+<tr><td><b>VI</b> (Line-Interactive)</td><td>wie VFD, zusätzlich Spannungsregelung über Trafo-Anzapfungen</td><td>2 … 4 ms</td></tr>
+<tr><td><b>VFI</b> (Online/Doppelwandler)</td><td>Last immer über Gleichrichter → Batterie/Zwischenkreis → Wechselrichter</td><td>0 ms – Spannung und Frequenz unabhängig vom Netz</td></tr></table></div>
+<div class="formula">t<sub>Überbrückung</sub> ≈ W<sub>Batterie</sub> · η / P<sub>Last</sub></div>
+<p>Beispiel: 2 Batterien 12 V / 9 Ah = 216 Wh, η = 0,9, Last 300 W → 216 · 0,9 / 300 ≈ 0,65 h ≈ 39 min (vereinfacht, ohne Peukert-Effekt).</p></div></div></div>
+  </div></section>
+  <section class="panel sim" data-panel="sim">
+    <p class="lead noprint">Die Simulatoren laufen direkt im Browser – auch am Handy. Werte verändern, beobachten, Ergebnis mit der Lernunterlage vergleichen. Im 🎤 Präsentationsmodus lassen sie sich live vorführen.</p>
+<div class="sim"><h3><span class="no">S1</span> Spannungsereignis und Schutzgerät</h3><p class="how">Wähle ein Ereignis im Netz und ein Schutzgerät. Das Diagramm zeigt die Spannung am Gerät (Effektivwert bzw. Momentanwert, schematisch). Darunter steht, was mit dem Verbraucher passiert.</p><div data-ref="sev"></div></div>
+<div class="sim"><h3><span class="no">S2</span> SPD-Anschlussleitung: Warum ≤ 0,5 m?</h3><p class="how">Stelle Schutzpegel, Leitungslänge und Stoßstrom ein. Verglichen wird die Spannung am geschützten Gerät mit seiner Bemessungs-Stoßspannung.</p><div data-ref="sspd"></div></div>
+<div class="sim"><h3><span class="no">S3</span> Netzüberwachungsrelais (3-phasig)</h3><p class="how">Stelle die drei Leiterspannungen und die Phasenfolge ein. Das Relais prüft Über- und Unterspannung, Phasenausfall, Asymmetrie und Drehfeld und schaltet seinen Ausgang 11–14.</p><div data-ref="snue"></div></div>
+<div class="sim"><h3><span class="no">S4</span> Unterspannung beim Motoranlauf – fällt das Schütz ab?</h3><p class="how">Ein großer Motor läuft direkt an. Wie stark bricht die Spannung am Ende der Leitung ein, und was passiert mit Schützen und Leuchten im gleichen Netz?</p><div data-ref="sanl"></div></div>
+<div class="sim"><h3><span class="no">S5</span> Wiederanlaufschutz</h3><p class="how">Schalte den Motor ein, simuliere einen Netzausfall und die Spannungswiederkehr. Vergleiche Dauerkontakt-Schalter und Schütz mit Selbsthaltung.</p><div data-ref="swa"></div></div>
+<div class="sim"><h3><span class="no">S6</span> Aufgaben-Generator Über- und Unterspannung</h3><p class="how">Zufällige Aufgaben mit Lösungsweg. Toleranz ±2 %.</p><div data-ref="sgen"></div></div>
+<div class="sim"><h3><span class="no">S7</span> Welches Gerät schützt wogegen?</h3><div data-ref="ssort"></div></div>
+<div class="sim"><h3><span class="no">S8</span> Wissenscheck A – Überspannung und Schutzgeräte – 8 Fragen</h3><p class="how">Dieselben Fragen wie auf dem Arbeitsblatt, interaktiv mit sofortiger Rückmeldung.</p><div data-ref="wcq"></div></div>
+<div class="sim"><h3><span class="no">S9</span> Wissenscheck B – Unterspannung, Netzüberwachung, USV – 8 Fragen</h3><p class="how">Dieselben Fragen wie auf dem Arbeitsblatt, interaktiv mit sofortiger Rückmeldung.</p><div data-ref="wcq2"></div></div>
+  </section>
+  <section class="panel ab" data-panel="ab"><div class="paper"><div class="print-head"><span>Elektrotechnik & Mechatronik – Grundmodul · GM 11 Überspannung und Unterspannung – Ursachen, Schutzverfahren, Geräte</span><span>Arbeitsblatt</span></div>
+    <h2>Arbeitsblatt: Überspannung und Unterspannung – Ursachen, Schutzverfahren, Geräte</h2>
+    <div class="ab-head"><div>Name</div><div>Klasse / Lehrjahr</div><div>Datum</div><div>Punkte: ______ / 50</div></div>
+    <p class="ab-intro">Hilfsmittel: Lernunterlage, Taschenrechner, Tabellenbuch. Rechenaufgaben immer mit <b>Formel, eingesetzten Werten und Einheit</b> lösen.</p>
+<div class="task"><h3>1. Spannungsereignisse <span class="badge b1">★</span><span class="pts">5 P</span></h3><p>Ordne Dauer, typische Höhe und eine Ursache zu: transiente Überspannung, zeitweilige Überspannung, Spannungseinbruch, Unterbrechung.</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task"><h3>2. N-Unterbrechung <span class="badge b2">★★</span><span class="pts">4 P</span></h3><p>In einem Mehrfamilienhaus wird der PEN am Hausanschluss unterbrochen. In Wohnung 1 laufen nur ein Ladegerät und ein Router, in Wohnung 2 ein 2-kW-Heizlüfter – beide an verschiedenen Außenleitern. Was passiert mit den Geräten in Wohnung 1? Begründe.</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task"><h3>3. Überspannungskategorien <span class="badge b1">★</span><span class="pts">4 P</span></h3><p>Nenne die Kategorien I–IV mit Bemessungs-Stoßspannung (230/400 V) und je einem Betriebsmittel.</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task"><h3>4. SPD-Typen <span class="badge b1">★</span><span class="pts">5 P</span></h3><p>Vergleiche SPD Typ 1, 2 und 3 nach Prüfstromform, Schutzpegel, Bauelement und Einbauort. Wann ist ein Typ 1 erforderlich?</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task"><h3>5. Anschlusslänge <span class="badge b2">★★</span><span class="pts">4 P</span></h3><p>Ein Typ-2-Ableiter (U<sub>p</sub> = 1,3 kV) ist mit insgesamt 1,2 m Leitung angeschlossen. Bei einem Stoßstrom steigt der Strom mit 1 kA/µs. Berechne die Spannung am Gerät (L' = 1 µH/m). Ist ein Gerät der Kategorie II geschützt? Wie verbesserst du den Anschluss?</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task"><h3>6. Netzüberwachung <span class="badge b1">★</span><span class="pts">4 P</span></h3><p>Welche vier Fehler erkennt ein dreiphasiges Netzüberwachungsrelais? Warum ist die Phasenfolgeüberwachung bei Pumpen und Kompressoren wichtig?</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task"><h3>7. Wiederanlaufschutz <span class="badge b1">★</span><span class="pts">4 P</span></h3><p>Eine Tischkreissäge wird mit einem einfachen Drehschalter (Dauerkontakt) eingeschaltet. Was passiert nach einem kurzen Netzausfall? Welche Lösungen gibt es?</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task"><h3>8. USV <span class="badge b2">★★</span><span class="pts">4 P</span></h3><p>Ein Server (450 W) soll 15 min überbrückt werden. Welche Batterieenergie ist bei η = 0,88 nötig? Welche USV-Klasse empfiehlst du und warum?</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task wcheck"><h3>9. Wissenscheck A – Überspannung und Schutzgeräte – 8 Fragen <span class="badge b1">★</span><span class="pts">8 P</span></h3>
+<p class="ab-intro">Kreuze jeweils <b>eine</b> richtige Antwort an. Jede richtige Antwort = 1 Punkt.</p><ol class="wc">
+<li><p><b>Welche Stoßstromform prüft Blitzstrom-Ableiter vom Typ 1?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) 8/20 µs</li><li><span class="wcb">☐</span> b) 50 Hz sinusförmig</li><li><span class="wcb">☐</span> c) 1,2/50 µs</li><li><span class="wcb">☐</span> d) 10/350 µs</li></ul></li>
+<li><p><b>Wo wird ein SPD Typ 1 eingebaut?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) auf der Platine</li><li><span class="wcb">☐</span> b) direkt in der Steckdosenleiste</li><li><span class="wcb">☐</span> c) im Zählerkasten nur bei TT-Netzen</li><li><span class="wcb">☐</span> d) am Gebäudeeintritt bzw. Hauptverteiler bei äußerem Blitzschutz</li></ul></li>
+<li><p><b>Welche Bemessungs-Stoßspannung gilt für Überspannungskategorie II (230/400 V)?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) 2,5 kV</li><li><span class="wcb">☐</span> b) 1,5 kV</li><li><span class="wcb">☐</span> c) 6 kV</li><li><span class="wcb">☐</span> d) 4 kV</li></ul></li>
+<li><p><b>Wie verhält sich ein Varistor?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) er speichert die Energie</li><li><span class="wcb">☐</span> b) er schaltet die Anlage ab</li><li><span class="wcb">☐</span> c) sein Widerstand sinkt oberhalb der Ansprechspannung stark</li><li><span class="wcb">☐</span> d) er zündet einen Lichtbogen</li></ul></li>
+<li><p><b>Warum soll die Anschlussleitung eines SPD möglichst kurz sein (≤ 0,5 m)?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) an der Leitungsinduktivität entsteht zusätzlich L·di/dt</li><li><span class="wcb">☐</span> b) damit der RCD nicht auslöst</li><li><span class="wcb">☐</span> c) wegen des Spannungsfalls im Betrieb</li><li><span class="wcb">☐</span> d) wegen der Erwärmung</li></ul></li>
+<li><p><b>Welcher Schutz gehört in Daten- und Signalleitungen?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) Gasableiter und Suppressordioden in Kombination</li><li><span class="wcb">☐</span> b) ein Netzüberwachungsrelais</li><li><span class="wcb">☐</span> c) ein RCD</li><li><span class="wcb">☐</span> d) ein Leitungsschutzschalter</li></ul></li>
+<li><p><b>Was bedeutet „energetische Koordination“ bei SPD?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) SPD und RCD lösen gemeinsam aus</li><li><span class="wcb">☐</span> b) der SPD wird vom Zähler mitgezählt</li><li><span class="wcb">☐</span> c) Typ 1, 2 und 3 teilen sich die Energie, keiner wird überlastet</li><li><span class="wcb">☐</span> d) alle SPD sprechen gleichzeitig an</li></ul></li>
+<li><p><b>Wogegen hilft ein Überspannungs-Schutzgerät NICHT?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) dauernde Überspannung durch N-Unterbrechung</li><li><span class="wcb">☐</span> b) induzierte Stoßspannung</li><li><span class="wcb">☐</span> c) Schaltüberspannung</li><li><span class="wcb">☐</span> d) Blitz-Naheinschlag</li></ul></li>
+</ol><p class="wcpts">Erreichte Punkte: ______ / 8 &nbsp;·&nbsp; Bewertung: 8–7 sehr gut · 6 gut · 5 befriedigend · 4 genügend · unter 4 wiederholen</p></div>
+<div class="task wcheck"><h3>10. Wissenscheck B – Unterspannung, Netzüberwachung, USV – 8 Fragen <span class="badge b1">★</span><span class="pts">8 P</span></h3>
+<p class="ab-intro">Kreuze jeweils <b>eine</b> richtige Antwort an. Jede richtige Antwort = 1 Punkt.</p><ol class="wc">
+<li><p><b>Ab wann gilt Unterspannung nach EN 50160 als Abweichung?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) unter 207 V (−10 %)</li><li><span class="wcb">☐</span> b) unter 230 V</li><li><span class="wcb">☐</span> c) unter 220 V</li><li><span class="wcb">☐</span> d) unter 161 V</li></ul></li>
+<li><p><b>Wozu dient der Wiederanlaufschutz (EN 60204-1)?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) Motoren sollen schneller anlaufen</li><li><span class="wcb">☐</span> b) Überspannungen zu begrenzen</li><li><span class="wcb">☐</span> c) die Spannung zu stabilisieren</li><li><span class="wcb">☐</span> d) Maschinen sollen nach Spannungswiederkehr nicht selbst anlaufen</li></ul></li>
+<li><p><b>Welche Schaltung erfüllt den Wiederanlaufschutz bereits?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) Stern-Dreieck mit Zeitrelais allein</li><li><span class="wcb">☐</span> b) Dauerkontakt-Schalter</li><li><span class="wcb">☐</span> c) Steckdose mit Schalter</li><li><span class="wcb">☐</span> d) Schütz mit Selbsthaltung und Start-Taster</li></ul></li>
+<li><p><b>Was überwacht ein 3-phasiges Netzüberwachungsrelais typischerweise?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) den Isolationswiderstand</li><li><span class="wcb">☐</span> b) nur die Frequenz der Batterie</li><li><span class="wcb">☐</span> c) nur den Fehlerstrom</li><li><span class="wcb">☐</span> d) Über-/Unterspannung, Phasenausfall, Phasenfolge, Asymmetrie</li></ul></li>
+<li><p><b>Welche USV-Bauart liefert eine unterbrechungsfreie, netzunabhängige Ausgangsspannung?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) jede USV gleich</li><li><span class="wcb">☐</span> b) Online-USV (VFI, Doppelwandler)</li><li><span class="wcb">☐</span> c) Offline-USV (VFD)</li><li><span class="wcb">☐</span> d) Line-Interactive (VI)</li></ul></li>
+<li><p><b>Eine USV hat 24 V / 9 Ah, η = 0,9, Last 200 W. Ungefähre Überbrückungszeit?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) ≈ 58 min</li><li><span class="wcb">☐</span> b) ≈ 10 min</li><li><span class="wcb">☐</span> c) ≈ 5 min</li><li><span class="wcb">☐</span> d) ≈ 2 h</li></ul></li>
+<li><p><b>Warum fallen Schütze bei einem Motoranlauf manchmal ab?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) der RCD löst aus</li><li><span class="wcb">☐</span> b) der Motor erzeugt Überspannung</li><li><span class="wcb">☐</span> c) die Frequenz steigt</li><li><span class="wcb">☐</span> d) der hohe Anlaufstrom erzeugt einen Spannungseinbruch unter die Haltespannung</li></ul></li>
+<li><p><b>Wie reagiert ein Unterspannungsauslöser?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) er schaltet automatisch wieder ein</li><li><span class="wcb">☐</span> b) er löst den Leistungsschalter bei zu geringer Spannung aus, Wiedereinschalten von Hand</li><li><span class="wcb">☐</span> c) er begrenzt Stoßspannungen</li><li><span class="wcb">☐</span> d) er puffert die Spannung</li></ul></li>
+</ol><p class="wcpts">Erreichte Punkte: ______ / 8 &nbsp;·&nbsp; Bewertung: 8–7 sehr gut · 6 gut · 5 befriedigend · 4 genügend · unter 4 wiederholen</p></div>
+  </div></section>
+  <section class="panel lo" data-panel="lo"><div class="paper"><div class="print-head"><span>Elektrotechnik & Mechatronik – Grundmodul · GM 11 Überspannung und Unterspannung – Ursachen, Schutzverfahren, Geräte</span><span>Lösungen</span></div>
+    <h2>Lösungen: Überspannung und Unterspannung – Ursachen, Schutzverfahren, Geräte</h2>
+<div class="task"><h3>1. Ereignisse (5 P)</h3><div class="ans">Transient: µs–ms, kV, Blitz/Schalthandlung/ESD · zeitweilig: ms–h, bis ≈ 400 V, N-Unterbrechung/Netzfehler · Einbruch: 10 ms–1 min, 10–90 % U<sub>N</sub>, Kurzschluss im Netz/Motoranlauf · Unterbrechung: &lt; 5 % U<sub>N</sub>, Netzausfall/AWE.</div></div>
+<div class="task"><h3>2. N-Unterbrechung (4 P)</h3><div class="ans">Ohne N liegen die beiden Wohnungen (Außenleiter) in Reihe an 400 V. Der Heizlüfter hat einen kleinen Widerstand (≈ 26 Ω), Ladegerät/Router einen großen → fast die ganze Spannung (bis ≈ 400 V) liegt an den Geräten in Wohnung 1 → Zerstörung, Brandgefahr. (Sternpunktverschiebung)</div></div>
+<div class="task"><h3>3. Kategorien (4 P)</h3><div class="ans">IV 6 kV – Zähler/Hausanschluss · III 4 kV – Verteiler, LS, Steckdose, fester Motor · II 2,5 kV – Haushaltsgerät, Werkzeug · I 1,5 kV – Rechner, Steuerung, empfindliche Elektronik.</div></div>
+<div class="task"><h3>4. SPD-Typen (5 P)</h3><div class="ans">Typ 1: 10/350 µs (I<sub>imp</sub>), Funkenstrecke (oder Varistor-Kombiableiter), U<sub>p</sub> ≤ 4 kV (Kombi ≤ 1,5 kV), Gebäudeeintritt/Hauptverteiler. Typ 2: 8/20 µs (I<sub>n</sub>), Varistor, U<sub>p</sub> ≤ 1,5 kV, Verteiler. Typ 3: Hybrid/U<sub>oc</sub>, Varistor + TVS, U<sub>p</sub> ≤ 1 kV, nahe am Gerät. Typ 1 ist erforderlich bei äußerem Blitzschutz und bei Einspeisung über Freileitung (Gefahr von Teilblitzströmen).</div></div>
+<div class="task"><h3>5. Anschlusslänge (4 P)</h3><div class="ans">U<sub>L</sub> = L' · l · di/dt = 1 µH/m · 1,2 m · 1 kA/µs = 1,2 kV → U = 1,3 + 1,2 = <b>2,5 kV</b>. Kategorie II (2,5 kV) gerade an der Grenze – nicht ausreichend sicher. Verbesserung: Anschlusslänge ≤ 0,5 m, V-Verdrahtung, Ableiter näher an PE-Schiene, ggf. Typ 3 beim Gerät.</div></div>
+<div class="task"><h3>6. Netzüberwachung (4 P)</h3><div class="ans">Überspannung, Unterspannung, Phasenausfall, falsche Phasenfolge (Drehfeld), Asymmetrie. Bei falscher Phasenfolge laufen Pumpen/Kompressoren (Scroll-Verdichter) rückwärts → Schaden, keine Förderung.</div></div>
+<div class="task"><h3>7. Wiederanlauf (4 P)</h3><div class="ans">Der Schalter bleibt in Stellung EIN – kehrt die Spannung zurück, läuft die Säge unerwartet an → Verletzungsgefahr. Lösungen: Schützschaltung mit Selbsthaltung (Start/Stopp-Taster), Motorschutzschalter mit Unterspannungsauslöser, Not-Halt/Wiederanlaufsperre in der Steuerung.</div></div>
+<div class="task"><h3>8. USV (4 P)</h3><div class="ans">W = P · t / η = 450 W · 0,25 h / 0,88 = 128 Wh (plus Reserve/Alterung, z. B. 30 % → ≈ 170 Wh). Empfehlung VFI (Online-Doppelwandler): keine Umschaltzeit, Last vom Netz entkoppelt (Einbrüche, Oberschwingungen, Frequenz).</div></div>
+<div class="task wcheck"><h3>9. Wissenscheck A – Überspannung und Schutzgeräte – Lösungsblatt (8 P)</h3><div class="tscroll"><table class="t"><tr><th>Nr.</th><th>Lösung</th><th>Begründung</th></tr>
+<tr><td>1</td><td><b>d)</b> 10/350 µs</td><td>Lange Rückenhalbwertszeit = große Energie (Blitzteilstrom).</td></tr>
+<tr><td>2</td><td><b>d)</b> am Gebäudeeintritt bzw. Hauptverteiler bei äußerem Blitzschutz</td><td>–</td></tr>
+<tr><td>3</td><td><b>a)</b> 2,5 kV</td><td>IV 6 kV, III 4 kV, II 2,5 kV, I 1,5 kV.</td></tr>
+<tr><td>4</td><td><b>c)</b> sein Widerstand sinkt oberhalb der Ansprechspannung stark</td><td>–</td></tr>
+<tr><td>5</td><td><b>a)</b> an der Leitungsinduktivität entsteht zusätzlich L·di/dt</td><td>Etwa 1 kV pro Meter bei 1 kA/µs.</td></tr>
+<tr><td>6</td><td><b>a)</b> Gasableiter und Suppressordioden in Kombination</td><td>–</td></tr>
+<tr><td>7</td><td><b>c)</b> Typ 1, 2 und 3 teilen sich die Energie, keiner wird überlastet</td><td>–</td></tr>
+<tr><td>8</td><td><b>a)</b> dauernde Überspannung durch N-Unterbrechung</td><td>Dauernde 400 V überlasten den Varistor.</td></tr>
+</table></div></div>
+<div class="task wcheck"><h3>10. Wissenscheck B – Unterspannung, Netzüberwachung, USV – Lösungsblatt (8 P)</h3><div class="tscroll"><table class="t"><tr><th>Nr.</th><th>Lösung</th><th>Begründung</th></tr>
+<tr><td>1</td><td><b>a)</b> unter 207 V (−10 %)</td><td>–</td></tr>
+<tr><td>2</td><td><b>d)</b> Maschinen sollen nach Spannungswiederkehr nicht selbst anlaufen</td><td>–</td></tr>
+<tr><td>3</td><td><b>d)</b> Schütz mit Selbsthaltung und Start-Taster</td><td>Bei Ausfall fällt K1 ab – die Selbsthaltung ist weg.</td></tr>
+<tr><td>4</td><td><b>d)</b> Über-/Unterspannung, Phasenausfall, Phasenfolge, Asymmetrie</td><td>–</td></tr>
+<tr><td>5</td><td><b>b)</b> Online-USV (VFI, Doppelwandler)</td><td>–</td></tr>
+<tr><td>6</td><td><b>a)</b> ≈ 58 min</td><td>216 Wh · 0,9 / 200 W ≈ 0,97 h.</td></tr>
+<tr><td>7</td><td><b>d)</b> der hohe Anlaufstrom erzeugt einen Spannungseinbruch unter die Haltespannung</td><td>–</td></tr>
+<tr><td>8</td><td><b>b)</b> er löst den Leistungsschalter bei zu geringer Spannung aus, Wiedereinschalten von Hand</td><td>–</td></tr>
+</table></div></div>
+  </div></section>
+</article>
+<script>
+TOPIC_INIT["gm11"] = function(root){
+  var R = refFn(root), RS = refsFn(root);
+// ---------- Hilfen ----------
+function PL(d, c, w, x) { return '<path d="' + d + '" fill="none" stroke="' + (c || "currentColor") + '" stroke-width="' + (w || 2.4) + '" stroke-linejoin="round"' + (x || "") + '/>'; }
+function poly(pts, c, w, x) { return '<polyline points="' + pts.map(function (p) { return p[0].toFixed(1) + "," + p[1].toFixed(1); }).join(" ") + '" fill="none" stroke="' + c + '" stroke-width="' + (w || 2) + '" stroke-linejoin="round"' + (x || "") + '/>'; }
+var CO11 = "#d9822b", CB11 = "#2b6cc4", CR11 = "#c0392b", CG11 = "#2d8a4e";
+
+// ---------- Abbildungen ----------
+(function () { // Ereignisse nach Höhe und Dauer
+  var W = 600, H = 300, x0 = 80, y0 = 255, w = 500, hh = 230, X = function (t) { return x0 + (Math.log10(t) + 6) / 10 * w; }, Y = function (p) { return y0 - Math.min(p, 1000) / 1000 * hh; }, Yl = function (p) { return y0 - (p <= 200 ? p / 200 * 120 : 120 + (Math.log10(p) - Math.log10(200)) / (3 - Math.log10(200)) * 110); }, h = [svgOpen(W, H)];
+  [[1e-6, "1 µs"], [1e-4, "100 µs"], [1e-2, "10 ms"], [1, "1 s"], [100, "100 s"], [1e4, "≈ 3 h"]].forEach(function (t) { h.push('<line x1="' + X(t[0]) + '" y1="' + y0 + '" x2="' + X(t[0]) + '" y2="' + (y0 - hh) + '" stroke="var(--muted)" opacity=".2"/>' + txt(X(t[0]), y0 + 14, t[1], { a: "middle", fs: 8.5 })); });
+  [[0, "0 %"], [90, "90 %"], [110, "110 %"], [200, "200 %"], [1000, "≥ 1000 %"]].forEach(function (p) { h.push('<line x1="' + x0 + '" y1="' + Yl(p[0]) + '" x2="' + (x0 + w) + '" y2="' + Yl(p[0]) + '" stroke="var(--muted)" opacity="' + (p[0] === 0 ? .6 : .2) + '"/>' + txt(x0 - 4, Yl(p[0]) + 3, p[1], { a: "end", fs: 8 })); });
+  h.push('<rect x="' + x0 + '" y="' + Yl(110) + '" width="' + w + '" height="' + (Yl(90) - Yl(110)) + '" fill="var(--ok)" opacity=".18"/>' + txt(X(1e2), (Yl(90) + Yl(110)) / 2 + 3, "Normalbereich ±10 % (EN 50160)", { a: "middle", fs: 9, b: 1 }));
+  var box = function (t1, t2, p1, p2, col, lab) { h.push('<rect x="' + X(t1) + '" y="' + Yl(p2) + '" width="' + (X(t2) - X(t1)) + '" height="' + (Yl(p1) - Yl(p2)) + '" fill="' + col + '" opacity=".28" stroke="' + col + '"/>' + txt((X(t1) + X(t2)) / 2, (Yl(p1) + Yl(p2)) / 2 + 3, lab, { a: "middle", fs: 9, b: 1 })); };
+  box(1e-6, 1e-3, 150, 1000, CR11, "transiente Überspannung"); box(1e-2, 1e4, 112, 175, CO11, "zeitweilige Überspannung (TOV)");
+  box(1e-2, 60, 12, 88, CB11, "Spannungseinbruch"); box(70, 1e4, 60, 88, "#7a4ab8", "Unterspannung"); box(1e-2, 1e4, 0, 5, "#555", "Unterbrechung");
+  h.push(txt(x0 + w, y0 + 30, "Dauer (logarithmisch)", { a: "end", fs: 9 }) + txt(x0 - 70, 14, "Spannung in % von U_N (bis mehrere kV)", { fs: 9 }) + '</svg>'); R("figueb").innerHTML = h.join("");
+})();
+(function () { // Stoßstromformen
+  var W = 440, H = 220, x0 = 46, y0 = 185, w = 370, hh = 150, X = function (t) { return x0 + t / 800 * w; }, Y = function (i) { return y0 - i * hh; }, h = [svgOpen(W, H)];
+  var f = function (t, tr, th) { if (t <= 0) return 0; var a = Math.pow(Math.min(1, t / tr), 2) * (3 - 2 * Math.min(1, t / tr)); return t <= tr ? a : Math.exp(-Math.LN2 * (t - tr) / (th - tr)); };
+  var p1 = [], p2 = []; for (var t = 0; t <= 800; t += 2) { p1.push([X(t), Y(f(t, 10, 350))]); p2.push([X(t), Y(f(t * 1, 8, 20))]); }
+  h.push('<line x1="' + x0 + '" y1="' + y0 + '" x2="' + (x0 + w) + '" y2="' + y0 + '" stroke="currentColor"/><line x1="' + x0 + '" y1="' + y0 + '" x2="' + x0 + '" y2="' + (y0 - hh - 10) + '" stroke="currentColor"/>');
+  [0, 200, 400, 600, 800].forEach(function (t) { h.push(txt(X(t), y0 + 14, t + " µs", { a: "middle", fs: 8.5 })); });
+  h.push('<line x1="' + x0 + '" y1="' + Y(0.5) + '" x2="' + (x0 + w) + '" y2="' + Y(0.5) + '" stroke="var(--muted)" stroke-dasharray="3 3"/>' + txt(x0 - 4, Y(0.5) + 3, "50 %", { a: "end", fs: 8 }) + txt(x0 - 4, Y(1) + 3, "100 %", { a: "end", fs: 8 }));
+  h.push(poly(p1, CR11, 2.5) + poly(p2, CB11, 2.5) + txt(X(360), Y(0.62), "10/350 µs – Blitzstrom (Typ 1)", { fs: 9.5, b: 1, c: CR11 }) + txt(X(75), Y(0.78), "8/20 µs – Stoßstrom (Typ 2)", { fs: 9.5, b: 1, c: CB11 }) + '</svg>');
+  R("figstoss").innerHTML = h.join("");
+})();
+(function () { // Kategorien als Treppe
+  var h = [svgOpen(440, 250)], st = [["IV", 6, "Hausanschluss, Zähler"], ["III", 4, "Verteiler, Steckdose"], ["II", 2.5, "Haushaltsgerät"], ["I", 1.5, "Elektronik"]], y0 = 210, sc = 28;
+  st.forEach(function (s, i) { var x = 30 + i * 100; h.push('<rect x="' + x + '" y="' + (y0 - s[1] * sc) + '" width="92" height="' + s[1] * sc + '" fill="' + ["#c0392b", "#d9822b", "#c9a227", "#2d8a4e"][i] + '" opacity=".75"/>' + txt(x + 46, y0 - s[1] * sc + 18, "Kat. " + s[0], { a: "middle", fs: 11, b: 1, c: "#fff" }) + txt(x + 46, y0 - s[1] * sc + 34, s[1].toString().replace(".", ",") + " kV", { a: "middle", fs: 11, b: 1, c: "#fff" }) + txt(x + 46, y0 + 16, s[2], { a: "middle", fs: 8.5 })); });
+  [["Typ 1", 130], ["Typ 2", 230], ["Typ 3", 330]].forEach(function (s) { h.push('<path d="M' + s[1] + ' 28 V' + y0 + '" stroke="' + CB11 + '" stroke-width="2" stroke-dasharray="5 3"/>' + txt(s[1], 22, s[0], { a: "middle", fs: 10, b: 1, c: CB11 })); });
+  h.push(txt(220, 244, "Netz → Verbraucher: Überspannung wird stufenweise begrenzt", { a: "middle", fs: 9, c: "var(--muted)" }) + '</svg>'); R("figkat").innerHTML = h.join("");
+})();
+(function () { // Kennlinien
+  var W = 420, H = 230, x0 = 40, y0 = 195, w = 360, hh = 165, X = function (i) { return x0 + i * w; }, Y = function (u) { return y0 - u * hh; }, h = [svgOpen(W, H)], v = [], f = [], z = [];
+  for (var i = 0; i <= 1.0001; i += 0.01) { v.push([X(i), Y(0.55 + 0.25 * Math.pow(i, 0.25))]); z.push([X(i), Y(0.42 + 0.06 * i)]); }
+  f = [[X(0), Y(0)], [X(0), Y(0.95)], [X(0.02), Y(0.95)], [X(0.04), Y(0.12)], [X(1), Y(0.14)]];
+  h.push('<line x1="' + x0 + '" y1="' + y0 + '" x2="' + (x0 + w) + '" y2="' + y0 + '" stroke="currentColor"/><line x1="' + x0 + '" y1="' + y0 + '" x2="' + x0 + '" y2="' + (y0 - hh - 6) + '" stroke="currentColor"/>' + txt(x0 + w, y0 + 14, "Ableitstrom i →", { a: "end", fs: 9 }) + txt(x0 + 4, y0 - hh - 10, "Spannung u", { fs: 9 }));
+  h.push(poly(v, CO11, 2.5) + poly(f, CR11, 2.5) + poly(z, CG11, 2.5) + txt(X(0.6), Y(0.82), "Varistor: begrenzt weich", { fs: 9.5, b: 1, c: CO11 }) + txt(X(0.06), Y(0.97), "Funkenstrecke: zündet …", { fs: 9.5, b: 1, c: CR11 }) + txt(X(0.3), Y(0.2), "… dann niedrige Bogenspannung", { fs: 9.5, b: 1, c: CR11 }) + txt(X(0.45), Y(0.38), "Suppressordiode: scharfe Schwelle", { fs: 9.5, b: 1, c: CG11 }) + txt(X(0.45), Y(0.38) + 13, "(nur kleine Energie)", { fs: 8.5, c: CG11 }) + '</svg>');
+  R("figspd").innerHTML = h.join("");
+})();
+(function () { // Stich- vs. V-Verdrahtung
+  var h = [svgOpen(440, 230)];
+  var spd = function (x, y) { return '<rect x="' + (x - 18) + '" y="' + y + '" width="36" height="50" rx="4" fill="var(--card)" stroke="currentColor" stroke-width="2"/>' + txt(x, y + 22, "SPD", { a: "middle", fs: 9, b: 1 }) + txt(x, y + 36, "Typ 2", { a: "middle", fs: 8 }); };
+  h.push(txt(105, 18, "Stichleitung (ungünstig)", { a: "middle", fs: 10, b: 1, c: CR11 }) + PL("M20 50 H190", "#8b5a2b") + '<circle cx="80" cy="50" r="4" fill="#8b5a2b"/>' + PL("M80 50 V90", CR11, 3) + spd(80, 90) + PL("M80 140 V185 H140", CR11, 3) + PL("M140 185 H190", CG11, 3) + txt(36, 115, "l₁", { fs: 11, b: 1, c: CR11 }) + txt(110, 200, "l₂", { fs: 11, b: 1, c: CR11 }) + txt(150, 178, "PE-Schiene", { fs: 8.5 }) + txt(105, 222, "U = U_p + L'·(l₁+l₂)·di/dt", { a: "middle", fs: 9.5, b: 1 }));
+  h.push(txt(330, 18, "V-Verdrahtung (besser)", { a: "middle", fs: 10, b: 1, c: CG11 }) + PL("M240 50 H310 V90", "#8b5a2b") + spd(310, 90) + PL("M310 90 L 330 90 V50 H420", "#8b5a2b").replace('M310 90 L 330 90', 'M328 90') + PL("M310 140 V160 H420", CG11, 3) + txt(375, 152, "PE kurz", { fs: 8.5 }) + txt(330, 222, "Leitung läuft durch die Klemmen – keine Stichlänge", { a: "middle", fs: 9 }) + txt(372, 44, "→ Verbraucher", { fs: 8.5 }));
+  h.push('</svg>'); R("figanschl").innerHTML = h.join("");
+})();
+
+// ---------- S1 Ereignis + Schutzgerät ----------
+var EVT = { blitz: ["Blitz-Naheinschlag (induzierte Stoßspannung 6 kV)", "t"], schalt: ["Schaltüberspannung (2 kV, z. B. Abschalten einer Drossel)", "t"], nunt: ["N-Unterbrechung → 380 V dauernd", "o"], dip: ["Spannungseinbruch auf 55 % für 100 ms", "d"], unter: ["dauernde Unterspannung 190 V", "u"], aus: ["Kurzunterbrechung 80 ms (z. B. AWE)", "a"] };
+SIM.calc(R("sev"), {
+  in: [{ k: "e", l: "Ereignis im Netz", opts: Object.keys(EVT).map(function (k) { return [k, EVT[k][0]]; }), v: "blitz" }, { k: "d", l: "Schutzgerät", opts: [["no", "kein Schutz"], ["s2", "SPD Typ 2 im Verteiler"], ["s123", "SPD Typ 1 + 2 + 3 koordiniert"], ["nue", "Netzüberwachungsrelais (±10 %, 100 ms)"], ["usa", "Unterspannungsauslöser (< 70 %)"], ["usv", "Online-USV (VFI)"]], v: "no" }, { k: "g", l: "Verbraucher", opts: [["el", "Elektronik/Steuerung (Kat. I, 1,5 kV)"], ["mo", "Motor mit Schütz (Kat. III, 4 kV)"]], v: "el" }],
+  f: function (v) {
+    var e = v.e, d = v.d, N = 400, tE = 200, Urms = function (t) { if (e === "nunt" && t >= 60) return 380; if (e === "dip" && t >= 60 && t < 160) return 0.55 * 230; if (e === "unter" && t >= 60) return 190; if (e === "aus" && t >= 60 && t < 140) return 0; return 230; };
+    var spike = e === "blitz" ? 6000 : e === "schalt" ? 2000 : 0, lim = { no: spike, s2: Math.min(spike, 1300), s123: Math.min(spike, 800), nue: spike, usa: spike, usv: Math.min(spike, 1000) }[d];
+    var uw = v.g === "el" ? 1500 : 4000, off = null, latch = false, stat = "", ok = true, info = "";
+    var uin = [], uout = []; for (var k = 0; k <= N; k++) { var t = k / N * tE, ur = Urms(t), s = Math.sqrt(2) * ur * Math.sin(2 * Math.PI * 50 * t / 1000), so = s, ro = ur;
+      if (d === "nue") { if ((ur < 207 || ur > 253) && t >= 60) { if (off === null) off = t + 100; } if (off !== null && t >= off) { latch = true; } if (latch) { so = 0; ro = 0; } if (latch && ur >= 207 && ur <= 253 && t > off + 20) { } }
+      if (d === "usa") { if (ur < 161) latch = true; if (latch) { so = 0; ro = 0; } }
+      if (d === "usv") { so = Math.sqrt(2) * 230 * Math.sin(2 * Math.PI * 50 * t / 1000); ro = 230; }
+      uin.push([t, s]); uout.push([t, so, ro]); }
+    // Bewertung
+    if (EVT[e][1] === "t") { var peak = lim; if (peak > uw) { ok = false; stat = "beschädigt"; info = "Stoßspannung am Gerät ≈ " + fmt(peak / 1000, 1) + " kV > U_W = " + fmt(uw / 1000, 1) + " kV → Isolation/Elektronik zerstört."; } else { stat = "geschützt"; info = "Stoßspannung am Gerät ≈ " + fmt(peak / 1000, 2) + " kV ≤ U_W = " + fmt(uw / 1000, 1) + " kV."; if (d === "usv") info += " Der USV-Eingang selbst braucht trotzdem einen SPD."; } if (d === "nue" || d === "usa") info += " Spannungsrelais und Unterspannungsauslöser sind viel zu langsam für µs-Impulse – sie schützen nicht vor Stoßspannungen."; }
+    if (EVT[e][1] === "o") { if (d === "nue") { stat = "abgeschaltet (geschützt)"; info = "Das Relais erkennt U > 253 V und trennt nach 100 ms. Kurzzeitig liegen 380 V an – die meisten Geräte überstehen das."; } else if (d === "usv") { stat = "versorgt"; info = "Die Online-USV schaltet auf Batterie (Eingangsbereich überschritten); Ausgang bleibt 230 V – solange die Batterie reicht."; } else { ok = false; stat = v.g === "el" ? "zerstört" : "überlastet"; info = "380 V dauernd: Netzteile, LED-Treiber und Elektronik werden zerstört, Motoren/Spulen überhitzen." + (d === "s2" || d === "s123" ? " SPD helfen hier nicht – der Varistor wird dauernd belastet, überhitzt und trennt sich ab." : ""); } }
+    if (EVT[e][1] === "d") { if (d === "usv") { stat = "versorgt"; info = "Die USV überbrückt den Einbruch unterbrechungsfrei."; } else if (d === "usa") { stat = "abgeschaltet – Wiederanlauf von Hand"; info = "55 % < 70 % → Unterspannungsauslöser löst aus. Die Maschine bleibt aus, bis jemand bewusst einschaltet (Wiederanlaufschutz)."; } else if (d === "nue") { stat = "abgeschaltet"; info = "Das Relais trennt nach 100 ms Verzögerung – meldet die Störung."; } else { ok = false; stat = v.g === "el" ? "Reset / Absturz" : "Schütz fällt ab"; info = v.g === "el" ? "Netzteil kann 100 ms nicht puffern → Steuerung startet neu, Daten können verloren gehen." : "Bei 55 % fallen Schütze ab; mit Selbsthaltung bleibt der Motor aus (richtig), ohne läuft er unkontrolliert wieder an."; } }
+    if (EVT[e][1] === "u") { if (d === "nue") { stat = "abgeschaltet"; info = "190 V < 207 V → Abschaltung nach 100 ms, Meldung an die Steuerung."; } else if (d === "usv") { stat = "versorgt"; info = "Die USV regelt die Ausgangsspannung auf 230 V."; } else { ok = false; stat = v.g === "mo" ? "Motor überhitzt (langfristig)" : "Betrieb unsicher"; info = v.g === "mo" ? "Bei 83 % Spannung sinkt das Kippmoment auf ≈ 70 % (M ~ U²); unter Last steigt der Strom, Wicklung wird warm. Schütze können brummen." : "Netzteile arbeiten meist weiter, aber ohne Reserve – ein weiterer Einbruch führt zum Absturz."; if (d === "usa") info += " Der Unterspannungsauslöser (70 % = 161 V) reagiert nicht."; } }
+    if (EVT[e][1] === "a") { if (d === "usv") { stat = "versorgt"; info = "Online-USV: keine Umschaltzeit, Verbraucher merkt nichts."; } else if (d === "usa" || d === "nue") { stat = "abgeschaltet – kein Wiederanlauf"; info = "Nach Spannungswiederkehr bleibt der Verbraucher aus, bis er bewusst wieder eingeschaltet wird."; } else { ok = false; stat = "Ausfall, danach Wiederanlauf?"; info = "Ohne Schutz gehen die Geräte aus und laufen nach 80 ms ggf. von selbst wieder an – gefährlich bei Maschinen ohne Selbsthaltung."; } }
+    // Grafik
+    var W = 560, H = 320, x0 = 50, w = 480, X = function (t) { return x0 + t / tE * w; }, yA = 88, yB = 240, s = 60 / 400, h = [svgOpen(W, H)];
+    var panel = function (y, arr, col, lab, sp) { h.push('<line x1="' + x0 + '" y1="' + y + '" x2="' + (x0 + w) + '" y2="' + y + '" stroke="var(--muted)" opacity=".5"/>' + txt(x0 - 4, y - 400 * s + 3, "+400", { a: "end", fs: 8 }) + txt(x0 - 4, y + 400 * s + 3, "−400", { a: "end", fs: 8 }) + txt(x0 + 4, y - 66, lab, { fs: 10, b: 1, c: col }));
+      h.push(poly(arr.map(function (p) { return [X(p[0]), y - Math.max(-430, Math.min(430, p[1])) * s]; }), col, 1.6));
+      if (sp) { var xs = X(60.5); h.push('<path d="M' + (xs - 3) + ' ' + y + ' L' + xs + ' ' + (y - 66) + ' L' + (xs + 4) + ' ' + y + '" fill="' + col + '" opacity=".85" stroke="' + col + '"/>' + txt(xs + 8, y - 54, "≈ " + fmt(sp / 1000, sp < 1000 ? 2 : 1) + " kV ↑", { fs: 9.5, b: 1, c: sp > uw ? CR11 : col })); } };
+    panel(yA, uin, "var(--muted)", "Netzspannung (Eingang)", spike);
+    panel(yB, uout, ok ? CB11 : CR11, "Spannung am Verbraucher", lim);
+    h.push(txt(X(60), H - 4, "Ereignis bei 60 ms", { a: "middle", fs: 8.5, c: "var(--muted)" }) + txt(x0 + w, H - 4, "200 ms", { a: "end", fs: 8.5 }) + '<line x1="' + X(60) + '" y1="12" x2="' + X(60) + '" y2="' + (H - 16) + '" stroke="var(--accent)" stroke-dasharray="3 3"/></svg>');
+    return { svg: h.join(""), out: [["Verbraucher", stat], ["Bemessungs-Stoßspannung", fmt(uw / 1000, 1) + " kV"]], note: '<div class="fb ' + (ok ? "ok" : "bad") + '">' + info + '</div><p class="ab-intro">Transiente Spitzen sind zeitlich stark vergrößert dargestellt (in Wirklichkeit µs).</p>' };
+  }
+});
+
+// ---------- S2 Anschlusslänge ----------
+SIM.calc(R("sspd"), {
+  in: [{ k: "up", l: "Schutzpegel U_p des SPD", min: 0.8, max: 4, step: 0.1, v: 1.3, u: "kV" }, { k: "l", l: "Anschlussleitung gesamt (l₁ + l₂)", min: 0, max: 3, step: 0.1, v: 1.2, u: "m" }, { k: "di", l: "Stromsteilheit di/dt", min: 0.2, max: 5, step: 0.1, v: 1, u: "kA/µs" }, { k: "k", l: "zu schützendes Gerät", opts: [[1.5, "Kat. I – Elektronik (1,5 kV)"], [2.5, "Kat. II – Haushaltsgerät (2,5 kV)"], [4, "Kat. III – fest installiert (4 kV)"]], v: 2.5 }],
+  f: function (v) {
+    var ul = 1 * v.l * v.di, ug = v.up + ul, ok = ug <= v.k * 0.8, warn = ug <= v.k && !ok, W = 520, h = [svgOpen(W, 125)], sc = 390 / 6, x0 = 115;
+    h.push(txt(10, 40, "Spannung am Gerät", { fs: 10, b: 1 }) + '<rect x="' + x0 + '" y="26" width="' + v.up * sc + '" height="22" fill="' + CB11 + '"/><rect x="' + (x0 + v.up * sc) + '" y="26" width="' + Math.max(0, Math.min(ul * sc, 390 - v.up * sc)) + '" height="22" fill="' + CO11 + '"/>' + txt(x0 + 4, 41, "U_p " + fmt(v.up, 1) + " kV", { fs: 9.5, b: 1, c: "#fff" }) + (ul * sc > 95 ? txt(x0 + v.up * sc + 4, 41, "+ L·di/dt " + fmt(ul, 1) + " kV", { fs: 9.5, b: 1, c: "#fff" }) : ""));
+    h.push('<line x1="' + (x0 + v.k * sc) + '" y1="14" x2="' + (x0 + v.k * sc) + '" y2="64" stroke="' + CR11 + '" stroke-width="3"/>' + txt(x0 + v.k * sc + 4, 12, "U_W = " + fmt(v.k, 1) + " kV", { fs: 9.5, b: 1, c: CR11 }));
+    for (var u = 0; u <= 6; u++) h.push(txt(x0 + u * sc, 100, u + " kV", { a: "middle", fs: 8 }) + '<line x1="' + (x0 + u * sc) + '" y1="84" x2="' + (x0 + u * sc) + '" y2="90" stroke="currentColor"/>');
+    h.push('<line x1="' + x0 + '" y1="87" x2="' + (x0 + 390) + '" y2="87" stroke="currentColor"/>' + txt(10, 120, "Empfehlung: Anschlusslänge ≤ 0,5 m, V-Verdrahtung, Schutzpegel ≤ 80 % von U_W.", { fs: 9.5 }) + '</svg>');
+    return { svg: h.join(""), out: [["Spannung an der Leitung", fmt(ul, 2) + " kV"], ["Spannung am Gerät", fmt(ug, 2) + " kV"], ["Bewertung", ok ? "geschützt" : warn ? "knapp – keine Reserve" : "nicht geschützt"]], calc: "U = U_p + L'·l·di/dt = " + fmt(v.up, 1) + " kV + 1 µH/m · " + fmt(v.l, 1) + " m · " + fmt(v.di, 1) + " kA/µs = " + fmt(ug, 2) + " kV", note: '<div class="fb ' + (ok ? "ok" : "bad") + '">' + (ok ? "Der Schutzpegel reicht mit Reserve." : warn ? "Grenzwertig – Leitung kürzen oder zusätzlich Typ 3 am Gerät." : "Die Spannung am Gerät übersteigt seine Stoßspannungsfestigkeit – Leitung kürzen, V-Verdrahtung oder Ableiter mit kleinerem U_p.") + '</div>' };
+  }
+});
+
+// ---------- S3 Netzüberwachungsrelais ----------
+SIM.calc(R("snue"), {
+  in: [{ k: "u1", l: "U L1–N", min: 0, max: 300, step: 1, v: 230, u: "V" }, { k: "u2", l: "U L2–N", min: 0, max: 300, step: 1, v: 230, u: "V" }, { k: "u3", l: "U L3–N", min: 0, max: 300, step: 1, v: 230, u: "V" }, { k: "pf", l: "Phasenfolge", opts: [[1, "rechts (L1-L2-L3)"], [0, "links (zwei Leiter vertauscht)"]], v: 1 }, { k: "tol", l: "Schwellen", opts: [[10, "±10 % (207…253 V)"], [15, "±15 % (196…265 V)"]], v: 10 }],
+  f: function (v) {
+    var U = [v.u1, v.u2, v.u3], lo = 230 * (1 - v.tol / 100), hi = 230 * (1 + v.tol / 100), mx = Math.max.apply(null, U), mn = Math.min.apply(null, U), avg = (U[0] + U[1] + U[2]) / 3, asym = avg ? (mx - mn) / avg * 100 : 0, err = [];
+    if (mn < 0.6 * 230) err.push("Phasenausfall"); else if (mn < lo) err.push("Unterspannung");
+    if (mx > hi) err.push("Überspannung"); if (asym > 10 && mn >= 0.6 * 230) err.push("Asymmetrie " + fmt(asym, 0) + " %"); if (!v.pf) err.push("falsche Phasenfolge");
+    var okR = !err.length, h = [svgOpen(560, 258)];
+    // Relais
+    h.push('<rect x="30" y="40" width="170" height="160" rx="8" fill="var(--card)" stroke="currentColor" stroke-width="2"/>' + txt(115, 62, "Netzüberwachung", { a: "middle", fs: 10, b: 1 }) + txt(115, 76, "−K1 (3~, ohne N-Bezug)", { a: "middle", fs: 8.5 }));
+    [["U OK", okR, "#2fbf4f"], ["Fehler", !okR, "#e53935"]].forEach(function (l, i) { h.push('<circle cx="60" cy="' + (100 + i * 28) + '" r="8" fill="' + (l[1] ? l[2] : "#555") + '" stroke="currentColor"/>' + txt(76, 104 + i * 28, l[0], { fs: 10, b: 1 })); });
+    U.forEach(function (u, i) { var y = 160 + i * 0, x = 60 + i * 50; h.push('<rect x="' + (x - 12) + '" y="' + (190 - u / 300 * 30) + '" width="24" height="' + (u / 300 * 30) + '" fill="' + (u < lo || u > hi ? "#e53935" : "#2fbf4f") + '"/>' + txt(x, 214, "L" + (i + 1), { a: "middle", fs: 9, b: 1 })); });
+    // Steuerstromkreis: Wechsler 11 (oben) – 12 Öffner links – 14 Schließer rechts
+    var xc = 360, x12 = 320, x14 = 420, live = true;
+    h.push(txt(250, 34, "+24 V", { fs: 10, b: 1 }) + EL.w("M290 30 H520", live) + txt(250, 236, "0 V", { fs: 10, b: 1 }) + EL.w("M290 232 H520", false));
+    h.push(EL.dot(xc, 30, live) + EL.w("M" + xc + " 30 V80", live) + EL.changeoverDown(xc, 80, x12, x14, 118, okR ? 1 : 0, live, "") + txt(xc + 8, 76, "11", { fs: 9 }) + txt(x12 - 6, 132, "12", { a: "end", fs: 9 }) + txt(x14 + 6, 132, "14", { fs: 9 }) + txt(xc + 30, 96, "−K1", { fs: 11, b: 1 }));
+    h.push(EL.w("M" + x12 + " 121 V140", !okR) + EL.lamp(x12, 140, 232, !okR, !okR, "H1", "#e53935") + EL.dot(x12, 232));
+    h.push(EL.w("M" + x14 + " 121 V140", okR) + EL.coil(x14, 140, 232, okR, okR, "K2") + EL.dot(x14, 232) + txt(x14 + 22, 205, "Freigabe", { fs: 8.5 }) + txt(x14 + 22, 216, "Pumpe", { fs: 8.5 }) + txt(x12 - 22, 205, "Störung", { a: "end", fs: 8.5 }));
+    h.push(txt(290, 252, "Ruhelage (gezeichnet) = Netzfehler; Netz OK → 11–14 zu", { fs: 8.5, c: "var(--muted)" }) + '</svg>');
+    return { svg: h.join(""), out: [["Zustand", okR ? "Netz OK – 11–14 geschlossen" : "Fehler – 11–12 geschlossen"], ["Erkannt", err.length ? err.join(", ") : "–"], ["Asymmetrie", fmt(asym, 1) + " %"]], note: '<div class="fb ' + (okR ? "ok" : "bad") + '">' + (okR ? "Alle Werte im Bereich – Freigabe für Pumpe/Kompressor." : "Freigabe entzogen: " + err.join(", ") + ". Die Störmeldung H1 leuchtet.") + '</div>' };
+  }
+});
+
+// ---------- S4 Motoranlauf ----------
+SIM.calc(R("sanl"), {
+  in: [{ k: "P", l: "Motorleistung", min: 1, max: 55, step: 0.5, v: 22, u: "kW" }, { k: "ka", l: "Anlaufstrom I_A / I_N", min: 4, max: 8, step: 0.5, v: 7, u: "" }, { k: "l", l: "Leitungslänge (einfach)", min: 5, max: 250, step: 5, v: 80, u: "m" }, { k: "A", l: "Querschnitt Cu", opts: [[2.5, "2,5 mm²"], [4, "4 mm²"], [6, "6 mm²"], [10, "10 mm²"], [16, "16 mm²"], [25, "25 mm²"], [35, "35 mm²"]], v: 10 }, { k: "zn", l: "Netzimpedanz am Verteiler", opts: [[0.05, "stark (0,05 Ω, nahe am Trafo)"], [0.2, "mittel (0,2 Ω)"], [0.5, "schwach (0,5 Ω, ländlich)"]], v: 0.2 }],
+  f: function (v) {
+    var In = v.P * 1000 / (Math.sqrt(3) * 400 * 0.85 * 0.9), Ia = v.ka * In, Rl = v.l / (56 * v.A), Xl = 0.08e-3 * v.l, Rn = v.zn * 0.45, Xn = v.zn * 0.9, cA = 0.35, sA = Math.sqrt(1 - cA * cA);
+    var dU = Math.sqrt(3) * Ia * ((Rl + Rn) * cA + (Xl + Xn) * sA), pr = Math.max(0, 100 - dU / 400 * 100), dUb = Math.sqrt(3) * In * ((Rl + Rn) * 0.85 + (Xl + Xn) * 0.53), prb = 100 - dUb / 400 * 100;
+    var W = 540, H = 220, x0 = 50, w = 460, y0 = 190, hh = 160, X = function (t) { return x0 + t / 6 * w; }, Y = function (p) { return y0 - (p - 40) / 65 * hh; }, h = [svgOpen(W, H)], tA = 1 + v.P / 20, pts = [];
+    for (var t = 0; t <= 6; t += 0.02) { var p = t < 1 ? 100 : t < 1 + tA ? pr + (prb - pr) * Math.pow((t - 1) / tA, 3) : prb; pts.push([X(t), Y(Math.max(40, p))]); }
+    [[85, "Anzugsgrenze Schütz (85 %)", CO11], [70, "Abfallgefahr Schütze (≈ 70 %)", CR11], [90, "−10 % (EN 50160)", "var(--muted)"]].forEach(function (g) { h.push('<line x1="' + x0 + '" y1="' + Y(g[0]) + '" x2="' + (x0 + w) + '" y2="' + Y(g[0]) + '" stroke="' + g[2] + '" stroke-dasharray="5 3"/>' + txt(x0 + w - 2, Y(g[0]) - 3, g[1], { a: "end", fs: 8.5, c: g[2] })); });
+    [100, 80, 60, 40].forEach(function (p) { h.push(txt(x0 - 4, Y(p) + 3, p + " %", { a: "end", fs: 8 })); });
+    h.push('<line x1="' + x0 + '" y1="' + y0 + '" x2="' + (x0 + w) + '" y2="' + y0 + '" stroke="currentColor"/>' + [0, 1, 2, 3, 4, 5, 6].map(function (t) { return txt(X(t), y0 + 13, t + " s", { a: "middle", fs: 8 }); }).join("") + poly(pts, pr < 70 ? CR11 : pr < 85 ? CO11 : CB11, 2.6) + txt(X(1) + 4, 18, "Motor EIN", { fs: 9, b: 1 }) + '<line x1="' + X(1) + '" y1="22" x2="' + X(1) + '" y2="' + y0 + '" stroke="var(--accent)" stroke-dasharray="3 3"/></svg>');
+    var res = pr < 70 ? '<div class="fb bad">Spannungseinbruch auf ' + fmt(pr, 0) + ' %: Schütze anderer Antriebe können abfallen, Steuerungen resetten, Leuchten flackern stark. Abhilfe: größerer Querschnitt, Stern-Dreieck-Anlauf, Sanftanlauf oder Frequenzumrichter, eigene Zuleitung.</div>' : pr < 85 ? '<div class="fb bad">Einbruch auf ' + fmt(pr, 0) + ' %: Schütze, die gerade anziehen sollen, schaffen es nicht sicher (Flattern); deutliches Lichtflackern.</div>' : '<div class="fb ok">Einbruch auf ' + fmt(pr, 0) + ' % – unkritisch für Schütze' + (100 - pr > 3 ? ', Lichtflackern aber sichtbar (> 3 %).' : '.') + '</div>';
+    return { svg: h.join(""), out: [["Nennstrom I_N", fmt(In, 1) + " A"], ["Anlaufstrom I_A", fmt(Ia, 0) + " A"], ["Spannung beim Anlauf", fmt(pr, 1) + " % (" + fmt(pr * 4, 0) + " V)"], ["Spannungsfall im Betrieb", fmt(100 - prb, 1) + " %"]], calc: "ΔU ≈ √3 · I_A · (R · cos φ_A + X · sin φ_A), cos φ_A ≈ 0,35; R = R_Leitung + R_Netz = " + fmt((Rl + Rn) * 1000, 0) + " mΩ, X = " + fmt((Xl + Xn) * 1000, 0) + " mΩ", note: res };
+  }
+});
+
+// ---------- S5 Wiederanlaufschutz ----------
+(function () {
+  var k1 = 0, prevN = 1, warn = "";
+  SIM.toggles(R("swa"), [["v", 0, "Schütz mit Selbsthaltung (sonst Dauerschalter)", 0], ["N", 0, "Netzspannung vorhanden", 1], ["S", 0, "Dauerschalter EIN", 0], ["T", 1, "Start S2"], ["P", 1, "Stopp S1"]], function (s) {
+    var N = !!s.N, run, h = [svgOpen(520, 270)];
+    warn = ""; if (s.v) { if (!N) k1 = 0; if (N && s.T && !s.P) k1 = 1; if (s.P) k1 = 0; run = N && k1; } else { run = N && s.S; if (N && !prevN && s.S) warn = "Maschine läuft nach Spannungswiederkehr <b>unerwartet von selbst an</b> – Verletzungsgefahr!"; }
+    if (s.v && N && !prevN) warn = "";
+    prevN = N;
+    h.push(txt(20, 22, "L1", { fs: 11, b: 1 }) + EL.w("M40 18 H500", N) + txt(20, 252, "N", { fs: 11, b: 1, c: "var(--N, #2b6cc4)" }) + EL.w("M40 248 H500", false, "var(--N, #2b6cc4)") + (N ? "" : txt(260, 12, "Netzausfall", { a: "middle", fs: 10, b: 1, c: CR11 })));
+    if (s.v) {
+      h.push(EL.dot(120, 18, N) + EL.nc(120, 18, 80, !s.P, N, "S1", { push: 1 }) + EL.dot(120, 80, N && !s.P) + EL.w("M120 80 H200", N && !s.P) + EL.no(120, 80, 140, !!s.T, N && !s.P, "S2", { push: 1 }) + EL.no(200, 80, 140, !!k1, N && !s.P, "K1") + EL.w("M120 140 H200", N && !s.P && (s.T || k1)) + EL.dot(120, 140, N && !s.P && (s.T || k1)) + EL.coil(120, 140, 248, !!(N && k1), N && !s.P && (s.T || k1), "K1") + EL.dot(120, 248));
+      h.push(EL.dot(330, 18, N) + EL.no(330, 18, 110, !!k1, N, "K1") + EL.w("M330 110 V160", !!(N && k1)));
+    } else {
+      h.push(EL.dot(330, 18, N) + EL.no(330, 18, 110, !!s.S, N, "Q1") + EL.w("M330 110 V160", !!(N && s.S)) + txt(250, 70, "Dauerkontakt-", { fs: 9, a: "end" }) + txt(250, 82, "schalter", { fs: 9, a: "end" }));
+    }
+    h.push('<circle cx="330" cy="190" r="28" fill="' + (run ? "var(--warm-soft)" : "var(--card)") + '" stroke="currentColor" stroke-width="2.4"/>' + txt(330, 196, "M", { a: "middle", fs: 18, b: 1 }) + txt(366, 196, "1~", { fs: 10 }) + EL.w("M330 218 V248", false) + EL.dot(330, 248) + (run ? '<path d="M310 160 a 28 28 0 0 1 40 0" fill="none" stroke="' + CO11 + '" stroke-width="3" marker-end="url(#rot11)"/><defs><marker id="rot11" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="' + CO11 + '"/></marker></defs>' : ""));
+    h.push(txt(400, 150, run ? "Motor läuft" : "Motor steht", { fs: 12, b: 1, c: run ? CO11 : "var(--muted)" }) + '</svg>');
+    return { svg: h.join(""), out: [["Variante", s.v ? "Schütz mit Selbsthaltung" : "Dauerkontakt-Schalter"], ["Motor", run ? "läuft" : "steht"]], note: warn ? '<div class="fb bad">' + warn + '</div>' : (s.v ? '<p class="ab-intro">Netzausfall → K1 fällt ab, die Selbsthaltung ist aufgehoben. Nach Spannungswiederkehr bleibt der Motor aus, bis S2 gedrückt wird – so verlangt es EN 60204-1.</p>' : '<p class="ab-intro">Schalte EIN, dann Netz aus und wieder ein – und beobachte, was passiert.</p>') };
+  });
+})();
+
+// ---------- S6 Generator ----------
+SIM.gen(R("sgen"), {
+  L: ["Spannung am Gerät (SPD-Anschluss)", function () { var up = pick([1.2, 1.3, 1.5, 1.8]), l = pick([0.3, 0.5, 0.8, 1, 1.5]), di = pick([0.5, 1, 2]); return { t: "SPD U_p = " + fmtAuto(up) + " kV, Anschlussleitung " + fmtAuto(l) + " m (1 µH/m), di/dt = " + fmtAuto(di) + " kA/µs. Spannung am Gerät in kV?", u: "kV", a: up + l * di, s: "U = " + fmtAuto(up) + " + 1 · " + fmtAuto(l) + " · " + fmtAuto(di) + " = " + fmt(up + l * di, 2) + " kV" }; }],
+  U: ["USV-Überbrückungszeit", function () { var n = pick([2, 4]), Ah = pick([7, 9, 12]), P = pick([200, 300, 450, 600]), eta = 0.9; var t = n * 12 * Ah * eta / P * 60; return { t: n + " Batterien 12 V / " + Ah + " Ah, Wirkungsgrad 0,9, Last " + P + " W. Überbrückungszeit in min (vereinfacht)?", u: "min", a: t, s: "W = " + n + " · 12 V · " + Ah + " Ah = " + n * 12 * Ah + " Wh; t = W · η / P = " + fmt(t, 1) + " min" }; }],
+  N: ["N-Unterbrechung: Spannung am Kleinverbraucher", function () { var P1 = pick([10, 20, 50]), P2 = pick([1000, 2000]); var R1 = 230 * 230 / P1, R2 = 230 * 230 / P2, U1 = 400 * R1 / (R1 + R2); return { t: "N unterbrochen: An L1 hängt nur ein Gerät mit " + P1 + " W, an L2 ein Heizgerät mit " + P2 + " W (beide für 230 V). Spannung am kleinen Gerät in V (Leiterspannung 400 V, vereinfacht in Phase)?", u: "V", a: U1, s: "R₁ = 230²/" + P1 + " = " + fmt(R1, 0) + " Ω, R₂ = " + fmt(R2, 1) + " Ω; U₁ = 400 · R₁/(R₁+R₂) = " + fmt(U1, 0) + " V" }; }],
+  D: ["Spannungsfall in Prozent", function () { var U = pick([207, 212, 218, 195]); return { t: "Am Leitungsende misst du " + U + " V (Nennspannung 230 V). Spannungsabweichung in % (negativ)?", u: "%", a: (U - 230) / 230 * 100, s: "Δu = (" + U + " − 230) / 230 · 100 = " + fmt((U - 230) / 230 * 100, 1) + " %" + (U < 207 ? " → außerhalb −10 %" : "") }; }]
+});
+SIM.sort(R("ssort"), [["t", "transiente Überspannung begrenzen"], ["a", "Spannungsabweichung erkennen und abschalten"], ["b", "Ausfall überbrücken / Wiederanlauf verhindern"]], [["SPD Typ 1 (Funkenstrecke)", "t"], ["SPD Typ 2 (Varistor)", "t"], ["SPD Typ 3 in der Steckdosenleiste", "t"], ["Gasableiter in der Datenleitung", "t"], ["Suppressordiode auf der Platine", "t"], ["Netzüberwachungsrelais", "a"], ["NA-Schutz des PV-Wechselrichters", "a"], ["Online-USV", "b"], ["24-V-Puffermodul", "b"], ["Schütz mit Selbsthaltung", "b"], ["Unterspannungsauslöser", "b"]]);
+
+SIM.quiz(R("wcq"), [["Welche Stoßstromform prüft Blitzstrom-Ableiter vom Typ 1?", ["8/20 µs", "50 Hz sinusförmig", "1,2/50 µs", "10/350 µs"], 3, "Lange Rückenhalbwertszeit = große Energie (Blitzteilstrom)."], ["Wo wird ein SPD Typ 1 eingebaut?", ["auf der Platine", "direkt in der Steckdosenleiste", "im Zählerkasten nur bei TT-Netzen", "am Gebäudeeintritt bzw. Hauptverteiler bei äußerem Blitzschutz"], 3, ""], ["Welche Bemessungs-Stoßspannung gilt für Überspannungskategorie II (230/400 V)?", ["2,5 kV", "1,5 kV", "6 kV", "4 kV"], 0, "IV 6 kV, III 4 kV, II 2,5 kV, I 1,5 kV."], ["Wie verhält sich ein Varistor?", ["er speichert die Energie", "er schaltet die Anlage ab", "sein Widerstand sinkt oberhalb der Ansprechspannung stark", "er zündet einen Lichtbogen"], 2, ""], ["Warum soll die Anschlussleitung eines SPD möglichst kurz sein (≤ 0,5 m)?", ["an der Leitungsinduktivität entsteht zusätzlich L·di/dt", "damit der RCD nicht auslöst", "wegen des Spannungsfalls im Betrieb", "wegen der Erwärmung"], 0, "Etwa 1 kV pro Meter bei 1 kA/µs."], ["Welcher Schutz gehört in Daten- und Signalleitungen?", ["Gasableiter und Suppressordioden in Kombination", "ein Netzüberwachungsrelais", "ein RCD", "ein Leitungsschutzschalter"], 0, ""], ["Was bedeutet „energetische Koordination“ bei SPD?", ["SPD und RCD lösen gemeinsam aus", "der SPD wird vom Zähler mitgezählt", "Typ 1, 2 und 3 teilen sich die Energie, keiner wird überlastet", "alle SPD sprechen gleichzeitig an"], 2, ""], ["Wogegen hilft ein Überspannungs-Schutzgerät NICHT?", ["dauernde Überspannung durch N-Unterbrechung", "induzierte Stoßspannung", "Schaltüberspannung", "Blitz-Naheinschlag"], 0, "Dauernde 400 V überlasten den Varistor."]]);
+SIM.quiz(R("wcq2"), [["Ab wann gilt Unterspannung nach EN 50160 als Abweichung?", ["unter 207 V (−10 %)", "unter 230 V", "unter 220 V", "unter 161 V"], 0, ""], ["Wozu dient der Wiederanlaufschutz (EN 60204-1)?", ["Motoren sollen schneller anlaufen", "Überspannungen zu begrenzen", "die Spannung zu stabilisieren", "Maschinen sollen nach Spannungswiederkehr nicht selbst anlaufen"], 3, ""], ["Welche Schaltung erfüllt den Wiederanlaufschutz bereits?", ["Stern-Dreieck mit Zeitrelais allein", "Dauerkontakt-Schalter", "Steckdose mit Schalter", "Schütz mit Selbsthaltung und Start-Taster"], 3, "Bei Ausfall fällt K1 ab – die Selbsthaltung ist weg."], ["Was überwacht ein 3-phasiges Netzüberwachungsrelais typischerweise?", ["den Isolationswiderstand", "nur die Frequenz der Batterie", "nur den Fehlerstrom", "Über-/Unterspannung, Phasenausfall, Phasenfolge, Asymmetrie"], 3, ""], ["Welche USV-Bauart liefert eine unterbrechungsfreie, netzunabhängige Ausgangsspannung?", ["jede USV gleich", "Online-USV (VFI, Doppelwandler)", "Offline-USV (VFD)", "Line-Interactive (VI)"], 1, ""], ["Eine USV hat 24 V / 9 Ah, η = 0,9, Last 200 W. Ungefähre Überbrückungszeit?", ["≈ 58 min", "≈ 10 min", "≈ 5 min", "≈ 2 h"], 0, "216 Wh · 0,9 / 200 W ≈ 0,97 h."], ["Warum fallen Schütze bei einem Motoranlauf manchmal ab?", ["der RCD löst aus", "der Motor erzeugt Überspannung", "die Frequenz steigt", "der hohe Anlaufstrom erzeugt einen Spannungseinbruch unter die Haltespannung"], 3, ""], ["Wie reagiert ein Unterspannungsauslöser?", ["er schaltet automatisch wieder ein", "er löst den Leistungsschalter bei zu geringer Spannung aus, Wiedereinschalten von Hand", "er begrenzt Stoßspannungen", "er puffert die Spannung"], 1, ""]]);
+(function(){if(document.getElementById("wcstyle"))return;var s=document.createElement("style");s.id="wcstyle";s.textContent=".wc>li{margin:0 0 10px;break-inside:avoid}.wc p{margin:0 0 4px}.wco{list-style:none;padding-left:6px;margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 18px}@media (max-width:560px){.wco{grid-template-columns:1fr}}.wcb{font-size:1.15em}.wcpts{margin-top:10px;font-weight:600}";document.head.appendChild(s);})();
+
+};
+</script>
+<p class="foot">Fachliche Lernunterlage, kein rechtsverbindlicher Ausbildungs- oder Prüfungsplan. Erweitert nach „Fachkunde Elektrotechnik“ (Europa-Lehrmittel, 27. Aufl.); das Buch verweist auf deutsche DIN-VDE-Normen – in Österreich gelten sinngemäß ÖVE/ÖNORM E 8101 und die ESV. Für die österreichische Lehrlingsausbildung mit dem geltenden Berufsbild und den Prüfungsvorgaben abgleichen. Normen und Rechtsstand vor Verwendung prüfen (Stand: November 2026).</p>
+</main>
+</body>
+</html>

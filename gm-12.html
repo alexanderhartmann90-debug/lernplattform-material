@@ -1,0 +1,1183 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GM 12 Motorschutz – Motorschutzschalter, Motorschutzrelais, Thermistor, Motorvollschutz – Grundmodul</title>
+<style>:root{
+  --bg:#f3f5f7;--card:#ffffff;--ink:#17202b;--muted:#5a6573;--line:#d6dce3;--soft:#eef3f6;
+  --accent:#0a6a85;--accent-ink:#ffffff;--accent-soft:#e1f0f4;--warm:#d9731c;--warm-soft:#fbeee2;
+  --ok:#1b8049;--ok-soft:#e3f3ea;--bad:#b93226;--bad-soft:#f8e4e1;
+  --press:#1d64c8;--press-soft:#dbe7f8;--exh:#8d97a3;--crit:#c8362a;
+  --L:#8B4513;--N:#1d64c8;--PE:#1b8049;--live:#d9361c;
+  --mono:ui-monospace,"Cascadia Mono",Consolas,"Liberation Mono",monospace;
+  --sans:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+@media screen and (prefers-color-scheme:dark){
+  :root{--bg:#11161c;--card:#19212a;--ink:#e4e9ee;--muted:#9aa6b3;--line:#2f3a46;--soft:#202a35;
+  --accent:#4cb3cf;--accent-ink:#06222b;--accent-soft:#163846;--warm:#f0a35c;--warm-soft:#3a2a1a;
+  --ok:#57c487;--ok-soft:#173726;--bad:#ef7b6e;--bad-soft:#3d1f1b;--press:#6aa5ff;--press-soft:#1b2c48;--exh:#7d8794;--crit:#ff7a6b;
+  --L:#d08a52;--N:#6aa5ff;--PE:#57c487;--live:#ff7a5c}
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--sans)}
+a{color:var(--accent)}
+h1,h2,h3,h4{line-height:1.25;margin:1.2em 0 .5em}
+h1{font-size:1.7rem;margin:0}
+h2{font-size:1.3rem;border-bottom:2px solid var(--accent);padding-bottom:.25em}
+h3{font-size:1.08rem}
+p{margin:.5em 0}
+ul,ol{padding-left:1.3em;margin:.4em 0}
+li{margin:.15em 0}
+code,.mono{font-family:var(--mono);font-size:.92em}
+svg{max-width:100%;height:auto}
+.wrap{max-width:1000px;margin:0 auto;padding:0 16px}
+
+/* Kopf */
+.topbar{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.topbar .wrap{display:flex;align-items:center;gap:12px;min-height:52px;flex-wrap:wrap}
+.brand{font-weight:700;letter-spacing:.02em;color:var(--accent);text-decoration:none}
+.brand small{color:var(--muted);font-weight:500;margin-left:6px}
+.topbar .sp{flex:1}
+.hero{padding:22px 0 8px}
+.kicker{font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.lead{color:var(--muted);max-width:70ch}
+
+/* Tabs */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 18px;position:sticky;top:52px;z-index:10;background:var(--bg);padding:8px 0}
+.tabs button{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 14px;border-radius:999px;font:inherit;font-size:.95rem;cursor:pointer}
+.tabs button[aria-selected=true]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.tabs button.prbtn{border-color:var(--warm);color:var(--warm);font-weight:600}
+.panel{display:none}
+.panel.on{display:block}
+.paper{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px 24px;margin-bottom:24px}
+.paper>h2:first-child,.paper>.ph+h2{margin-top:.2em}
+
+/* Bausteine */
+.goals{background:var(--accent-soft);border-radius:8px;padding:10px 16px;margin:10px 0}
+.goals b{display:block;margin-bottom:2px}
+.box{border-left:4px solid var(--accent);background:var(--soft);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
+.merk{border-left:4px solid var(--ok);background:var(--ok-soft);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
+.merk::before{content:"Merke: ";font-weight:700}
+.warn{border-left:4px solid var(--warm);background:var(--warm-soft);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
+.deep{border:1px dashed var(--accent);border-radius:8px;padding:4px 16px 10px;margin:18px 0}
+.deep>h3:first-child,.deep>h2:first-child{margin-top:.6em}
+.book{border:1px solid var(--line);background:var(--soft);border-radius:8px;padding:8px 14px;margin:10px 0;font-size:.9rem}
+.book::before{content:"📗 Fachkunde Elektrotechnik: ";font-weight:700;color:var(--accent)}
+.newbadge{display:inline-block;font-size:.68rem;font-weight:700;padding:1px 7px;border-radius:999px;background:var(--accent);color:var(--accent-ink);vertical-align:middle;margin-left:6px;letter-spacing:.04em}
+.badge{display:inline-block;font-size:.72rem;font-weight:700;padding:1px 8px;border-radius:999px;vertical-align:middle;margin-left:6px;letter-spacing:.03em}
+.b1{background:var(--ok-soft);color:var(--ok)}
+.b2{background:var(--warm-soft);color:var(--warm)}
+.formula{font-family:var(--mono);background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:8px 12px;margin:8px 0;display:inline-block;min-width:min(100%,280px)}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px 16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:720px){.grid2{grid-template-columns:1fr}}
+.fig{margin:12px 0;text-align:center}
+.fig figcaption{font-size:.85rem;color:var(--muted);margin-top:4px}
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table.t{border-collapse:collapse;width:100%;margin:10px 0;font-size:.93rem}
+table.t th,table.t td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+table.t th{background:var(--soft);font-weight:600}
+table.t td.num,table.t th.num{text-align:right;font-variant-numeric:tabular-nums}
+table.t tr.sum td{font-weight:700;background:var(--accent-soft)}
+.steps{counter-reset:s;list-style:none;padding:0}
+.steps>li{counter-increment:s;position:relative;padding-left:34px;margin:6px 0}
+.steps>li::before{content:counter(s);position:absolute;left:0;top:1px;width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+
+/* Simulatoren */
+.sim{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px 18px;margin-bottom:22px;scroll-margin-top:110px}
+.sim>h3{margin-top:0;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.sim>h3 .no{background:var(--accent);color:var(--accent-ink);border-radius:6px;padding:0 8px;font-size:.85rem}
+.sim .how{color:var(--muted);font-size:.92rem;margin:0 0 10px}
+.ctrls{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:flex-end;margin:8px 0 12px}
+.ctrl{display:flex;flex-direction:column;gap:3px;min-width:140px;font-size:.88rem}
+.ctrl label{color:var(--muted)}
+.ctrl output{font-weight:700;color:var(--ink)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number],input[type=text],select{font:inherit;font-size:.95rem;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);min-width:0}
+.btn{font:inherit;font-size:.92rem;border:1px solid var(--accent);background:var(--card);color:var(--accent);padding:7px 14px;border-radius:8px;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.btn:hover{background:var(--accent-soft)}
+.btn.pri,.btn.on{background:var(--accent);color:var(--accent-ink)}
+.btn.sm{padding:4px 10px;font-size:.85rem}
+.btn:disabled{opacity:.45;cursor:default}
+.seg{display:inline-flex;border:1px solid var(--accent);border-radius:8px;overflow:hidden;flex-wrap:wrap}
+.seg button{border:0;background:var(--card);color:var(--accent);font:inherit;font-size:.9rem;padding:7px 12px;cursor:pointer;border-right:1px solid var(--accent)}
+.seg button:last-child{border-right:0}
+.seg button.on{background:var(--accent);color:var(--accent-ink)}
+.stage{background:var(--soft);border-radius:10px;padding:8px;margin:8px 0}
+.stage svg{display:block;margin:0 auto}
+.out{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:10px 0}
+.out div{background:var(--soft);border-radius:8px;padding:8px 10px}
+.out small{display:block;color:var(--muted);font-size:.78rem}
+.out b{font-size:1.1rem;font-variant-numeric:tabular-nums}
+.calc{font-family:var(--mono);font-size:.86rem;background:var(--soft);border-radius:8px;padding:10px 12px;white-space:pre-wrap;line-height:1.6;margin:8px 0;overflow-x:auto}
+.status{background:var(--accent-soft);border-radius:8px;padding:8px 12px;font-size:.92rem;margin:8px 0}
+.fb{padding:8px 12px;border-radius:8px;margin:8px 0;font-size:.93rem}
+.fb.ok{background:var(--ok-soft);color:var(--ok)}
+.fb.bad{background:var(--bad-soft);color:var(--bad)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 10px;font:inherit;font-size:.88rem;cursor:pointer;text-align:left}
+.chip.sel{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 2px var(--accent) inset}
+.chip.ok{border-color:var(--ok);background:var(--ok-soft)}
+.chip.bad{border-color:var(--bad);background:var(--bad-soft)}
+.olist{list-style:none;padding:0;margin:8px 0}
+.olist li{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 8px;margin:5px 0}
+.olist li .n{width:26px;height:26px;border-radius:50%;background:var(--soft);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex:none}
+.olist li .tx{flex:1}
+.olist li.ok{border-color:var(--ok);background:var(--ok-soft)}
+.olist li.bad{border-color:var(--bad);background:var(--bad-soft)}
+.olist li .mv{display:flex;gap:4px}
+.olist li .mv button{width:34px;height:30px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:6px;cursor:pointer;font-size:1rem}
+.svgtxt{font-family:var(--sans)}
+.sv{color:var(--ink)}
+.hl{outline:2px solid var(--warm);outline-offset:1px}
+.clk{cursor:pointer}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.8rem;color:var(--muted);margin:4px 0}
+.legend i{display:inline-block;width:18px;height:4px;border-radius:2px;vertical-align:middle;margin-right:5px}
+
+/* Arbeitsblatt */
+.ab-head{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:10px;margin:4px 0 16px}
+.ab-head div{border-bottom:1px solid var(--ink);padding:16px 0 2px;font-size:.78rem;color:var(--muted)}
+@media (max-width:640px){.ab-head{grid-template-columns:1fr 1fr}}
+.task{margin:16px 0 10px;break-inside:avoid;page-break-inside:avoid}
+.task>h3{margin:0 0 6px;display:flex;gap:8px;align-items:baseline}
+.task>h3 .pts{margin-left:auto;font-size:.8rem;color:var(--muted);font-weight:500;white-space:nowrap}
+.lines{margin:6px 0}
+.lines .l{border-bottom:1px solid #9aa4ae;height:30px}
+.fill{display:inline-block;min-width:90px;border-bottom:1px solid #9aa4ae;height:1.2em;vertical-align:bottom}
+.fill.w2{min-width:180px}
+table.t td.blank{height:30px}
+.sketch{border:1px solid var(--line);border-radius:6px;margin:8px 0}
+.ab-intro{font-size:.9rem;color:var(--muted)}
+.sol{color:var(--ok)}
+.lo .task>h3{color:var(--ink)}
+.lo .ans{border-left:3px solid var(--ok);padding:4px 12px;margin:4px 0 8px;background:var(--ok-soft);border-radius:0 6px 6px 0}
+
+/* Gesamtseite */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin:14px 0 26px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:8px}
+.card h3{margin:0;font-size:1.05rem}
+.card .nr{font-size:.75rem;font-weight:700;color:var(--accent);letter-spacing:.06em}
+.card p{color:var(--muted);font-size:.9rem;margin:0}
+.card .acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}
+.card .sims{display:flex;flex-direction:column;gap:4px}
+.card .sims button{text-align:left;font:inherit;font-size:.88rem;border:0;background:var(--soft);color:var(--ink);border-radius:6px;padding:6px 10px;cursor:pointer}
+.card .sims button:hover{background:var(--accent-soft)}
+.card .sims button::before{content:"▶ ";color:var(--accent)}
+.prmatrix{width:100%;border-collapse:collapse;font-size:.93rem}
+.prmatrix th,.prmatrix td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left}
+.prmatrix td.c,.prmatrix th.c{text-align:center}
+.prmatrix input{width:20px;height:20px;accent-color:var(--accent)}
+.printbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:10px 0}
+.printbar label{display:flex;align-items:center;gap:6px;font-size:.93rem}
+.printbar input{width:18px;height:18px;accent-color:var(--accent)}
+.view{display:none}.view.on{display:block}
+.backlink{font-size:.9rem}
+.print-head,.cover{display:none}
+.foot{color:var(--muted);font-size:.8rem;padding:20px 0 40px}
+
+/* Präsentationsmodus */
+.pres{position:fixed;inset:0;z-index:100;background:var(--bg);display:none;flex-direction:column}
+.pres.on{display:flex}
+body.pres-open{overflow:hidden}
+.pres-bar{display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--card);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.pres-bar .t{font-weight:700;color:var(--accent);flex:1;min-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.92rem}
+.pres-bar .n{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.9rem;min-width:64px;text-align:center}
+.pres-bar button{font:inherit;font-size:.9rem;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 11px;cursor:pointer}
+.pres-bar button.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.pres-bar select{max-width:220px}
+.pres-prog{height:4px;background:var(--line)}
+.pres-prog i{display:block;height:100%;background:var(--warm);width:0;transition:width .25s}
+.pres-stage{flex:1;overflow:hidden;position:relative;display:flex;align-items:stretch;justify-content:center;padding:18px 3vw}
+.pres-slide{width:min(1200px,100%);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:3vh 4vw;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.pres-slide.scroll{overflow:auto}
+.pres-inner{transform-origin:top left;font-size:clamp(17px,1.55vw + .5vh,27px);line-height:1.45}
+.pres-inner h2.ps-title{font-size:1.6em;margin:0 0 .5em;border-bottom:3px solid var(--accent);padding-bottom:.2em}
+.pres-inner h3{font-size:1.15em}
+.pres-inner table.t{font-size:.86em}
+.pres-inner .formula{font-size:.92em}
+.pres-inner .fig svg,.pres-inner .sv svg{max-height:48vh;width:auto}
+.pres-inner .badge{font-size:.55em}
+.pres-inner .ps-kicker{font-size:.7em;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.pres-inner .ps-cover{display:flex;flex-direction:column;justify-content:center;min-height:60vh}
+.pres-inner .ps-cover h1{font-size:2.3em;margin:.2em 0}
+.pres-inner .ps-cover .lead{font-size:1em;max-width:none}
+.pres-inner .ps-simlist{display:flex;flex-direction:column;gap:.4em;margin-top:.6em}
+.pres-inner .ps-simlist button{font:inherit;text-align:left;border:1px solid var(--line);background:var(--soft);color:var(--ink);border-radius:10px;padding:.45em .8em;cursor:pointer}
+.pres-inner .ps-simlist button::before{content:"▶ ";color:var(--accent)}
+.pres-inner .sim{border:0;padding:0;margin:0;font-size:.8em}
+.pres-inner .ps-step{opacity:.18;transition:opacity .25s}
+.pres-inner .ps-step.shown{opacity:1}
+.pres-help{position:absolute;right:16px;bottom:10px;font-size:.75rem;color:var(--muted)}
+.pres.black .pres-stage{background:#000}.pres.black .pres-slide{visibility:hidden}
+.pres.pointer .pres-slide{cursor:none}
+.pres-dot{position:fixed;width:22px;height:22px;border-radius:50%;background:rgba(230,40,30,.55);box-shadow:0 0 14px 4px rgba(230,40,30,.45);pointer-events:none;z-index:120;display:none;transform:translate(-50%,-50%)}
+.pres.pointer~.pres-dot{display:block}
+.pres-ov{position:absolute;inset:0;overflow:auto;background:var(--bg);padding:16px;display:none;z-index:5}
+.pres-ov.on{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;align-content:start}
+.pres-ov button{font:inherit;font-size:.85rem;text-align:left;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:10px;cursor:pointer;min-height:64px}
+.pres-ov button.cur{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+.pres-ov button small{display:block;color:var(--muted)}
+@media (max-width:640px){.pres-stage{padding:8px}.pres-slide{padding:14px;border-radius:10px}.pres-help{display:none}.pres-inner{font-size:16px}}
+
+/* Druck */
+@page{size:A4;margin:14mm 14mm 16mm}
+@media print{
+  :root{--bg:#fff;--card:#fff;--ink:#000;--muted:#444;--line:#999;--soft:#f1f1f1;--accent:#0a6a85;--accent-soft:#e6f1f4}
+  body{background:#fff;font-size:10.5pt;line-height:1.45}
+  .noprint,.topbar,.tabs,.printbar,.sim,.panel.sim,.view.home .cards,.hero .lead,.backlink,.pres,.pres-dot{display:none!important}
+  .view{display:block!important}
+  .topic{display:none!important}
+  .topic.pr-topic{display:block!important}
+  .hero{display:none!important}
+  .panel{display:none!important}
+  .panel.pr-show{display:block!important;break-before:page;page-break-before:always}
+  .panel.pr-show.pr-first{break-before:auto;page-break-before:auto}
+  .paper{border:0;padding:0;margin:0;border-radius:0}
+  .print-head{display:flex;justify-content:space-between;border-bottom:1.5px solid #000;font-size:8.5pt;padding-bottom:3px;margin-bottom:10px}
+  .wrap{max-width:none;padding:0}
+  h2{break-after:avoid}
+  h3{break-after:avoid}
+  table,figure,.box,.merk,.warn,.formula,.fig{break-inside:avoid}
+  .tscroll{overflow:visible}
+  .home-inner{display:none!important}
+  .cover.pr-on{display:block!important}
+  .lines .l{border-bottom:.6pt solid #777;height:8.5mm}
+  .ab-head div{border-bottom:.8pt solid #000}
+  a{color:#000;text-decoration:none}
+  .fb,.status{display:none}
+}
+.cover{padding-top:60mm;text-align:center}
+.cover h1{font-size:28pt;margin-bottom:6mm}
+.cover .toc{text-align:left;max-width:140mm;margin:20mm auto 0;font-size:11pt}
+.cover .toc li{margin:2mm 0}
+[data-hold]{touch-action:none;-webkit-touch-callout:none}
+@media screen and (max-width:640px){
+  .topbar{position:static}
+  .brand small{display:none}
+  .tabs{top:0}
+  .tabs button{padding:7px 11px;font-size:.88rem}
+  .sim{scroll-margin-top:60px;padding:14px 12px}
+  .paper{padding:16px 14px}
+}
+</style>
+<script>/* ===== Gemeinsame Hilfsfunktionen ===== */
+var TOPIC_INIT = {};
+function fmt(x, d) {
+  if (d === undefined) d = 2;
+  if (!isFinite(x)) return "–";
+  return Number(x).toLocaleString("de-AT", { minimumFractionDigits: d, maximumFractionDigits: d });
+}
+function fmtAuto(x) { // bis 3 signifikante Nachkommastellen, ohne unnötige Nullen
+  if (!isFinite(x)) return "–";
+  var a = Math.abs(x), d = a >= 1000 ? 0 : a >= 100 ? 1 : a >= 10 ? 2 : 3;
+  return Number(x).toLocaleString("de-AT", { minimumFractionDigits: 0, maximumFractionDigits: d });
+}
+function eur(x) { return fmt(x, 2) + " €"; }
+function refFn(root) { return function (n) { return root.querySelector('[data-ref="' + n + '"]'); }; }
+function refsFn(root) { return function (n) { return Array.prototype.slice.call(root.querySelectorAll('[data-ref="' + n + '"]')); }; }
+function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function rnd(a, b, step) { step = step || 1; var n = Math.floor((b - a) / step); return a + step * Math.floor(Math.random() * (n + 1)); }
+function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+function parseNum(s) { if (typeof s === "number") return s; s = String(s).trim().replace(/\s/g, "").replace(/\.(?=\d{3}(\D|$))/g, "").replace(",", "."); return parseFloat(s); }
+function segInit(seg, cb) {
+  seg.addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    Array.prototype.forEach.call(seg.querySelectorAll("button"), function (x) { x.classList.toggle("on", x === b); });
+    cb(b.dataset.v, b);
+  });
+}
+function bindRange(input, out, f) {
+  function upd() { out.textContent = f ? f(+input.value) : input.value; }
+  input.addEventListener("input", upd); upd();
+}
+function simVisible(el) { return !!(el && el.closest(".panel.on")); }
+
+/* ===== Tabs ===== */
+function showTab(topic, name) {
+  Array.prototype.forEach.call(topic.querySelectorAll(".tabs button[data-tab]"), function (b) { b.setAttribute("aria-selected", b.dataset.tab === name ? "true" : "false"); });
+  Array.prototype.forEach.call(topic.querySelectorAll(":scope > .panel"), function (p) { p.classList.toggle("on", p.dataset.panel === name); });
+}
+function initTabs(topic) {
+  topic.querySelector(".tabs").addEventListener("click", function (e) {
+    if (e.target.closest("[data-pres]")) { PRES.start([topic]); return; }
+    var b = e.target.closest("button[data-tab]"); if (!b) return;
+    showTab(topic, b.dataset.tab);
+    if (history.replaceState) history.replaceState(null, "", "#" + topic.dataset.topic + "/" + b.dataset.tab);
+  });
+  showTab(topic, "lu");
+}
+function openSim(topicId, idx) {
+  var topic = document.querySelector('.topic[data-topic="' + topicId + '"]'); if (!topic) return;
+  if (window.showView) window.showView(topicId);
+  showTab(topic, "sim");
+  var s = topic.querySelectorAll(".panel.sim .sim")[idx || 0];
+  setTimeout(function () { (s || topic).scrollIntoView({ behavior: "smooth", block: "start" }); }, 30);
+}
+
+/* ===== Druck ===== */
+function applyPrint() {
+  Array.prototype.forEach.call(document.querySelectorAll(".pr-topic"), function (x) { x.classList.remove("pr-topic"); });
+  Array.prototype.forEach.call(document.querySelectorAll(".pr-show,.pr-first"), function (x) { x.classList.remove("pr-show", "pr-first"); });
+  var cover = document.querySelector(".cover"); var coverOn = false;
+  var cbs = document.querySelectorAll("input[data-pr-kind]:checked");
+  var any = false;
+  Array.prototype.forEach.call(cbs, function (cb) {
+    if (cb.dataset.prKind === "cover") { coverOn = true; return; }
+    var t = document.querySelector('.topic[data-topic="' + cb.dataset.prTopic + '"]'); if (!t) return;
+    var p = t.querySelector(':scope > .panel[data-panel="' + cb.dataset.prKind + '"]'); if (!p) return;
+    t.classList.add("pr-topic"); p.classList.add("pr-show"); any = true;
+  });
+  if (cover) { cover.classList.toggle("pr-on", coverOn); if (coverOn) buildToc(); }
+  if (!any && !coverOn) { // Fallback: aktuelle Ansicht drucken
+    var vis = document.querySelector(".topic .panel.on");
+    if (vis) { vis.closest(".topic").classList.add("pr-topic"); vis.classList.add("pr-show"); }
+  }
+  var first = document.querySelector(".panel.pr-show");
+  if (first && !coverOn) first.classList.add("pr-first");
+}
+function buildToc() {
+  var ol = document.querySelector(".cover .toc ol"); if (!ol) return;
+  var names = { lu: "Lernunterlage", ab: "Arbeitsblatt", lo: "Lösungen" };
+  var items = [];
+  Array.prototype.forEach.call(document.querySelectorAll(".topic.pr-topic"), function (t) {
+    var kinds = []; Array.prototype.forEach.call(t.querySelectorAll(":scope > .panel.pr-show"), function (p) { kinds.push(names[p.dataset.panel]); });
+    items.push("<li><b>" + esc(t.dataset.title) + "</b> – " + kinds.join(", ") + "</li>");
+  });
+  ol.innerHTML = items.join("");
+}
+function doPrint() { applyPrint(); setTimeout(function () { window.print(); }, 60); }
+window.addEventListener("beforeprint", applyPrint);
+
+/* ===== Start ===== */
+document.addEventListener("DOMContentLoaded", function () {
+  Array.prototype.forEach.call(document.querySelectorAll(".topic"), function (t) {
+    initTabs(t);
+    var f = TOPIC_INIT[t.dataset.topic];
+    if (f) { try { f(t); } catch (e) { console.error("Init " + t.dataset.topic, e); } }
+  });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-print]"), function (b) { b.addEventListener("click", doPrint); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-pres-all]"), function (b) { b.addEventListener("click", function () { PRES.start(Array.prototype.slice.call(document.querySelectorAll(".topic"))); }); });
+  if (window.routeInit) window.routeInit();
+  else {
+    var h = location.hash.replace("#", "").split("/");
+    var t = document.querySelector(".topic");
+    if (t && h[1] && t.querySelector('.panel[data-panel="' + h[1] + '"]')) showTab(t, h[1]);
+    if (t && h[1] === "sim" && h[2]) openSim(t.dataset.topic, +h[2]);
+    if (t && h[1] === "pres") PRES.start([t]);
+  }
+});
+
+/* ===== SVG-Helfer ===== */
+function zig(x1, x2, y, a, n) { var d = "M" + x1 + " " + y, w = (x2 - x1) / n; for (var i = 0; i < n; i++) d += " L" + (x1 + w * (i + .5)) + " " + (y + (i % 2 ? a : -a)); return d + " L" + x2 + " " + y; }
+function arrow(x1, y1, x2, y2, attr) { var a = Math.atan2(y2 - y1, x2 - x1), L = 8; return '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" ' + (attr || 'stroke="currentColor" stroke-width="2"') + '/><polygon points="' + x2 + ',' + y2 + ' ' + (x2 - L * Math.cos(a - .45)) + ',' + (y2 - L * Math.sin(a - .45)) + ' ' + (x2 - L * Math.cos(a + .45)) + ',' + (y2 - L * Math.sin(a + .45)) + '" fill="currentColor" stroke="none"/>'; }
+function svgOpen(w, h, extra) { return '<svg viewBox="0 0 ' + w + ' ' + h + '" width="' + w + '" class="sv" font-family="Segoe UI,Arial,sans-serif" ' + (extra || "") + '>'; }
+function txt(x, y, s, o) { o = o || {}; return '<text x="' + x + '" y="' + y + '" font-size="' + (o.fs || 12) + '"' + (o.a ? ' text-anchor="' + o.a + '"' : '') + (o.b ? ' font-weight="700"' : '') + ' fill="' + (o.c || "currentColor") + '">' + s + '</text>'; }
+function outGrid(rows) { return rows.map(function (x) { return "<div><small>" + x[0] + "</small><b>" + x[1] + "</b></div>"; }).join(""); }
+/* Liniendiagramm: series [{pts:[[x,y]...], c:color, n:name}] */
+function plotSVG(series, o) {
+  o = o || {}; var W = o.w || 500, H = o.h || 220, L = 52, B = 30, T = 12, Rr = 12;
+  var xs = [], ys = []; series.forEach(function (s) { s.pts.forEach(function (p) { xs.push(p[0]); ys.push(p[1]); }); });
+  var x0 = o.x0 !== undefined ? o.x0 : Math.min.apply(null, xs), x1 = o.x1 !== undefined ? o.x1 : Math.max.apply(null, xs);
+  var y0 = o.y0 !== undefined ? o.y0 : Math.min(0, Math.min.apply(null, ys)), y1 = o.y1 !== undefined ? o.y1 : Math.max.apply(null, ys) * 1.08 || 1;
+  if (y1 === y0) y1 = y0 + 1;
+  var X = function (x) { return L + (x - x0) / (x1 - x0) * (W - L - Rr); }, Y = function (y) { return H - B - (y - y0) / (y1 - y0) * (H - B - T); };
+  var h = [svgOpen(W, H)];
+  for (var i = 0; i <= 4; i++) { var yv = y0 + (y1 - y0) * i / 4; h.push('<line x1="' + L + '" y1="' + Y(yv) + '" x2="' + (W - Rr) + '" y2="' + Y(yv) + '" stroke="var(--line)"/>' + txt(L - 6, Y(yv) + 4, fmtAuto(yv), { fs: 10, a: "end" })); }
+  for (i = 0; i <= 5; i++) { var xv = x0 + (x1 - x0) * i / 5; h.push(txt(X(xv), H - B + 14, fmtAuto(xv), { fs: 10, a: "middle" })); }
+  if (y0 < 0 && y1 > 0) h.push('<line x1="' + L + '" y1="' + Y(0) + '" x2="' + (W - Rr) + '" y2="' + Y(0) + '" stroke="currentColor" stroke-width="1"/>');
+  h.push('<line x1="' + L + '" y1="' + T + '" x2="' + L + '" y2="' + (H - B) + '" stroke="currentColor"/>');
+  series.forEach(function (s, k) {
+    var d = s.pts.map(function (p, j) { return (j ? "L" : "M") + X(p[0]).toFixed(1) + " " + Y(p[1]).toFixed(1); }).join(" ");
+    h.push('<path d="' + d + '" fill="none" stroke="' + (s.c || "var(--accent)") + '" stroke-width="' + (s.w || 2.4) + '"' + (s.dash ? ' stroke-dasharray="6 4"' : '') + '/>');
+    if (s.n) h.push(txt(W - Rr - 4, T + 12 + k * 14, s.n, { fs: 11, a: "end", c: s.c || "var(--accent)", b: 1 }));
+  });
+  (o.marks || []).forEach(function (m) { h.push('<circle cx="' + X(m[0]) + '" cy="' + Y(m[1]) + '" r="5" fill="' + (m[2] || "var(--warm)") + '"/>' + (m[3] ? txt(X(m[0]) + 8, Y(m[1]) - 8, m[3], { fs: 11 }) : "")); });
+  if (o.xl) h.push(txt((W + L) / 2, H - 2, o.xl, { fs: 10, a: "middle" }));
+  if (o.yl) h.push('<text x="12" y="' + (H / 2) + '" font-size="10" fill="currentColor" transform="rotate(-90 12 ' + (H / 2) + ')" text-anchor="middle">' + o.yl + '</text>');
+  h.push('</svg>'); return h.join("");
+}
+
+/* ===== Schaltzeichen-Bibliothek (IEC 60617), senkrechte Strompfade =====
+   Alle Elemente werden zwischen y1 (oben) und y2 (unten) auf der Senkrechten x gezeichnet,
+   die Anschlussleitungen gehören dazu – so entstehen keine Lücken in den Leitungen. */
+var EL = {
+  col: function (live, c) { return live ? (c || "var(--live)") : "currentColor"; },
+  w: function (d, live, c, sw) { return '<path d="' + d + '" fill="none" stroke="' + EL.col(live, c) + '" stroke-width="' + (sw || 2.4) + '" stroke-linejoin="round" stroke-linecap="round"/>'; },
+  dot: function (x, y, live) { return '<circle cx="' + x + '" cy="' + y + '" r="3.6" fill="' + EL.col(live) + '"/>'; },
+  /* Schließer: geschlossen = Kontakt zu */
+  no: function (x, y1, y2, closed, liveTop, label, o) { o = o || {}; var m = (y1 + y2) / 2, a = m - 14, b = m + 14, liveBot = liveTop && closed;
+    return EL.w("M" + x + " " + y1 + " V" + a, liveTop) + EL.w("M" + x + " " + b + " V" + y2, liveBot) + EL.w("M" + x + " " + b + " L" + (closed ? x + 1 : x - 13) + " " + (closed ? a : a - 3), liveBot, null, 2.6) +
+      (o.push ? EL.w("M" + (x - (closed ? 3 : 8)) + " " + m + " H" + (x - 24) + " M" + (x - 24) + " " + (m - 7) + " V" + (m + 7) + " M" + (x - 24) + " " + (m - 7) + " h-4 M" + (x - 24) + " " + (m + 7) + " h-4", false, null, 1.6).replace('stroke-width="1.6"', 'stroke-width="1.6" stroke-dasharray="3 2"') : "") +
+      (label ? txt(x - (o.push ? 32 : 18), m + 4, label, { a: "end", fs: 11, b: 1 }) : "") + (o.t1 ? txt(x + 5, a + 2, o.t1, { fs: 9 }) : "") + (o.t2 ? txt(x + 5, b + 6, o.t2, { fs: 9 }) : ""); },
+  /* Öffner: geschlossen = Ruhelage (nicht betätigt) */
+  nc: function (x, y1, y2, closed, liveTop, label, o) { o = o || {}; var m = (y1 + y2) / 2, a = m - 14, b = m + 14, liveBot = liveTop && closed;
+    return EL.w("M" + x + " " + y1 + " V" + a + " H" + (x + 11), liveTop) + EL.w("M" + x + " " + b + " V" + y2, liveBot) + EL.w("M" + x + " " + b + " L" + (closed ? x + 13 : x + 18) + " " + (closed ? a - 2 : a - 10), liveBot, null, 2.6) +
+      (o.push ? EL.w("M" + (x + 6) + " " + m + " H" + (x - 22), false, null, 1.6).replace('stroke-width="1.6"', 'stroke-width="1.6" stroke-dasharray="3 2"') + EL.w("M" + (x - 22) + " " + (m - 7) + " V" + (m + 7) + " M" + (x - 22) + " " + (m - 7) + " h-4 M" + (x - 22) + " " + (m + 7) + " h-4", false, null, 1.6) : "") +
+      (label ? txt(x - (o.push ? 30 : 10), m + 4, label, { a: "end", fs: 11, b: 1 }) : "") + (o.t1 ? txt(x + 14, a + 2, o.t1, { fs: 9 }) : "") + (o.t2 ? txt(x + 5, b + 6, o.t2, { fs: 9 }) : ""); },
+  /* Spule (Schütz/Relais) */
+  coil: function (x, y1, y2, on, live, label) { var m = (y1 + y2) / 2; return EL.w("M" + x + " " + y1 + " V" + (m - 13), live) + EL.w("M" + x + " " + (m + 13) + " V" + y2, live) + '<rect x="' + (x - 15) + '" y="' + (m - 13) + '" width="30" height="26" fill="' + (on ? "var(--press-soft)" : "var(--card)") + '" stroke="currentColor" stroke-width="2"/>' + (label ? txt(x + 20, m + 4, label, { fs: 11, b: 1 }) : "") + txt(x + 5, m - 16, "A1", { fs: 8.5 }) + txt(x + 5, m + 22, "A2", { fs: 8.5 }); },
+  /* Leuchte */
+  lamp: function (x, y1, y2, on, live, label, color) { var m = (y1 + y2) / 2, r = 14; return EL.w("M" + x + " " + y1 + " V" + (m - r), live) + EL.w("M" + x + " " + (m + r) + " V" + y2, live) + '<circle cx="' + x + '" cy="' + m + '" r="' + r + '" fill="' + (on ? (color || "rgba(255,200,40,.92)") : "var(--card)") + '" stroke="currentColor" stroke-width="2"/>' + EL.w("M" + (x - 10) + " " + (m - 10) + " L" + (x + 10) + " " + (m + 10) + " M" + (x + 10) + " " + (m - 10) + " L" + (x - 10) + " " + (m + 10), false, null, 1.8) + (label ? txt(x + r + 5, m + 4, label, { fs: 11, b: 1 }) : ""); },
+  /* Widerstand (Rechteck) senkrecht */
+  res: function (x, y1, y2, live, label, val) { var m = (y1 + y2) / 2; return EL.w("M" + x + " " + y1 + " V" + (m - 18), live) + EL.w("M" + x + " " + (m + 18) + " V" + y2, live) + '<rect x="' + (x - 8) + '" y="' + (m - 18) + '" width="16" height="36" fill="var(--card)" stroke="currentColor" stroke-width="2"/>' + (label ? txt(x + 13, m - 2, label, { fs: 11, b: 1 }) : "") + (val ? txt(x + 13, m + 12, val, { fs: 10 }) : ""); },
+  /* Widerstand waagrecht */
+  resH: function (x1, x2, y, live, label, val) { var m = (x1 + x2) / 2; return EL.w("M" + x1 + " " + y + " H" + (m - 22), live) + EL.w("M" + (m + 22) + " " + y + " H" + x2, live) + '<rect x="' + (m - 22) + '" y="' + (y - 8) + '" width="44" height="16" fill="var(--card)" stroke="currentColor" stroke-width="2"/>' + (label ? txt(m, y - 13, label, { a: "middle", fs: 11, b: 1 }) : "") + (val ? txt(m, y + 23, val, { a: "middle", fs: 10 }) : ""); },
+  /* Gleichspannungsquelle: langer Strich = +, oben */
+  src: function (x, y1, y2, label, live) { var m = (y1 + y2) / 2; return EL.w("M" + x + " " + y1 + " V" + (m - 5), live) + EL.w("M" + x + " " + (m + 5) + " V" + y2, false) + '<line x1="' + (x - 16) + '" y1="' + (m - 5) + '" x2="' + (x + 16) + '" y2="' + (m - 5) + '" stroke="currentColor" stroke-width="2.6"/><line x1="' + (x - 8) + '" y1="' + (m + 5) + '" x2="' + (x + 8) + '" y2="' + (m + 5) + '" stroke="currentColor" stroke-width="5"/>' + txt(x - 22, m - 4, "+", { a: "end", b: 1, fs: 13 }) + txt(x - 22, m + 13, "−", { a: "end", b: 1, fs: 13 }) + (label ? txt(x + 22, m + 5, label, { fs: 11, b: 1 }) : ""); },
+  /* Wechselspannungsquelle (Kreis mit ~) */
+  srcAC: function (x, y1, y2, label) { var m = (y1 + y2) / 2; return EL.w("M" + x + " " + y1 + " V" + (m - 15)) + EL.w("M" + x + " " + (m + 15) + " V" + y2) + '<circle cx="' + x + '" cy="' + m + '" r="15" fill="var(--card)" stroke="currentColor" stroke-width="2"/><path d="M' + (x - 9) + ' ' + m + ' q4.5 -9 9 0 t9 0" fill="none" stroke="currentColor" stroke-width="2"/>' + (label ? txt(x + 21, m + 4, label, { fs: 11, b: 1 }) : ""); },
+  /* Erdungszeichen */
+  gnd: function (x, y) { return '<path d="M' + (x - 12) + ' ' + y + ' H' + (x + 12) + ' M' + (x - 8) + ' ' + (y + 5) + ' H' + (x + 8) + ' M' + (x - 4) + ' ' + (y + 10) + ' H' + (x + 4) + '" stroke="currentColor" stroke-width="2"/>'; },
+  /* Wechsler-Schalter, senkrecht: gemeinsamer Anschluss unten (xc,yc), Ausgänge oben bei xa/xb (y = yt) */
+  changeoverUp: function (xc, yc, xa, xb, yt, pos, live, label) { var tipX = pos ? xb : xa; return EL.w("M" + xc + " " + yc + " L" + (tipX + (pos ? -3 : 3)) + " " + (yt + 6), live, null, 2.6) + EL.dot(xc, yc, live) + '<circle cx="' + xa + '" cy="' + yt + '" r="3" fill="var(--card)" stroke="currentColor" stroke-width="1.6"/><circle cx="' + xb + '" cy="' + yt + '" r="3" fill="var(--card)" stroke="currentColor" stroke-width="1.6"/>' + (label ? txt(Math.min(xa, xb) - 8, (yc + yt) / 2 + 4, label, { a: "end", fs: 11, b: 1 }) : ""); },
+  changeoverDown: function (xc, yc, xa, xb, yb, pos, live, label) { var tipX = pos ? xb : xa; return EL.w("M" + xc + " " + yc + " L" + (tipX + (pos ? -3 : 3)) + " " + (yb - 6), live, null, 2.6) + EL.dot(xc, yc, live) + '<circle cx="' + xa + '" cy="' + yb + '" r="3" fill="var(--card)" stroke="currentColor" stroke-width="1.6"/><circle cx="' + xb + '" cy="' + yb + '" r="3" fill="var(--card)" stroke="currentColor" stroke-width="1.6"/>' + (label ? txt(Math.min(xa, xb) - 8, (yc + yb) / 2 + 4, label, { a: "end", fs: 11, b: 1 }) : ""); }
+,
+  /* Diode senkrecht (IEC 60617): up = Durchlassrichtung nach oben (Kathode oben) */
+  diodeV: function (x, y1, y2, up, live, label, z) { var m = (y1 + y2) / 2, a = up ? m + 8 : m - 8, k = up ? m - 8 : m + 8, bar = z ? "M" + (x - 13) + " " + (k + (up ? 4 : -4)) + " L" + (x - 9) + " " + k + " H" + (x + 9) + " L" + (x + 13) + " " + (k + (up ? -4 : 4)) : "M" + (x - 10) + " " + k + " H" + (x + 10);
+    return EL.w("M" + x + " " + y1 + " V" + Math.min(a, k) + " M" + x + " " + Math.max(a, k) + " V" + y2, live) + '<polygon points="' + (x - 10) + ',' + a + ' ' + (x + 10) + ',' + a + ' ' + x + ',' + k + '" fill="var(--card)" stroke="currentColor" stroke-width="2"/>' + EL.w(bar, false, null, 2.4) + (label ? txt(x + 16, m + 4, label, { fs: 11, b: 1 }) : ""); },
+  /* Varistor (VDR) senkrecht: Rechteck mit geknickter Kennlinie und U */
+  vdrV: function (x, y1, y2, live, label) { var m = (y1 + y2) / 2; return EL.w("M" + x + " " + y1 + " V" + (m - 18) + " M" + x + " " + (m + 18) + " V" + y2, live) + '<rect x="' + (x - 8) + '" y="' + (m - 18) + '" width="16" height="36" fill="var(--card)" stroke="currentColor" stroke-width="2"/>' + EL.w("M" + (x - 16) + " " + (m + 16) + " H" + (x - 10) + " L" + (x + 12) + " " + (m - 16), false, null, 1.6) + txt(x - 18, m + 14, "U", { a: "end", fs: 10, b: 1 }) + (label ? txt(x + 14, m + 4, label, { fs: 11, b: 1 }) : ""); },
+  /* Kondensator senkrecht */
+  capV: function (x, y1, y2, live, label) { var m = (y1 + y2) / 2; return EL.w("M" + x + " " + y1 + " V" + (m - 4) + " M" + x + " " + (m + 4) + " V" + y2, live) + EL.w("M" + (x - 13) + " " + (m - 4) + " H" + (x + 13) + " M" + (x - 13) + " " + (m + 4) + " H" + (x + 13), false, null, 3) + (label ? txt(x + 17, m + 4, label, { fs: 11, b: 1 }) : ""); },
+  /* Messgerät (Kreis mit Formelzeichen V, A, Ω …) */
+  meter: function (x, y, letter, hi) { return '<circle cx="' + x + '" cy="' + y + '" r="15" fill="' + (hi ? "var(--warm-soft)" : "var(--card)") + '" stroke="currentColor" stroke-width="2"/>' + txt(x, y + 5, letter, { a: "middle", fs: 14, b: 1 }); },
+  /* Leitungsschutzschalter waagrecht (Schließer mit Leistungsschalter-Kreuz, Überstromauslöser I>) */
+  lsH: function (x1, x2, y, closed, live, label, below, cl) { var m = (x1 + x2) / 2, a = m - 14, b = m + 14, lo = live && closed, d = below ? 1 : -1;
+    return EL.w("M" + x1 + " " + y + " H" + a, live, cl) + EL.w("M" + b + " " + y + " H" + x2, lo, cl) + EL.w("M" + a + " " + y + " L" + (closed ? b : b - 4) + " " + (closed ? y : y - 13), live, cl, 2.6) + EL.w("M" + (b - 4) + " " + (y - 4) + " l8 8 M" + (b + 4) + " " + (y - 4) + " l-8 8", false, null, 1.8) +
+      '<path d="M' + m + ' ' + (y + d * (closed ? 2 : 7)) + ' V' + (y + d * 9) + '" stroke="currentColor" stroke-width="1.4" stroke-dasharray="3 2"/><rect x="' + (m - 12) + '" y="' + (below ? y + 9 : y - 23) + '" width="24" height="14" fill="var(--card)" stroke="currentColor" stroke-width="1.6"/>' + txt(m, (below ? y + 9 : y - 23) + 11, "I&gt;", { a: "middle", fs: 9, b: 1 }) + (label ? txt(m, below ? y - 9 : y + 18, label, { a: "middle", fs: 10, b: 1 }) : ""); },
+  /* Fehlerstrom-Schutzeinrichtung (2-polig) waagrecht über zwei Leitern y1 (L) und y2 (N) */
+  rcdH: function (x1, x2, y1, y2, closed, label, cL, cN) { var m = (x1 + x2) / 2, a = m - 14, b = m + 14, h = "";
+    [[y1, cL], [y2, cN]].forEach(function (p) { h += EL.w("M" + x1 + " " + p[0] + " H" + a, !!p[1], p[1]) + EL.w("M" + b + " " + p[0] + " H" + x2, !!(p[1] && closed), p[1]) + EL.w("M" + a + " " + p[0] + " L" + (closed ? b : b - 4) + " " + (closed ? p[0] : p[0] - 12), !!p[1], p[1], 2.4); });
+    h += '<path d="M' + (m - 2) + ' ' + (y1 - 6) + ' V' + (y2 + 22) + '" stroke="currentColor" stroke-width="1.4" stroke-dasharray="3 2"/><ellipse cx="' + (m - 26) + '" cy="' + ((y1 + y2) / 2) + '" rx="7" ry="' + ((y2 - y1) / 2 + 9) + '" fill="none" stroke="currentColor" stroke-width="1.6"/>' + EL.w("M" + (m - 19) + " " + ((y1 + y2) / 2) + " H" + (m - 2), false, null, 1.4).replace('stroke-width="1.4"', 'stroke-width="1.4" stroke-dasharray="3 2"') + '<rect x="' + (m - 12) + '" y="' + (y2 + 22) + '" width="24" height="14" fill="var(--card)" stroke="currentColor" stroke-width="1.6"/>' + txt(m, y2 + 33, "IΔ", { a: "middle", fs: 9, b: 1 });
+    return h + (label ? txt(m, y2 + 50, label, { a: "middle", fs: 10, b: 1 }) : ""); }
+};
+
+/* ===== Wiederverwendbare Simulatoren ===== */
+var SIM = {};
+/* Quiz: qs = [[Frage, [Antworten], Index richtig, Erklärung], ...] */
+SIM.quiz = function (el, qs) {
+  var st = { order: shuffle(qs.map(function (_, i) { return i; })), p: 0, ok: 0, n: 0, done: false };
+  el.innerHTML = '<div class="box" data-q style="font-size:1.02rem"></div><div class="chips" data-o style="flex-direction:column;max-width:640px"></div><div data-f></div><div class="ctrls"><button class="btn pri" data-n>Nächste Frage</button><b data-s></b></div>';
+  var Q = el.querySelector("[data-q]"), O = el.querySelector("[data-o]"), F = el.querySelector("[data-f]"), S = el.querySelector("[data-s]");
+  function show() {
+    if (st.p >= st.order.length) { st.order = shuffle(st.order); st.p = 0; }
+    var q = qs[st.order[st.p]]; st.done = false; st.cur = q;
+    Q.innerHTML = "<b>Frage " + (st.p + 1) + "/" + qs.length + ":</b> " + q[0];
+    st.map = shuffle(q[1].map(function (_, i) { return i; }));
+    O.innerHTML = st.map.map(function (i) { return '<button class="chip" data-i="' + i + '">' + q[1][i] + '</button>'; }).join(""); F.innerHTML = "";
+  }
+  O.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-i]"); if (!b || st.done) return; st.done = true; st.n++;
+    var ok = +b.dataset.i === st.cur[2]; if (ok) st.ok++;
+    Array.prototype.forEach.call(O.children, function (x) { if (+x.dataset.i === st.cur[2]) x.classList.add("ok"); else if (x === b) x.classList.add("bad"); });
+    F.innerHTML = '<div class="fb ' + (ok ? "ok" : "bad") + '">' + (ok ? "Richtig! " : "Leider falsch. ") + (st.cur[3] || "") + '</div>';
+    S.textContent = "Punkte: " + st.ok + " / " + st.n;
+  });
+  el.querySelector("[data-n]").addEventListener("click", function () { st.p++; show(); });
+  show();
+};
+/* Zuordnen: cats = [[key, Bezeichnung], ...], items = [[Text, key], ...] */
+SIM.sort = function (el, cats, items, hint) {
+  var st = { put: {}, sel: null };
+  el.innerHTML = '<div class="chips" data-p></div><div data-r style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:12px"></div><div class="ctrls"><button class="btn pri" data-c>Prüfen</button><button class="btn" data-x>Zurücksetzen</button></div><div data-f></div>';
+  var P = el.querySelector("[data-p]"), Rg = el.querySelector("[data-r]"), F = el.querySelector("[data-f]");
+  var order = shuffle(items.map(function (_, i) { return i; }));
+  function render(check) {
+    P.innerHTML = order.map(function (i) { return st.put[i] !== undefined ? "" : '<button class="chip' + (st.sel === i ? " sel" : "") + '" data-i="' + i + '">' + items[i][0] + '</button>'; }).join("") || '<span class="ab-intro">Alles zugeordnet – jetzt prüfen.</span>';
+    Rg.innerHTML = cats.map(function (c) {
+      return '<div data-k="' + c[0] + '" class="clk" style="border:2px dashed var(--line);border-radius:10px;padding:8px;min-height:80px;background:var(--soft)"><b style="display:block;margin-bottom:6px">' + c[1] + '</b><div class="chips" style="flex-direction:column">' +
+        order.map(function (i) { return st.put[i] === c[0] ? '<button class="chip' + (check ? (items[i][1] === c[0] ? " ok" : " bad") : "") + '" data-b="' + i + '">' + items[i][0] + '</button>' : ""; }).join("") + '</div></div>';
+    }).join("");
+  }
+  P.addEventListener("click", function (e) { var b = e.target.closest("[data-i]"); if (!b) return; st.sel = st.sel === +b.dataset.i ? null : +b.dataset.i; render(); });
+  Rg.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-b]"); if (b) { delete st.put[+b.dataset.b]; F.innerHTML = ""; render(); return; }
+    var k = e.target.closest("[data-k]"); if (!k) return;
+    if (st.sel === null) { F.innerHTML = '<div class="fb bad">Zuerst oben eine Karte antippen, dann das Feld.</div>'; return; }
+    st.put[st.sel] = k.dataset.k; st.sel = null; F.innerHTML = ""; render();
+  });
+  el.querySelector("[data-c]").addEventListener("click", function () {
+    var ok = items.filter(function (it, i) { return st.put[i] === it[1]; }).length; render(true);
+    F.innerHTML = '<div class="fb ' + (ok === items.length ? "ok" : "bad") + '">' + ok + " von " + items.length + " richtig." + (ok < items.length ? " Rote Karten antippen, um sie zurückzulegen." + (hint ? " " + hint : "") : " Perfekt!") + '</div>';
+  });
+  el.querySelector("[data-x]").addEventListener("click", function () { st.put = {}; st.sel = null; order = shuffle(order); F.innerHTML = ""; render(); });
+  render();
+};
+/* Reihenfolge: sc = [{t: Titel, s: [Schritte in richtiger Reihenfolge], h: Tipp}] */
+SIM.order = function (el, sc) {
+  var st = { k: 0, o: [] };
+  el.innerHTML = (sc.length > 1 ? '<div class="seg" data-g>' + sc.map(function (s, i) { return '<button data-v="' + i + '"' + (i ? "" : ' class="on"') + '>' + s.t + '</button>'; }).join("") + '</div>' : '') + '<ol class="olist" data-l></ol><div class="ctrls"><button class="btn pri" data-c>Prüfen</button><button class="btn" data-m>Neu mischen</button><button class="btn" data-s>Lösung zeigen</button></div><div data-f></div>';
+  var Lst = el.querySelector("[data-l]"), F = el.querySelector("[data-f]");
+  function mix() { var n = sc[st.k].s.length, a; do { a = shuffle(Array.apply(null, { length: n }).map(function (_, i) { return i; })); } while (n > 1 && a.every(function (v, i) { return v === i; })); st.o = a; F.innerHTML = ""; render(); }
+  function render(check) { Lst.innerHTML = st.o.map(function (s, i) { return '<li class="' + (check ? (s === i ? "ok" : "bad") : "") + '"><span class="n">' + (i + 1) + '</span><span class="tx">' + sc[st.k].s[s] + '</span><span class="mv"><button data-mv="' + i + '" data-d="-1" aria-label="nach oben">↑</button><button data-mv="' + i + '" data-d="1" aria-label="nach unten">↓</button></span></li>'; }).join(""); }
+  Lst.addEventListener("click", function (e) { var b = e.target.closest("[data-mv]"); if (!b) return; var i = +b.dataset.mv, j = i + +b.dataset.d; if (j < 0 || j >= st.o.length) return; var t = st.o[i]; st.o[i] = st.o[j]; st.o[j] = t; F.innerHTML = ""; render(); });
+  el.querySelector("[data-c]").addEventListener("click", function () { var ok = st.o.filter(function (s, i) { return s === i; }).length, n = st.o.length; render(true); F.innerHTML = '<div class="fb ' + (ok === n ? "ok" : "bad") + '">' + ok + " von " + n + " Schritten an der richtigen Stelle." + (ok === n ? " Perfekt!" : (sc[st.k].h ? " Tipp: " + sc[st.k].h : "")) + '</div>'; });
+  el.querySelector("[data-m]").addEventListener("click", mix);
+  el.querySelector("[data-s]").addEventListener("click", function () { st.o = sc[st.k].s.map(function (_, i) { return i; }); render(true); });
+  var g = el.querySelector("[data-g]"); if (g) segInit(g, function (v) { st.k = +v; mix(); });
+  mix();
+};
+/* Rechner: cfg.in = [{k, l, min, max, step, v, u, opts:[[wert, text]]}], cfg.f(v) -> {out:[[l,w]], calc:"", svg:""} */
+SIM.calc = function (el, cfg) {
+  el.innerHTML = '<div class="ctrls">' + cfg.in.map(function (c) {
+    if (c.opts) return '<div class="ctrl"><label>' + c.l + '</label><select data-k="' + c.k + '">' + c.opts.map(function (o) { return '<option value="' + o[0] + '"' + (String(o[0]) === String(c.v) ? " selected" : "") + '>' + o[1] + '</option>'; }).join("") + '</select></div>';
+    if (c.num) return '<div class="ctrl"><label>' + c.l + (c.u ? " in " + c.u : "") + '</label><input type="number" data-k="' + c.k + '" min="' + c.min + '" max="' + c.max + '" step="' + (c.step || 1) + '" value="' + c.v + '"></div>';
+    return '<div class="ctrl"><label>' + c.l + '</label><input type="range" data-k="' + c.k + '" min="' + c.min + '" max="' + c.max + '" step="' + (c.step || 1) + '" value="' + c.v + '"><output data-o="' + c.k + '"></output></div>';
+  }).join("") + '</div><div class="stage sv" data-svg></div><div class="out" data-out></div><div class="calc" data-calc></div><div data-note></div>';
+  var Sv = el.querySelector("[data-svg]"), O = el.querySelector("[data-out]"), C = el.querySelector("[data-calc]"), N = el.querySelector("[data-note]");
+  function upd() {
+    var v = {};
+    cfg.in.forEach(function (c) { var i = el.querySelector('[data-k="' + c.k + '"]'); v[c.k] = c.opts && isNaN(+i.value) ? i.value : +i.value; var o = el.querySelector('[data-o="' + c.k + '"]'); if (o) o.textContent = (c.fmt ? c.fmt(v[c.k]) : fmtAuto(v[c.k])) + (c.u ? " " + c.u : ""); });
+    var r = cfg.f(v) || {};
+    Sv.style.display = r.svg ? "" : "none"; if (r.svg) Sv.innerHTML = r.svg;
+    O.style.display = r.out ? "" : "none"; if (r.out) O.innerHTML = outGrid(r.out);
+    C.style.display = r.calc ? "" : "none"; if (r.calc) C.textContent = r.calc;
+    N.innerHTML = r.note || "";
+  }
+  el.addEventListener("input", upd); el.addEventListener("change", upd);
+  if (cfg.anim) { (function loop() { if (el.closest(".panel.on")) upd(); requestAnimationFrame(loop); })(); }
+  upd(); return upd;
+};
+/* Aufgabengenerator: gens = {key: [Bezeichnung, function(){ return {t, u, a, s, tol} }]} */
+SIM.gen = function (el, gens) {
+  var keys = Object.keys(gens), st = { ok: 0, n: 0, cur: null, done: false };
+  el.innerHTML = '<div class="ctrls"><div class="ctrl" style="min-width:230px"><label>Aufgabentyp</label><select data-t><option value="mix">Gemischt</option>' + keys.map(function (k) { return '<option value="' + k + '">' + gens[k][0] + '</option>'; }).join("") + '</select></div><button class="btn pri" data-n>Neue Aufgabe</button><b data-sc></b></div><div class="box" data-q></div><div class="ctrls"><div class="ctrl"><label data-l>Ergebnis</label><input type="text" inputmode="decimal" data-i></div><button class="btn" data-c>Prüfen</button><button class="btn" data-w>Lösungsweg</button></div><div data-f></div><div class="calc" data-s style="display:none"></div>';
+  var q = function (s) { return el.querySelector(s); };
+  function nw() { var t = q("[data-t]").value; if (t === "mix") t = pick(keys); st.cur = gens[t][1](); st.done = false; q("[data-q]").innerHTML = "<b>Aufgabe:</b> " + st.cur.t; q("[data-l]").textContent = "Ergebnis" + (st.cur.u ? " in " + st.cur.u : ""); q("[data-i]").value = ""; q("[data-f]").innerHTML = ""; q("[data-s]").style.display = "none"; q("[data-s]").textContent = st.cur.s; }
+  q("[data-n]").addEventListener("click", nw); q("[data-t]").addEventListener("change", nw);
+  q("[data-c]").addEventListener("click", function () {
+    var raw = q("[data-i]").value, ok;
+    if (typeof st.cur.a === "string") { var nz = function (x) { return String(x).trim().toUpperCase().replace(/[\s%]/g, "").replace(",", "."); }; ok = nz(raw) === nz(st.cur.a); }
+    else { var v = parseNum(raw); if (!isFinite(v)) { q("[data-f]").innerHTML = '<div class="fb bad">Bitte eine Zahl eingeben.</div>'; return; } ok = Math.abs(v - st.cur.a) <= Math.max(Math.abs(st.cur.a) * (st.cur.tol === undefined ? .02 : st.cur.tol), 1e-9); }
+    if (!st.done) { st.n++; if (ok) st.ok++; st.done = true; }
+    q("[data-sc]").textContent = "Richtig: " + st.ok + " / " + st.n;
+    q("[data-f]").innerHTML = '<div class="fb ' + (ok ? "ok" : "bad") + '">' + (ok ? "Richtig! " : "Nicht ganz. ") + "Ergebnis: " + (typeof st.cur.a === "string" ? st.cur.a : fmtAuto(st.cur.a)) + " " + (st.cur.u || "") + '</div>';
+    if (!ok) q("[data-s]").style.display = "";
+  });
+  q("[data-i]").addEventListener("keydown", function (e) { if (e.key === "Enter") q("[data-c]").click(); });
+  q("[data-w]").addEventListener("click", function () { q("[data-s]").style.display = ""; });
+  nw();
+};
+/* Schalter-Logik: inputs = [[Name, Tastend?, Text, Startwert]], f(state)->{svg, out, note} */
+SIM.toggles = function (el, inputs, f) {
+  var st = {}; inputs.forEach(function (i) { st[i[0]] = i[3] || 0; });
+  el.innerHTML = '<div class="chips" data-b>' + inputs.map(function (i) { return '<button class="btn" data-n="' + i[0] + '"' + (i[1] ? ' data-hold="1"' : '') + '>' + (i[2] || i[0]) + (i[1] ? " (halten)" : "") + '</button>'; }).join("") + '</div><div class="stage sv" data-svg></div><div class="out" data-out></div><div class="status" data-note></div>';
+  var B = el.querySelector("[data-b]");
+  function upd() { Array.prototype.forEach.call(B.children, function (b) { b.classList.toggle("on", !!st[b.dataset.n]); }); var r = f(st) || {}; el.querySelector("[data-svg]").innerHTML = r.svg || ""; var o = el.querySelector("[data-out]"); o.style.display = r.out ? "" : "none"; o.innerHTML = r.out ? outGrid(r.out) : ""; var n = el.querySelector("[data-note]"); n.style.display = r.note ? "" : "none"; n.innerHTML = r.note || ""; }
+  B.addEventListener("click", function (e) { var b = e.target.closest("[data-n]"); if (!b || b.dataset.hold) return; st[b.dataset.n] = st[b.dataset.n] ? 0 : 1; upd(); });
+  B.addEventListener("pointerdown", function (e) { var b = e.target.closest("[data-hold]"); if (!b) return; e.preventDefault(); st[b.dataset.n] = 1; try { b.setPointerCapture(e.pointerId); } catch (x) { } upd(); });
+  ["pointerup", "pointercancel", "lostpointercapture"].forEach(function (ev) { B.addEventListener(ev, function (e) { var b = e.target.closest("[data-hold]"); if (!b || !st[b.dataset.n]) return; st[b.dataset.n] = 0; upd(); }); });
+  B.addEventListener("keydown", function (e) { var b = e.target.closest("[data-hold]"); if (b && (e.key === " " || e.key === "Enter")) { e.preventDefault(); st[b.dataset.n] = 1; upd(); } });
+  B.addEventListener("keyup", function (e) { var b = e.target.closest("[data-hold]"); if (b) { st[b.dataset.n] = 0; upd(); } });
+  upd(); return { st: st, upd: upd };
+};
+
+/* ===== Präsentationsmodus =====
+   Erzeugt aus den Lernunterlagen Folien: Titel, Lernziele, je Abschnitt (h3) eine Folie,
+   die echten Simulatoren als Live-Folien, „Das Wichtigste“ (alle Merke-Kästen) und Abschluss.
+   Bedienung: → / Leertaste / Klick rechts = weiter, ← = zurück, S = Schrittweise einblenden,
+   P = Laserpointer, B = Schwarzbild, Ü = Übersicht, F = Vollbild, Esc = Ende. */
+var PRES = (function () {
+  var el, stage, slideBox, inner, bar, prog, ov, dot, slides = [], i = 0, moved = null, stepMode = false;
+  function make() {
+    if (el) return;
+    el = document.createElement("div"); el.className = "pres"; el.setAttribute("role", "dialog"); el.setAttribute("aria-label", "Präsentation");
+    el.innerHTML = '<div class="pres-bar"><span class="t" data-t></span><button data-a="prev" title="zurück (←)">◀</button><span class="n" data-n></span><button data-a="next" title="weiter (→)">▶</button><button data-a="ov" title="Übersicht (Ü)">▦ Übersicht</button><button data-a="step" title="Inhalte schrittweise einblenden (S)">☰ Schritte</button><button data-a="ptr" title="Laserpointer (P)">◉ Pointer</button><button data-a="blk" title="Schwarzbild (B)">■</button><button data-a="fs" title="Vollbild (F)">⛶</button><button data-a="x" title="Beenden (Esc)">✕</button></div><div class="pres-prog"><i></i></div><div class="pres-stage"><div class="pres-slide"><div class="pres-inner"></div></div><div class="pres-ov"></div><div class="pres-help">← → blättern · S Schritte · P Pointer · B Schwarz · Esc Ende</div></div>';
+    document.body.appendChild(el);
+    dot = document.createElement("div"); dot.className = "pres-dot"; document.body.appendChild(dot);
+    bar = el.querySelector(".pres-bar"); prog = el.querySelector(".pres-prog i"); stage = el.querySelector(".pres-stage"); slideBox = el.querySelector(".pres-slide"); inner = el.querySelector(".pres-inner"); ov = el.querySelector(".pres-ov");
+    bar.addEventListener("click", function (e) { var b = e.target.closest("[data-a]"); if (!b) return; act(b.dataset.a); });
+    ov.addEventListener("click", function (e) { var b = e.target.closest("[data-go]"); if (!b) return; ov.classList.remove("on"); go(+b.dataset.go); });
+    inner.addEventListener("click", function (e) { var b = e.target.closest("[data-sim]"); if (b) { var k = slides.findIndex(function (s) { return s.simEl && s.simKey === b.dataset.sim; }); if (k >= 0) go(k); } });
+    document.addEventListener("keydown", key);
+    var sx = null; stage.addEventListener("touchstart", function (e) { sx = e.touches[0].clientX; }, { passive: true });
+    stage.addEventListener("touchend", function (e) { if (sx === null) return; var dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 60 && !e.target.closest(".sim")) act(dx < 0 ? "next" : "prev"); sx = null; });
+    el.addEventListener("mousemove", function (e) { dot.style.left = e.clientX + "px"; dot.style.top = e.clientY + "px"; });
+    window.addEventListener("resize", function () { if (el.classList.contains("on")) fit(); });
+  }
+  function key(e) {
+    if (!el || !el.classList.contains("on")) return;
+    if (e.target.closest && e.target.closest("input,select,textarea")) return;
+    var k = e.key;
+    if (k === "ArrowRight" || k === "PageDown" || k === " ") { e.preventDefault(); act("next"); }
+    else if (k === "ArrowLeft" || k === "PageUp") { e.preventDefault(); act("prev"); }
+    else if (k === "Home") go(0); else if (k === "End") go(slides.length - 1);
+    else if (k === "Escape") { if (ov.classList.contains("on")) ov.classList.remove("on"); else stop(); }
+    else if (k === "f" || k === "F") act("fs"); else if (k === "b" || k === "B" || k === ".") act("blk");
+    else if (k === "p" || k === "P") act("ptr"); else if (k === "s" || k === "S") act("step");
+    else if (k === "ü" || k === "Ü" || k === "o" || k === "O") act("ov");
+  }
+  function act(a) {
+    if (a === "next") { if (stepMode && reveal(1)) return; go(i + 1); }
+    else if (a === "prev") { if (stepMode && reveal(-1)) return; go(i - 1); }
+    else if (a === "x") stop();
+    else if (a === "fs") { if (!document.fullscreenElement) { if (el.requestFullscreen) el.requestFullscreen().catch(function () { }); } else if (document.exitFullscreen) document.exitFullscreen(); }
+    else if (a === "blk") el.classList.toggle("black");
+    else if (a === "ptr") { el.classList.toggle("pointer"); bar.querySelector('[data-a="ptr"]').classList.toggle("on", el.classList.contains("pointer")); }
+    else if (a === "step") { stepMode = !stepMode; bar.querySelector('[data-a="step"]').classList.toggle("on", stepMode); render(); }
+    else if (a === "ov") { if (ov.classList.contains("on")) { ov.classList.remove("on"); return; } ov.innerHTML = slides.map(function (s, k) { return '<button data-go="' + k + '" class="' + (k === i ? "cur" : "") + '"><small>' + (k + 1) + " · " + esc(s.topicTitle) + '</small>' + esc(s.title) + '</button>'; }).join(""); ov.classList.add("on"); var c = ov.querySelector(".cur"); if (c) c.scrollIntoView({ block: "center" }); }
+  }
+  function stripBadges(h) { var c = h.cloneNode(true); Array.prototype.forEach.call(c.querySelectorAll(".badge,.newbadge"), function (b) { b.remove(); }); return c.textContent.trim().replace(/^\d+\s+/, ""); }
+  function cloneClean(n) { var c = n.cloneNode(true); if (c.querySelectorAll) Array.prototype.forEach.call(c.querySelectorAll("[data-ref]"), function (x) { x.removeAttribute("data-ref"); }); if (c.removeAttribute) c.removeAttribute("data-ref"); return c; }
+  function build(topics) {
+    slides = [];
+    topics.forEach(function (t) {
+      var tt = t.dataset.title, paper = t.querySelector(':scope > .panel[data-panel="lu"] .paper'); if (!paper) return;
+      var hero = t.querySelector(".hero"), book = paper.querySelector(".book");
+      slides.push({ topicTitle: tt, topic: t, title: "Titel", html: '<div class="ps-cover"><div class="ps-kicker">' + (hero ? hero.querySelector(".kicker").innerHTML : "") + '</div><h1>' + esc(tt.replace(/^\d+\.\d+\s*/, "")) + '</h1><p class="lead">' + (hero && hero.querySelector(".lead") ? hero.querySelector(".lead").innerHTML : "") + '</p>' + (book ? '<div class="book">' + book.innerHTML + '</div>' : '') + '</div>' });
+      var goals = paper.querySelector(".goals"); if (goals) slides.push({ topicTitle: tt, topic: t, title: "Lernziele", nodes: [cloneClean(goals)], h: "Lernziele" });
+      var cur = null;
+      function flush() { if (cur && cur.nodes.length) slides.push(cur); cur = null; }
+      Array.prototype.forEach.call(paper.children, function (n) {
+        if (n.classList.contains("print-head") || n.tagName === "H2" || n.classList.contains("goals") || n.classList.contains("book") || (n.classList.contains("ab-intro") && n.querySelector(".badge"))) return;
+        if (n.tagName === "H3") { flush(); cur = { topicTitle: tt, topic: t, title: stripBadges(n), h: n.innerHTML, nodes: [] }; return; }
+        if (n.classList.contains("deep")) { flush(); var h3 = n.querySelector("h3"); var s = { topicTitle: tt, topic: t, title: h3 ? stripBadges(h3) : "Vertiefung", h: h3 ? h3.innerHTML : "Vertiefung", nodes: [] }; Array.prototype.forEach.call(n.children, function (c) { if (c !== h3) s.nodes.push(cloneClean(c)); }); slides.push(s); return; }
+        if (!cur) cur = { topicTitle: tt, topic: t, title: "Einführung", h: "Einführung", nodes: [] };
+        cur.nodes.push(cloneClean(n));
+      });
+      flush();
+      var sims = Array.prototype.slice.call(t.querySelectorAll(":scope > .panel.sim .sim"));
+      if (sims.length) {
+        slides.push({ topicTitle: tt, topic: t, title: "Simulatoren", html: '<h2 class="ps-title">Simulatoren – live ausprobieren</h2><div class="ps-simlist">' + sims.map(function (s, k) { return '<button data-sim="' + t.dataset.topic + ":" + k + '">' + s.querySelector("h3").textContent.trim() + '</button>'; }).join("") + '</div><p class="ab-intro" style="margin-top:1em">Tipp: Mit ▶ geht es der Reihe nach durch alle Simulatoren.</p>' });
+        sims.forEach(function (s, k) { slides.push({ topicTitle: tt, topic: t, title: s.querySelector("h3").textContent.trim(), simEl: s, simKey: t.dataset.topic + ":" + k }); });
+      }
+      var merk = paper.querySelectorAll(".merk");
+      if (merk.length) slides.push({ topicTitle: tt, topic: t, title: "Das Wichtigste", h: "Das Wichtigste in Kürze", nodes: Array.prototype.map.call(merk, cloneClean) });
+      slides.push({ topicTitle: tt, topic: t, title: "Abschluss", html: '<div class="ps-cover"><div class="ps-kicker">' + esc(tt) + '</div><h1>Fragen?</h1><p class="lead">Weiter mit dem Arbeitsblatt (✏️) – Lösungen zum Vergleichen (✅).</p></div>' });
+    });
+  }
+  function restore() { if (moved) { moved.ph.parentNode.replaceChild(moved.el, moved.ph); moved = null; } }
+  function render() {
+    restore(); var s = slides[i]; if (!s) return;
+    inner.style.transform = ""; inner.style.width = ""; slideBox.classList.remove("scroll"); slideBox.classList.remove("panel", "on");
+    if (s.simEl) {
+      inner.innerHTML = '<div class="ps-kicker">Live-Simulator · ' + esc(s.topicTitle) + '</div>';
+      var ph = document.createComment("sim"); s.simEl.parentNode.replaceChild(ph, s.simEl); moved = { el: s.simEl, ph: ph };
+      inner.appendChild(s.simEl); slideBox.classList.add("panel", "on"); showTab(s.topic, "sim");
+    } else if (s.html) { inner.innerHTML = s.html; }
+    else { inner.innerHTML = '<h2 class="ps-title">' + s.h + '</h2>'; s.nodes.forEach(function (n) { var c = n.cloneNode(true); if (stepMode) c.classList.add("ps-step"); inner.appendChild(c); }); if (stepMode) { var f = inner.querySelector(".ps-step"); if (f) f.classList.add("shown"); } }
+    el.querySelector("[data-t]").textContent = s.topicTitle + " – " + s.title;
+    el.querySelector("[data-n]").textContent = (i + 1) + " / " + slides.length;
+    prog.style.width = ((i + 1) / slides.length * 100) + "%";
+    slideBox.scrollTop = 0; fit();
+  }
+  function reveal(d) { var st = inner.querySelectorAll(".ps-step"); if (!st.length) return false; var sh = inner.querySelectorAll(".ps-step.shown").length; if (d > 0 && sh < st.length) { st[sh].classList.add("shown"); return true; } if (d < 0 && sh > 1) { st[sh - 1].classList.remove("shown"); return true; } return false; }
+  function fit() {
+    var s = slides[i]; if (!s) return; inner.style.transform = ""; inner.style.width = "";
+    if (s.simEl) { slideBox.classList.add("scroll"); return; }
+    var avail = slideBox.clientHeight - parseFloat(getComputedStyle(slideBox).paddingTop) * 2, need = inner.scrollHeight;
+    if (need > avail) { var k = Math.max(0.58, avail / need); inner.style.transform = "scale(" + k + ")"; inner.style.width = (100 / k) + "%"; if (need * k > avail + 2) slideBox.classList.add("scroll"); }
+  }
+  function go(n) { n = Math.max(0, Math.min(slides.length - 1, n)); i = n; render(); }
+  function start(topics, at) {
+    make(); build(topics); if (!slides.length) return;
+    i = at || 0; el.classList.add("on"); document.body.classList.add("pres-open"); render();
+  }
+  function stop() { restore(); if (!el) return; el.classList.remove("on", "black", "pointer"); document.body.classList.remove("pres-open"); if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen(); var s = slides[i]; if (s && s.topic) { showTab(s.topic, s.simEl ? "sim" : "lu"); } }
+  return { start: start, stop: stop, go: go };
+})();
+</script>
+
+</head>
+<body>
+<div class="topbar"><div class="wrap"><a class="brand" href="/">Grundmodul<small>Grundmodul · Grundmodul – Elektrotechnik und Elektronik</small></a><span class="sp"></span><a class="btn sm noprint" href="/">Grundmodul · Übersicht</a><button class="btn sm noprint" data-print>🖨 Drucken</button></div></div>
+<main class="wrap">
+<article class="topic" data-topic="gm12" data-title="GM 12 Motorschutz – Motorschutzschalter, Motorschutzrelais, Thermistor, Motorvollschutz">
+  <header class="hero">
+    <div class="kicker">Grundmodul · Grundmodul – Elektrotechnik und Elektronik · Thema GM 12</div>
+    <h1>Motorschutz – Motorschutzschalter, Motorschutzrelais, Thermistor, Motorvollschutz</h1>
+    <p class="lead">Warum Motoren überhitzen, die Schutzgeräte und ihre Angaben, den Einstellstrom richtig ermitteln und einstellen, Auslöseklassen, Kaltleiter-Motorschutz und systematische Fehlersuche nach einer Auslösung.</p>
+  </header>
+  <nav class="tabs noprint" role="tablist">
+    <button data-tab="lu" role="tab">📘 Lernunterlage</button>
+    <button data-tab="sim" role="tab">🧪 Simulatoren (9)</button>
+    <button data-tab="ab" role="tab">✏️ Arbeitsblatt</button>
+    <button data-tab="lo" role="tab">✅ Lösungen</button>
+    <button class="prbtn" data-pres="1" title="Lernunterlage als Folien vortragen">🎤 Präsentation</button>
+  </nav>
+  <section class="panel lu" data-panel="lu"><div class="paper"><div class="print-head"><span>Elektrotechnik & Mechatronik – Grundmodul · GM 12 Motorschutz – Motorschutzschalter, Motorschutzrelais, Thermistor, Motorvollschutz</span><span>Lernunterlage</span></div>
+    <h2>Motorschutz – Motorschutzschalter, Motorschutzrelais, Thermistor, Motorvollschutz</h2>
+    <div class="goals"><b>Lernziele – nach diesem Kapitel kannst du …</b><ul><li>die Ursachen für die Überhitzung eines Motors nennen und den Begriff Motorvollschutz erklären</li><li>Motorschutzschalter, Motorschutzrelais (Überlastrelais) und Thermistor-Motorschutz nach Aufbau, Schutzumfang und Schaltzeichen unterscheiden</li><li>die Angaben auf dem Gerät und auf dem Leistungsschild lesen</li><li>den Einstellstrom nach festen Kriterien ermitteln und am Gerät einstellen, auch bei Stern-Dreieck, Stromwandler und hoher Umgebungstemperatur</li><li>die passende Auslöseklasse für den Anlauf wählen</li><li>eine Auslösung systematisch untersuchen und die Ursache finden</li></ul></div>
+    <div class="book">Kap. 10.4.6 „Motorschutzeinrichtungen“ (Motorschutzschalter, Überlastrelais, Motorschutz mit Kaltleitern), Kap. 9.2.3 „Kaltleiter“, Kap. 4 „Stern-Dreieck-Schützschaltung“ (Einbauort und Einstellwert des Überlastrelais), Kap. „Elektrische Maschinen“ (Leistungsschild, Isolierstoffklassen). Normen: EN 60947-2, EN 60947-4-1, EN 60947-8, EN 60034-1, EN 60204-1, DIN 44081/44082.</div>
+    <p class="ab-intro"><span class="badge b1">★ Grundlagen</span> für alle · <span class="badge b2">★★ Vertiefung</span> für Fortgeschrittene / LAP-Vorbereitung · <span class="newbadge">Fachkunde</span> = nach dem Buch ergänzt</p>
+
+<h3>1 Warum braucht ein Motor einen eigenen Schutz? <span class="badge b1">★</span></h3>
+<div class="grid2"><div>
+<p>Ein Leitungsschutzschalter oder eine Sicherung schützt die <b>Leitung</b>. Für die Motorwicklung ist sie zu grob: Ein Motor mit 8 A Bemessungsstrom an einem 16-A-LS kann dauerhaft mit 15 A laufen, ohne dass etwas auslöst. Dabei verbrennt seine Wicklung. Die Grenze setzt die <b>Isolierung</b> des Wicklungsdrahts:</p>
+<ul><li><b>Isolierstoffklasse</b> (Wärmeklasse) am Leistungsschild: B = 130 °C, F = 155 °C, H = 180 °C höchste Dauertemperatur</li><li>Faustregel: Jede 10 K über der zulässigen Temperatur <b>halbiert die Lebensdauer</b> der Isolierung.</li><li>Ein Motor erwärmt sich langsam, weil Eisen und Kupfer Wärme speichern (Minuten bis Stunden). Kurze Überlast, wie beim Anlauf, ist erlaubt. Dauernde Überlast ist es nicht.</li></ul></div>
+<figure class="fig"><div class="sv" data-ref="figtemp"></div><figcaption>Bild: Temperaturaufbau in der Wicklung für die Isolierstoffklassen B, F und H, bei 40 °C Kühlmitteltemperatur (eigene Darstellung)</figcaption></figure></div>
+<div class="tscroll"><table class="t"><tr><th>Ursache der Überhitzung</th><th>was passiert</th><th>Strom steigt?</th></tr>
+<tr><td>mechanische Überlast, schwergängige Maschine, Lagerschaden</td><td>Moment und damit Strom steigen</td><td>ja</td></tr>
+<tr><td>blockierter Läufer, Schweranlauf (zu lange Anlaufzeit)</td><td>Anlaufstrom (5 … 8 · I<sub>N</sub>) fließt zu lange</td><td>ja, stark</td></tr>
+<tr><td>Ausfall eines Außenleiters (Zweiphasenlauf)</td><td>in den verbleibenden Leitern fließt etwa √3-mal so viel Strom</td><td>ja</td></tr>
+<tr><td>Unterspannung, Asymmetrie der Netzspannung</td><td>Strom steigt bei gleicher Last, zusätzliche Verluste</td><td>ja, wenig</td></tr>
+<tr><td>behinderte Kühlung (verschmutzte Rippen, defekter Lüfter), hohe Umgebungstemperatur</td><td>Wärme wird nicht abgeführt</td><td><b>nein</b></td></tr>
+<tr><td>Betrieb am Frequenzumrichter bei kleiner Drehzahl (Eigenlüfter dreht langsam)</td><td>Kühlung fehlt</td><td><b>nein</b></td></tr>
+<tr><td>zu hohe Schalthäufigkeit (Tippbetrieb)</td><td>viele Anläufe hintereinander</td><td>kurzzeitig</td></tr></table></div>
+<div class="merk"><b>Motorvollschutz</b> bedeutet: Der Motor ist gegen <b>alle</b> Ursachen einer unzulässigen Erwärmung geschützt. Ein stromabhängiger Schutz (Motorschutzschalter, Motorschutzrelais) erkennt nur die Fälle, in denen der Strom steigt. Die Fälle „Kühlung fehlt“ erkennt nur ein <b>temperaturabhängiger</b> Schutz mit Kaltleitern in der Wicklung. Erst beide zusammen bilden den Motorvollschutz.</div>
+
+<h3>2 Die Geräte im Überblick <span class="badge b1">★</span><span class="newbadge">Fachkunde</span></h3>
+<div class="tscroll"><table class="t"><tr><th></th><th>Motorschutzschalter (MSS)</th><th>Motorschutzrelais (thermisches Überlastrelais)</th><th>Thermistor-Motorschutz (PTC)</th></tr>
+<tr><td>Kennbuchstabe</td><td>−Q</td><td>−F</td><td>−F (Auslösegerät), −R/−B (Fühler)</td></tr>
+<tr><td>Prinzip</td><td>Bimetall je Pol (thermisch) + Magnetauslöser je Pol</td><td>Bimetall je Pol oder elektronische Strommessung</td><td>Kaltleiter in der Wicklung + Auslösegerät</td></tr>
+<tr><td>Überlast</td><td>✓ einstellbar</td><td>✓ einstellbar</td><td>✓ (über die Temperatur)</td></tr>
+<tr><td>Kurzschluss</td><td>✓ fest, ≈ 13 · I<sub>u</sub></td><td>✗ – braucht Sicherung oder LS davor</td><td>✗</td></tr>
+<tr><td>Phasenausfall</td><td>✓ (phasenausfallempfindlich)</td><td>✓ (phasenausfallempfindlich)</td><td>✓ (Wicklung wird warm)</td></tr>
+<tr><td>Kühlung behindert, Umgebung heiß</td><td>✗</td><td>✗</td><td>✓</td></tr>
+<tr><td>schaltet den Motor</td><td>direkt, allpolig (Drehgriff oder Taste)</td><td>nicht selbst: Hilfskontakt 95-96 schaltet das Schütz ab</td><td>nicht selbst: Ausgangsrelais schaltet das Schütz ab</td></tr>
+<tr><td>Rücksetzen</td><td>wieder einschalten</td><td>Reset-Taste, Hand (H) oder Automatik (A)</td><td>Reset-Taste oder automatisch nach Abkühlung</td></tr></table></div>
+<figure class="fig"><div class="sv" data-ref="figsym"></div><figcaption>Bild: Schaltzeichen nach IEC 60617: Motorschutzschalter mit thermischem und magnetischem Auslöser, thermisches Überlastrelais mit Hilfskontakten, Kaltleiter-Fühler (eigene Darstellung)</figcaption></figure>
+
+<h3>3 Motorschutzschalter: Aufbau und Angaben am Gerät <span class="badge b1">★</span><span class="newbadge">Fachkunde</span></h3>
+<div class="grid2"><div>
+<p>Der Motorschutzschalter ist <b>Schalter und Schutz in einem Gerät</b>. In jedem Strompfad liegen ein Bimetall-Auslöser für die Überlast und ein elektromagnetischer Auslöser für den Kurzschluss in Reihe. Löst einer davon aus, öffnet das Schaltschloss alle drei Pole. Wie bei jedem Schutzschalter gilt die <b>Freiauslösung</b>: Der Schalter löst auch dann aus, wenn man den Griff festhält.</p>
+<ul><li><b>Einstellrad</b> mit Skala für den Bemessungsstrom des Motors (z. B. 6,3 … 10 A)</li><li><b>Drehgriff</b> oder Ein-/Aus-Tasten, oft abschließbar (Hauptschalter- bzw. Reparaturschalterfunktion)</li><li><b>Prüftaste/Testschlitz</b> zum Prüfen der Auslösemechanik</li><li><b>Zubehör</b>: Hilfsschalter (Meldung Ein/Aus), Hilfsschalter Auslösemeldung, Unterspannungsauslöser (Wiederanlaufschutz, Not-Halt), Arbeitsstromauslöser (Fernauslösung)</li></ul>
+<p>Motorschutzschalter, deren Schaltvermögen über dem Kurzschlussstrom am Einbauort liegt, dürfen <b>ohne Vorsicherung</b> betrieben werden. Bei kleinen Einstellbereichen begrenzt der Widerstand des Bimetalls den Kurzschlussstrom selbst; solche Geräte heißen <b>kurzschlussfest</b> oder eigensicher.</p></div>
+<figure class="fig"><div class="sv" data-ref="figmss"></div><figcaption>Bild: Motorschutzschalter – Bedienelemente und Aufschriften (Prinzipbild, eigene Darstellung, kein bestimmtes Fabrikat)</figcaption></figure></div>
+<div class="tscroll"><table class="t"><tr><th>Aufschrift</th><th>Bedeutung</th><th>Beispiel</th></tr>
+<tr><td>Einstellbereich I<sub>r</sub></td><td>Bereich des Überlastauslösers; der Bemessungsstrom des Motors muss darin liegen</td><td>6,3 … 10 A</td></tr>
+<tr><td>I<sub>i</sub> bzw. I<sub>&gt;&gt;</sub></td><td>Ansprechstrom des Kurzschlussauslösers (fest)</td><td>130 A (≈ 13 · 10 A)</td></tr>
+<tr><td>U<sub>e</sub>, kW-Angabe AC-3</td><td>Bemessungsbetriebsspannung; typische Motorleistung in Gebrauchskategorie AC-3 (Käfigläufer, Ein- und Ausschalten im Lauf)</td><td>400 V, 4 kW</td></tr>
+<tr><td>I<sub>cu</sub> / I<sub>cs</sub></td><td>Grenz- und Betriebs-Kurzschlussausschaltvermögen bei U<sub>e</sub></td><td>50 kA / 100 %</td></tr>
+<tr><td>CLASS</td><td>Auslöseklasse, also wie schnell bei Anlaufstrom ausgelöst wird (Abschnitt 5)</td><td>CLASS 10</td></tr>
+<tr><td>U<sub>i</sub>, U<sub>imp</sub></td><td>Bemessungs-Isolationsspannung, Bemessungs-Stoßspannungsfestigkeit</td><td>690 V, 6 kV</td></tr>
+<tr><td>Klemmen</td><td>Einspeisung oben, Abgang unten</td><td>1/L1 3/L2 5/L3 → 2/T1 4/T2 6/T3</td></tr>
+<tr><td>Normen, Symbole</td><td>Leistungsschalter, Motorstarter; Trenneigenschaft (Trennersymbol)</td><td>EN 60947-2, EN 60947-4-1</td></tr></table></div>
+
+<h3>4 Motorschutzrelais (thermisches Überlastrelais) <span class="badge b1">★</span><span class="newbadge">Fachkunde</span></h3>
+<div class="grid2"><div>
+<p>Das Motorschutzrelais wird direkt unter das Schütz gesteckt (Kontaktstifte 2/T1, 4/T2, 6/T3 des Schützes). Es enthält drei Bimetallstreifen mit Heizwicklung, durch die der Motorstrom fließt. Steigt der Strom über den eingestellten Wert, biegen sich die Bimetalle und betätigen einen Schaltmechanismus mit zwei Hilfskontakten:</p>
+<ul><li><b>95-96 Öffner</b>: liegt im Steuerstromkreis vor der Schützspule. Löst das Relais aus, öffnet er und das Schütz fällt ab.</li><li><b>97-98 Schließer</b>: Störmeldung (Leuchte, SPS-Eingang)</li><li><b>Reset-Taste mit Wahl H/A</b>: H = Hand-Rückstellung, A = automatische Rückstellung nach dem Abkühlen</li><li><b>Test-Taste</b>: löst den Mechanismus von Hand aus, um die Verdrahtung zu prüfen; <b>Stopp-Taste</b> bei manchen Geräten</li><li><b>Temperaturkompensation</b>: Ein Ausgleichs-Bimetall verhindert, dass warme Luft im Schaltschrank allein zur Auslösung führt.</li><li><b>Phasenausfallempfindlich</b> (Differentialauslösung): Bleibt ein Bimetall kalt, während die anderen warm sind, löst das Relais früher aus.</li></ul>
+<div class="merk"><b>Automatik-Reset nur mit Dreidrahtsteuerung!</b> Bei einer Schützschaltung mit Selbsthaltung (Start- und Stopp-Taster) fällt das Schütz bei Auslösung ab und bleibt aus, Automatik ist also ungefährlich. Bei einer <b>Zweidrahtsteuerung</b> (Dauerkontakt, Schwimmerschalter, Druckschalter) würde der Motor nach dem Abkühlen selbsttätig wieder anlaufen. Dort ist Hand-Reset Pflicht, wenn ein Wiederanlauf gefährlich ist (EN 60204-1).</div></div>
+<figure class="fig"><div class="sv" data-ref="figomr"></div><figcaption>Bild: Motorschutzrelais, unter das Schütz gesteckt – Bedienelemente und Klemmen (Prinzipbild, eigene Darstellung)</figcaption></figure></div>
+<p><b>Elektronische Motorschutzrelais</b> messen den Strom mit Stromwandlern und bilden die Erwärmung rechnerisch nach („thermisches Gedächtnis“). Sie haben einen weiten Einstellbereich (z. B. 1 : 4), eine sehr kleine Verlustleistung und eine wählbare Auslöseklasse. Manche haben zusätzlich Erdschlusserkennung und einen Thermistoreingang. Motormanagementsysteme melden über IO-Link oder Feldbus Strom, thermische Auslastung und die Ursache einer Auslösung an die SPS.</p>
+<p>Weil das Motorschutzrelais <b>keinen Kurzschlussschutz</b> hat, braucht der Abzweig eine Sicherung oder einen LS davor. Die größte zulässige Vorsicherung steht im Datenblatt des Relais. Die <b>Zuordnungsart</b> nach EN 60947-4-1 sagt, was nach einem Kurzschluss vom Starter übrig bleibt: Bei <b>Typ 1</b> dürfen Schütz und Relais beschädigt sein, bei <b>Typ 2</b> muss der Starter weiterbetrieben werden können. Erlaubt ist dabei nur ein leichtes Verschweißen der Kontakte, das sich leicht trennen lässt.</p>
+
+<h3>5 Auslösekennlinie und Auslöseklasse <span class="badge b1">★</span></h3>
+<div class="grid2"><div>
+<p>Die Auslösekennlinie zeigt, nach welcher Zeit das Gerät bei einem Vielfachen des <b>Einstellstroms I<sub>r</sub></b> auslöst. Je größer der Überstrom, desto schneller wird ausgelöst (stromabhängig verzögert). Die Kennlinien gelten für den <b>kalten Zustand</b>. Ein betriebswarmer Motor bzw. ein warmes Relais löst nach etwa einem Viertel bis einem Drittel der Zeit aus.</p>
+<ul><li>bei 1,05 · I<sub>r</sub>: keine Auslösung innerhalb von 2 h (kalt)</li><li>bei 1,2 · I<sub>r</sub>: Auslösung innerhalb von 2 h (warm)</li><li>bei 7,2 · I<sub>r</sub> (blockierter Läufer): Auslösezeit nach <b>Auslöseklasse</b></li></ul>
+<div class="tscroll"><table class="t"><tr><th>Klasse</th><th>Auslösezeit bei 7,2 · I<sub>r</sub></th><th>Einsatz</th></tr>
+<tr><td>10A</td><td>2 … 10 s</td><td>Normalanlauf, empfindliche Motoren</td></tr>
+<tr><td><b>10</b></td><td>4 … 10 s</td><td>Normalanlauf bis ≈ 5 s: Pumpen, Förderbänder, kleine Lüfter (Standard)</td></tr>
+<tr><td>20</td><td>6 … 20 s</td><td>Schweranlauf: große Lüfter, Rührwerke, Zentrifugen</td></tr>
+<tr><td>30</td><td>9 … 30 s</td><td>sehr schwerer Anlauf: Mühlen, Brecher, große Schwungmassen</td></tr></table></div></div>
+<figure class="fig"><div class="sv" data-ref="figkl"></div><figcaption>Bild: Auslösekennlinien der Klassen 10A, 10, 20 und 30 (kalter Zustand, schematisch, doppelt logarithmisch, eigene Darstellung)</figcaption></figure></div>
+<div class="merk"><b>Auswahlregel:</b> Die Anlaufzeit des Motors muss deutlich kürzer sein als die Auslösezeit des Schutzgeräts beim Anlaufstrom. Gleichzeitig muss das Gerät auslösen, <b>bevor</b> der Motor bei blockiertem Läufer überhitzt; diese Zeit gibt der Motorhersteller als zulässige Blockierzeit an. Ist der Anlauf zu lang, wählt man eine höhere Klasse. Man darf <b>nicht</b> einfach den Einstellstrom erhöhen.</div>
+
+<h3>6 Den Strom richtig einstellen: Kriterien <span class="badge b1">★</span><span class="newbadge">Fachkunde</span></h3>
+<p>Der Einstellwert wird <b>nicht gemessen und nicht geschätzt</b>. Er kommt vom <b>Leistungsschild</b> des Motors. Vorgehen in fünf Schritten:</p>
+<div class="grid2"><div>
+<ol><li><b>Bemessungsstrom I<sub>N</sub> passend zur Netzspannung ablesen.</b> Ein Motor „230/400 V – 13,6/7,9 A“ hat am 400-V-Netz (Stern) 7,9 A, am 230-V-Drehstromnetz (Dreieck) 13,6 A. Ein Motor „400/690 V“ läuft am 400-V-Netz im Dreieck mit dem Strom für 400 V.</li>
+<li><b>Einbauort prüfen.</b> Liegt das Relais in der <b>Zuleitung</b>, stellt man I<sub>N</sub> ein. Bei Stern-Dreieck-Anlauf liegt es meist <b>hinter dem Netzschütz im Wicklungsstrang</b> (Einbauort B). Dort fließt der Strangstrom, also stellt man <b>0,58 · I<sub>N</sub></b> ein (1/√3). Der Motor ist dann auch in der Sternstufe geschützt.</li>
+<li><b>Stromwandler berücksichtigen</b> (große Motoren): Einstellwert = I<sub>N</sub> / Übersetzung, z. B. 480 A bei Wandler 500/5 A → 4,8 A.</li>
+<li><b>Abweichende Betriebsbedingungen</b>: Kühlmitteltemperatur über 40 °C oder Aufstellhöhe über 1000 m. Der Motor darf dann nur noch einen kleineren Strom führen, deshalb Einstellwert = I<sub>N</sub> · Abminderungsfaktor laut Motorhersteller (Beispiel: 50 °C → ≈ 0,92). Ein Kompensationskondensator <b>hinter</b> dem Relais verkleinert den Strom durch das Relais; dann auf den tatsächlichen Strom bei Bemessungslast einstellen.</li>
+<li><b>Geräteauswahl kontrollieren</b>: I<sub>N</sub> soll im Einstellbereich liegen, möglichst nicht ganz am Rand. Die Auslöseklasse muss zum Anlauf passen, und der Einstellwert darf nicht größer sein als die Strombelastbarkeit I<sub>z</sub> der Motorleitung. Dann schützt das Relais auch die Leitung vor Überlast.</li></ol></div>
+<div><figure class="fig"><div class="sv" data-ref="figyd"></div><figcaption>Bild: Einbauort A (Zuleitung, I<sub>N</sub>) und B (Wicklungsstrang, 0,58 · I<sub>N</sub>) bei Stern-Dreieck-Anlauf (eigene Darstellung)</figcaption></figure>
+<div class="formula">I<sub>r</sub> = I<sub>N</sub> &nbsp;·&nbsp; (0,58 im Strang) &nbsp;·&nbsp; (1/ü bei Wandler) &nbsp;·&nbsp; (Abminderung)</div></div></div>
+<div class="merk"><b>Falsch ist:</b> den Einstellwert höher stellen, „weil das Relais immer auslöst“. Damit ist der Motor ungeschützt, und die Ursache bleibt. Ebenfalls falsch: Am Teillast-Motor den gemessenen Betriebsstrom einstellen. Dann löst das Relais schon bei normalen Lastschwankungen aus. Ausnahme ist eine Vorgabe des Herstellers.</div>
+<p><b>Am Gerät einstellen:</b> Anlage freischalten oder mit isoliertem Schraubendreher arbeiten (Einstellrad liegt neben spannungsführenden Teilen, Schutzart IP20 beachten). Den Pfeil des Einstellrads genau auf den Wert drehen, zwischen den Skalenstrichen interpolieren. Danach Funktionsprüfung mit der Test-Taste: Das Schütz muss abfallen, die Störmeldung muss kommen. Zum Schluss Reset-Art (H/A) kontrollieren und Einstellwert in der Dokumentation (Stromlaufplan, Prüfprotokoll) eintragen.</p>
+
+<h3>7 Thermistor-Motorschutz (Kaltleiter) <span class="badge b1">★</span><span class="newbadge">Fachkunde</span></h3>
+<div class="grid2"><div>
+<p>In jeden Wicklungsstrang ist auf der Abluftseite ein <b>Kaltleiter-Temperaturfühler</b> (PTC) eingebettet. Die drei Fühler sind in Reihe geschaltet und an die Klemmen <b>T1–T2</b> eines Auslösegeräts angeschlossen. Bis kurz vor der <b>Nennansprechtemperatur (NAT)</b> haben sie einen kleinen Widerstand (je ≤ 250 Ω). Bei der NAT steigt der Widerstand sprunghaft auf mehrere kΩ.</p>
+<ul><li>Auslösung bei einem Gesamtwiderstand von ≈ 3,6 kΩ, Wiedereinschalten erst unter ≈ 1,6 kΩ (Hysterese, Motor muss abkühlen)</li><li>Drahtbruch im Fühlerkreis → Widerstand unendlich → Auslösung (<b>Ruhestromprinzip</b>, sicherer Zustand)</li><li>Geräte mit <b>Kurzschlussüberwachung</b> erkennen auch einen Kurzschluss der Fühlerleitung (&lt; ≈ 20 Ω)</li><li>Die NAT richtet sich nach der Isolierstoffklasse, z. B. 145 °C bei Klasse F.</li></ul>
+<p><b>Vorteile:</b> Der Motor wird dort überwacht, wo der Schaden entsteht. Er ist auch geschützt bei behinderter Kühlung, hoher Umgebungstemperatur, Frequenzumrichter-Betrieb, hoher Schalthäufigkeit und bei polumschaltbaren Motoren (Dahlander), wo sich der Strom mit der Drehzahl ändert.</p>
+<p><b>Grenze:</b> Bei großen Motoren mit blockiertem Läufer erwärmt sich der Läufer schneller als die Wicklung (läuferkritische Motoren). Der Fühler reagiert dann zu spät. Deshalb kombiniert man ihn mit einem stromabhängigen Schutz zum <b>Motorvollschutz</b>.</p></div>
+<figure class="fig"><div class="sv" data-ref="figptc"></div><figcaption>Bild: Widerstands-Temperatur-Kennlinie eines Kaltleiter-Fühlers nach DIN 44081 mit Grenzpunkten (schematisch, eigene Darstellung)</figcaption></figure></div>
+<div class="merk"><b>Achtung beim Messen:</b> Kaltleiter-Fühler höchstens mit <b>2,5 V</b> Messspannung prüfen (Ohmmeter im kleinen Bereich). Vor einer Isolationsmessung der Wicklung (500 V) die Fühlerleitungen <b>abklemmen</b>. Sie sind nur für kleine Spannungen ausgelegt und werden sonst zerstört. Fühlerleitungen getrennt von Motorleitungen führen und bei Frequenzumrichtern geschirmt verlegen.</div>
+
+<h3>8 Fehlersuche bei Motorschutz-Auslösung <span class="badge b1">★</span></h3>
+<p>Ein ausgelöstes Schutzgerät ist <b>kein Fehler, sondern eine Meldung</b>. Wer nur zurücksetzt und wieder einschaltet, riskiert einen Wicklungsschaden. Vorgehen:</p>
+<ol><li><b>Beobachten und befragen:</b> Welches Gerät hat ausgelöst (Motorschutzschalter, Relais, Thermistor-Gerät)? Wann: sofort beim Einschalten, während des Anlaufs oder nach längerem Betrieb? Was hat sich verändert?</li><li><b>Einstellung prüfen:</b> Einstellwert mit Leistungsschild, Schaltung und Einbauort vergleichen; Auslöseklasse; H/A.</li><li><b>Spannungen unter Last messen:</b> alle drei Leiterspannungen am Motorschutz und am Motor. Ziel: Phasenausfall, Unterspannung oder Asymmetrie erkennen.</li><li><b>Ströme messen</b> mit der Stromzange in L1, L2, L3, am besten beim Anlauf und im Betrieb. Gleich und zu hoch → Überlast; einer fehlt oder ist stark abweichend → Phasenausfall bzw. Wicklungsfehler.</li><li><b>Mechanik prüfen</b> (freigeschaltet und gesichert): Welle von Hand drehen, Lager, Kupplung, Arbeitsmaschine, Lüfter, Kühlrippen.</li><li><b>Motor elektrisch prüfen</b> (freigeschaltet, Fühler abgeklemmt): Wicklungswiderstände der drei Stränge vergleichen, Isolationswiderstand Wicklung–Gehäuse und Wicklung–Wicklung, Kaltleiterkreis mit ≤ 2,5 V.</li></ol>
+<div class="tscroll"><table class="t"><tr><th>Beobachtung</th><th>mögliche Ursachen</th><th>Prüfung / Abhilfe</th></tr>
+<tr><td>MSS löst <b>sofort</b> beim Einschalten aus</td><td>Kurzschluss, Erdschluss, Windungsschluss; Magnetauslöser zu knapp für den Einschaltstromstoß (Hocheffizienzmotor IE3/IE4)</td><td>Isolations- und Wicklungsmessung; Gerät mit höherem I<sub>i</sub> bzw. für IE3 geeignet wählen</td></tr>
+<tr><td>Auslösung <b>während des Anlaufs</b> nach einigen Sekunden</td><td>Schweranlauf, Auslöseklasse zu klein, Unterspannung beim Anlauf, Arbeitsmaschine blockiert, Stern statt Dreieck nach dem Hochlauf</td><td>Anlaufzeit messen, Klasse 20/30; Spannungseinbruch messen; Mechanik prüfen</td></tr>
+<tr><td>Auslösung <b>nach längerer Betriebszeit</b></td><td>Überlast, falscher Einstellwert, Phasenausfall, Unterspannung, Asymmetrie, Lagerschaden, warme Umgebung des Relais</td><td>Ströme und Spannungen unter Last messen, Einstellung mit Leistungsschild vergleichen</td></tr>
+<tr><td>Motor brummt, läuft nicht an, Auslösung</td><td>Phasenausfall (Sicherung, Kontakt, Klemme), blockierter Läufer</td><td>Spannung an allen drei Leitern messen; Welle drehen</td></tr>
+<tr><td>Thermistor-Gerät meldet Auslösung, Motor ist kalt</td><td>Drahtbruch im Fühlerkreis, lose Klemme, Fühler durch Isolationsmessung zerstört</td><td>Fühlerkreis mit ≤ 2,5 V messen (Sollwert kalt: 3 Fühler ≈ 100 … 750 Ω)</td></tr>
+<tr><td>Thermistor löst aus, Strom ist normal</td><td>Kühlung behindert, Lüfter defekt, FU-Betrieb bei kleiner Drehzahl ohne Fremdlüfter, Umgebung zu heiß, zu viele Anläufe</td><td>Kühlung reinigen, Fremdlüfter, Schalthäufigkeit senken</td></tr>
+<tr><td>Relais hat ausgelöst, Motor läuft trotzdem weiter</td><td>Schließer 97-98 statt Öffner 95-96 im Steuerkreis verdrahtet, oder 95-96 überbrückt</td><td>Verdrahtung nach Stromlaufplan prüfen, Test-Taste betätigen</td></tr>
+<tr><td>Motor läuft nach dem Abkühlen <b>von selbst wieder an</b></td><td>Reset auf A und Zweidrahtsteuerung</td><td>auf H umstellen bzw. Steuerung mit Selbsthaltung</td></tr>
+<tr><td>Relais lässt sich nicht zurücksetzen</td><td>Bimetall noch warm (Abkühlzeit einige Minuten); Thermistor noch über Rückschaltwert</td><td>abwarten, Ursache klären</td></tr></table></div>
+
+<div class="deep"><h3>9 Vertiefung: thermisches Abbild, Zweiphasenlauf und Frequenzumrichter <span class="badge b2">★★</span></h3>
+<div class="grid2"><div>
+<h4>Thermisches Abbild</h4>
+<p>Ein Motor verhält sich thermisch wie ein Körper mit Wärmekapazität C und Wärmewiderstand R<sub>th</sub>. Die Erwärmung steigt mit dem Quadrat des Stroms und nähert sich exponentiell dem Endwert:</p>
+<div class="formula">Δϑ(t) = Δϑ<sub>N</sub> · (I/I<sub>N</sub>)² · (1 − e<sup>−t/τ</sup>)</div>
+<p>Daraus folgt die Auslösezeit für die Grenzerwärmung (Überlastfaktor k = I/I<sub>r</sub>, Grenze k<sub>0</sub> ≈ 1,1 … 1,15):</p>
+<div class="formula">t<sub>A</sub> = τ · ln( k² / (k² − k<sub>0</sub>²) )</div>
+<p>Bimetall und elektronisches Relais bilden diese Kurve nach. Das elektronische Relais „merkt“ sich die Vorbelastung auch nach dem Abschalten (Abkühlung mit größerer Zeitkonstante, weil der Lüfter steht).</p></div>
+<div><h4>Zweiphasenlauf</h4>
+<p>Fällt ein Außenleiter aus, läuft ein belasteter Motor weiter, wird aber einphasig gespeist. Bei Volllast fließt in den beiden verbleibenden Leitern etwa √3 · I<sub>N</sub> ≈ 1,73 · I<sub>N</sub>. Bei Dreieckschaltung wird ein Wicklungsstrang zusätzlich stärker belastet als der Leiterstrom vermuten lässt. Deshalb sind phasenausfallempfindliche Geräte Pflicht: Sie lösen nach EN 60947-4-1 aus, wenn ein Pol stromlos ist und die beiden anderen nur 1,15 · I<sub>r</sub> führen.</p>
+<h4>Frequenzumrichter</h4>
+<p>Der FU begrenzt den Strom selbst und hat meist ein elektronisches I²t-Motormodell. Ein Bimetall-Relais zwischen FU und Motor misst bei kleinen Frequenzen und Oberschwingungen ungenau. Bei Betrieb mit kleiner Drehzahl und Eigenlüfter hilft nur der <b>Kaltleiter</b>, den man am Thermistoreingang des FU oder an einem eigenen Auslösegerät anschließt. Bei mehreren Motoren an einem FU braucht jeder Motor seinen eigenen Überlastschutz.</p></div></div></div>
+  </div></section>
+  <section class="panel sim" data-panel="sim">
+    <p class="lead noprint">Die Simulatoren laufen direkt im Browser – auch am Handy. Werte verändern, beobachten, Ergebnis mit der Lernunterlage vergleichen. Im 🎤 Präsentationsmodus lassen sie sich live vorführen.</p>
+<div class="sim"><h3><span class="no">S1</span> Auslösekennlinie: Ist der Motor geschützt?</h3><p class="how">Stelle Einstellstrom, Auslöseklasse und Belastung ein. Das Diagramm vergleicht die Auslösekennlinie des Relais mit der Belastungsgrenze des Motors. Die Punkte zeigen Anlauf und Dauerbetrieb.</p><div data-ref="skl"></div></div>
+<div class="sim"><h3><span class="no">S2</span> Einstellwert aus dem Leistungsschild ermitteln</h3><p class="how">Wähle Motor, Netz, Einbauort, Stromwandler und Umgebungstemperatur. Der Simulator zeigt das Leistungsschild, rechnet den Einstellwert aus und stellt das Einstellrad des gewählten Geräts ein.</p><div data-ref="seinst"></div></div>
+<div class="sim"><h3><span class="no">S3</span> Motorschutzrelais im Steuerstromkreis</h3><p class="how">Starte den Motor, erzeuge eine Überlast und setze das Relais zurück. Probiere Hand- und Automatik-Reset mit Taster- und mit Dauerkontakt-Steuerung.</p><div data-ref="somr"></div></div>
+<div class="sim"><h3><span class="no">S4</span> Thermistor-Motorschutz</h3><p class="how">Verändere die Wicklungstemperatur und baue Fehler im Fühlerkreis ein. Beobachte den Gesamtwiderstand und das Auslösegerät.</p><div data-ref="sptc"></div></div>
+<div class="sim"><h3><span class="no">S5</span> Fehlersuche: Warum hat der Motorschutz ausgelöst?</h3><p class="how">Du bekommst eine Störmeldung. Führe Prüfungen durch, so wenige wie möglich, und stelle dann die Diagnose. Jeder Fall ist zufällig.</p><div data-ref="sfs"></div></div>
+<div class="sim"><h3><span class="no">S6</span> Aufgaben-Generator Motorschutz</h3><p class="how">Zufällige Aufgaben mit Lösungsweg. Toleranz ±2 %.</p><div data-ref="sgen"></div></div>
+<div class="sim"><h3><span class="no">S7</span> Wer erkennt welche Ursache?</h3><div data-ref="ssort"></div></div>
+<div class="sim"><h3><span class="no">S8</span> Wissenscheck A – Geräte, Angaben und Einstellung – 8 Fragen</h3><p class="how">Dieselben Fragen wie auf dem Arbeitsblatt, interaktiv mit sofortiger Rückmeldung.</p><div data-ref="wcq"></div></div>
+<div class="sim"><h3><span class="no">S9</span> Wissenscheck B – Auslöseklassen, Thermistor und Fehlersuche – 8 Fragen</h3><p class="how">Dieselben Fragen wie auf dem Arbeitsblatt, interaktiv mit sofortiger Rückmeldung.</p><div data-ref="wcq2"></div></div>
+  </section>
+  <section class="panel ab" data-panel="ab"><div class="paper"><div class="print-head"><span>Elektrotechnik & Mechatronik – Grundmodul · GM 12 Motorschutz – Motorschutzschalter, Motorschutzrelais, Thermistor, Motorvollschutz</span><span>Arbeitsblatt</span></div>
+    <h2>Arbeitsblatt: Motorschutz – Motorschutzschalter, Motorschutzrelais, Thermistor, Motorvollschutz</h2>
+    <div class="ab-head"><div>Name</div><div>Klasse / Lehrjahr</div><div>Datum</div><div>Punkte: ______ / 50</div></div>
+    <p class="ab-intro">Hilfsmittel: Lernunterlage, Taschenrechner, Tabellenbuch. Rechenaufgaben immer mit <b>Formel, eingesetzten Werten und Einheit</b> lösen.</p>
+<div class="task"><h3>1. Motorvollschutz <span class="badge b1">★</span><span class="pts">4 P</span></h3><p>Erkläre den Begriff Motorvollschutz. Nenne zwei Ursachen für eine Überhitzung, die ein Motorschutzrelais <b>nicht</b> erkennt, und das Gerät, das sie erkennt.</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task"><h3>2. Geräte vergleichen <span class="badge b1">★</span><span class="pts">5 P</span></h3><p>Vergleiche Motorschutzschalter und Motorschutzrelais: Auslöser, Kurzschlussschutz, wie wird der Motor abgeschaltet, Kennbuchstabe, Rücksetzen.</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task"><h3>3. Angaben am Gerät <span class="badge b1">★</span><span class="pts">4 P</span></h3><p>Auf einem Motorschutzschalter steht: „4 … 6,3 A · I<sub>i</sub> 82 A · 400 V AC-3 2,2 kW · I<sub>cu</sub> 100 kA · CLASS 10“. Erkläre jede Angabe.</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task"><h3>4. Einstellwert <span class="badge b1">★</span><span class="pts">4 P</span></h3><p>Leistungsschild: 7,5 kW · 400/690 V Δ/Y · 14,6/8,4 A · cos φ 0,84. Netz 400 V. a) Wie wird der Motor geschaltet? b) Einstellwert bei Direktanlauf (Relais in der Zuleitung)? c) Einstellwert bei Stern-Dreieck-Anlauf, Relais hinter dem Netzschütz im Strang?</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task"><h3>5. Stromwandler und Temperatur <span class="badge b2">★★</span><span class="pts">4 P</span></h3><p>a) Ein Motor mit I<sub>N</sub> = 315 A wird über Stromwandler 400/5 A geschützt. Einstellwert? b) Ein Motor (I<sub>N</sub> = 22 A) steht in einem Raum mit 55 °C. Laut Hersteller beträgt der Abminderungsfaktor 0,87. Einstellwert?</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task"><h3>6. Auslöseklasse <span class="badge b2">★★</span><span class="pts">4 P</span></h3><p>Ein Radiallüfter mit großer Schwungmasse braucht 14 s zum Hochlaufen. Das Relais CLASS 10 löst jedes Mal während des Anlaufs aus. Der Kollege will den Einstellwert um 30 % erhöhen. Beurteile das und schlage die richtige Lösung vor.</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task"><h3>7. Thermistor <span class="badge b1">★</span><span class="pts">4 P</span></h3><p>a) Warum löst ein Thermistor-Auslösegerät bei Drahtbruch aus? b) Warum muss man die Fühler vor einer Isolationsmessung abklemmen? c) In welchen zwei Betriebsfällen ist der Thermistor dem Motorschutzrelais überlegen?</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task"><h3>8. Fehlersuche <span class="badge b1">★</span><span class="pts">5 P</span></h3><p>Ein Förderbandmotor (I<sub>N</sub> = 5,2 A, Relais auf 5,2 A) löst nach etwa 20 min Betrieb aus. Du misst mit der Zange: L1 = 8,9 A, L2 = 0 A, L3 = 8,8 A. a) Welcher Fehler liegt vor? b) Welche Ursachen kommen in Frage? c) Wie gehst du weiter vor?</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task wcheck"><h3>9. Wissenscheck A – Geräte, Angaben und Einstellung – 8 Fragen <span class="badge b1">★</span><span class="pts">8 P</span></h3>
+<p class="ab-intro">Kreuze jeweils <b>eine</b> richtige Antwort an. Jede richtige Antwort = 1 Punkt.</p><ol class="wc">
+<li><p><b>Was bedeutet Motorvollschutz?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) Schutz gegen alle Ursachen unzulässiger Wicklungserwärmung – stromabhängig und temperaturabhängig</li><li><span class="wcb">☐</span> b) ein Motorschutzschalter mit Unterspannungsauslöser</li><li><span class="wcb">☐</span> c) Schutz nur gegen Kurzschluss</li><li><span class="wcb">☐</span> d) Schutz durch eine Sicherung der Klasse gG</li></ul></li>
+<li><p><b>Was hat ein Motorschutzschalter, ein Motorschutzrelais aber nicht?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) Bimetallauslöser</li><li><span class="wcb">☐</span> b) einen magnetischen Kurzschlussauslöser</li><li><span class="wcb">☐</span> c) ein Einstellrad</li><li><span class="wcb">☐</span> d) eine Phasenausfallempfindlichkeit</li></ul></li>
+<li><p><b>Wie schaltet ein thermisches Motorschutzrelais den Motor ab?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) über den Schließer 97-98 vor der Schützspule</li><li><span class="wcb">☐</span> b) direkt über seine Hauptkontakte</li><li><span class="wcb">☐</span> c) durch Auslösen des RCD</li><li><span class="wcb">☐</span> d) über den Öffner 95-96 im Steuerstromkreis des Schützes</li></ul></li>
+<li><p><b>Ein Motor 230/400 V, 13,6/7,9 A wird am 400-V-Netz direkt angelassen. Einstellwert?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) 13,6 A</li><li><span class="wcb">☐</span> b) 8,7 A</li><li><span class="wcb">☐</span> c) 4,6 A</li><li><span class="wcb">☐</span> d) 7,9 A</li></ul></li>
+<li><p><b>Das Relais sitzt bei Stern-Dreieck-Anlauf hinter dem Netzschütz im Strang. I_N = 28,5 A. Einstellwert?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) 9,5 A</li><li><span class="wcb">☐</span> b) 28,5 A</li><li><span class="wcb">☐</span> c) 49,4 A</li><li><span class="wcb">☐</span> d) 16,5 A</li></ul></li>
+<li><p><b>Wozu dient die Angabe I_i = 130 A auf einem Motorschutzschalter 6,3 … 10 A?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) Ansprechstrom des Kurzschlussauslösers</li><li><span class="wcb">☐</span> b) größter Einstellstrom</li><li><span class="wcb">☐</span> c) Anlaufstrom des Motors</li><li><span class="wcb">☐</span> d) Kurzschlussausschaltvermögen</li></ul></li>
+<li><p><b>Ein Motor (I_N = 315 A) wird über Stromwandler 400/5 A geschützt. Einstellwert?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) 5 A</li><li><span class="wcb">☐</span> b) 315 A</li><li><span class="wcb">☐</span> c) 3,94 A</li><li><span class="wcb">☐</span> d) 0,79 A</li></ul></li>
+<li><p><b>Welche Reset-Einstellung ist bei einer Pumpe mit Schwimmerschalter (Dauerkontakt) richtig, wenn ein Wiederanlauf gefährlich ist?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) A – Automatik-Reset</li><li><span class="wcb">☐</span> b) Reset-Taste überbrücken</li><li><span class="wcb">☐</span> c) H – Hand-Reset</li><li><span class="wcb">☐</span> d) egal</li></ul></li>
+</ol><p class="wcpts">Erreichte Punkte: ______ / 8 &nbsp;·&nbsp; Bewertung: 8–7 sehr gut · 6 gut · 5 befriedigend · 4 genügend · unter 4 wiederholen</p></div>
+<div class="task wcheck"><h3>10. Wissenscheck B – Auslöseklassen, Thermistor und Fehlersuche – 8 Fragen <span class="badge b1">★</span><span class="pts">8 P</span></h3>
+<p class="ab-intro">Kreuze jeweils <b>eine</b> richtige Antwort an. Jede richtige Antwort = 1 Punkt.</p><ol class="wc">
+<li><p><b>Was gibt die Auslöseklasse (CLASS) an?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) die Auslösezeit bei 7,2-fachem Einstellstrom</li><li><span class="wcb">☐</span> b) die Schutzart des Geräts</li><li><span class="wcb">☐</span> c) die Isolierstoffklasse des Motors</li><li><span class="wcb">☐</span> d) den Kurzschlussstrom</li></ul></li>
+<li><p><b>Ein Lüfter braucht 14 s zum Hochlaufen, CLASS 10 löst aus. Richtige Maßnahme?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) Relais überbrücken</li><li><span class="wcb">☐</span> b) Reset auf Automatik stellen</li><li><span class="wcb">☐</span> c) Relais mit CLASS 20 oder 30 einsetzen</li><li><span class="wcb">☐</span> d) Einstellstrom um 30 % erhöhen</li></ul></li>
+<li><p><b>Wann löst ein Thermistor-Auslösegerät aus?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) wenn der Widerstand des Fühlerkreises etwa 3,6 kΩ übersteigt</li><li><span class="wcb">☐</span> b) wenn der Motorstrom 1,2 · I_N übersteigt</li><li><span class="wcb">☐</span> c) bei jeder Erwärmung über 40 °C</li><li><span class="wcb">☐</span> d) wenn der Widerstand unter 1,6 kΩ fällt</li></ul></li>
+<li><p><b>Warum löst das Thermistor-Gerät bei Drahtbruch aus?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) das tut es nicht</li><li><span class="wcb">☐</span> b) weil der Motor dann einphasig läuft</li><li><span class="wcb">☐</span> c) Ruhestromprinzip – offener Kreis wirkt wie heißer Fühler</li><li><span class="wcb">☐</span> d) weil der Strom steigt</li></ul></li>
+<li><p><b>Was ist vor einer Isolationsmessung an einem Motor mit Kaltleitern zu tun?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) Messspannung auf 1000 V erhöhen</li><li><span class="wcb">☐</span> b) Kaltleiter mit PE verbinden</li><li><span class="wcb">☐</span> c) Fühlerleitungen abklemmen</li><li><span class="wcb">☐</span> d) nichts</li></ul></li>
+<li><p><b>Welche Ursache erkennt nur der Thermistor-Schutz?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) Kurzschluss</li><li><span class="wcb">☐</span> b) verschmutzte Kühlrippen</li><li><span class="wcb">☐</span> c) mechanische Überlast</li><li><span class="wcb">☐</span> d) Phasenausfall</li></ul></li>
+<li><p><b>Zangenmessung: L1 8,9 A, L2 0 A, L3 8,8 A bei I_N = 5,2 A. Fehler?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) Einstellwert zu hoch</li><li><span class="wcb">☐</span> b) mechanische Überlast</li><li><span class="wcb">☐</span> c) Unterspannung</li><li><span class="wcb">☐</span> d) Phasenausfall L2</li></ul></li>
+<li><p><b>Ein Motorschutzschalter löst sofort beim Einschalten aus. Was misst du zuerst (freigeschaltet)?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) die Ströme mit der Zange im Betrieb</li><li><span class="wcb">☐</span> b) die Netzfrequenz</li><li><span class="wcb">☐</span> c) die Drehzahl</li><li><span class="wcb">☐</span> d) Wicklungswiderstände und Isolationswiderstand</li></ul></li>
+</ol><p class="wcpts">Erreichte Punkte: ______ / 8 &nbsp;·&nbsp; Bewertung: 8–7 sehr gut · 6 gut · 5 befriedigend · 4 genügend · unter 4 wiederholen</p></div>
+  </div></section>
+  <section class="panel lo" data-panel="lo"><div class="paper"><div class="print-head"><span>Elektrotechnik & Mechatronik – Grundmodul · GM 12 Motorschutz – Motorschutzschalter, Motorschutzrelais, Thermistor, Motorvollschutz</span><span>Lösungen</span></div>
+    <h2>Lösungen: Motorschutz – Motorschutzschalter, Motorschutzrelais, Thermistor, Motorvollschutz</h2>
+<div class="task"><h3>1. Motorvollschutz (4 P)</h3><div class="ans">Motorvollschutz = Schutz gegen <b>alle</b> Ursachen einer unzulässigen Wicklungserwärmung, nicht nur gegen Überstrom. Nicht erkannt vom Relais: behinderte Kühlung (verschmutzt, Lüfter defekt), hohe Umgebungstemperatur, FU-Betrieb bei kleiner Drehzahl, hohe Schalthäufigkeit. Erkennt: Thermistor-Motorschutz (Kaltleiter in der Wicklung + Auslösegerät), am besten zusammen mit dem stromabhängigen Schutz.</div></div>
+<div class="task"><h3>2. Vergleich (5 P)</h3><div class="ans">MSS (−Q): Bimetall + Magnetauslöser, Kurzschlussschutz ja, schaltet selbst allpolig über das Schaltschloss, Rücksetzen durch Wiedereinschalten. Relais (−F): nur Bimetall bzw. Elektronik, kein Kurzschlussschutz (Vorsicherung nötig), schaltet über Öffner 95-96 das Schütz ab, Reset-Taste Hand/Automatik.</div></div>
+<div class="task"><h3>3. Aufschriften (4 P)</h3><div class="ans">4 … 6,3 A: Einstellbereich des Überlastauslösers. I<sub>i</sub> 82 A: Ansprechstrom des magnetischen Kurzschlussauslösers (≈ 13 · 6,3 A). 400 V AC-3 2,2 kW: geeignet für Käfigläufermotoren bis 2,2 kW bei 400 V. I<sub>cu</sub> 100 kA: Grenz-Kurzschlussausschaltvermögen, praktisch kurzschlussfest (ohne Vorsicherung). CLASS 10: Auslösung bei 7,2 · I<sub>r</sub> in 4 … 10 s, für Normalanlauf.</div></div>
+<div class="task"><h3>4. Einstellwert (4 P)</h3><div class="ans">a) 400 V entspricht dem kleineren Spannungswert → <b>Dreieck</b>. b) Zuleitung: I<sub>r</sub> = I<sub>N</sub> bei 400 V = <b>14,6 A</b>. c) Im Strang: 0,58 · 14,6 A = <b>8,5 A</b>.</div></div>
+<div class="task"><h3>5. Wandler / Temperatur (4 P)</h3><div class="ans">a) ü = 400/5 = 80 → I<sub>r</sub> = 315 A / 80 = <b>3,94 A</b>. b) I<sub>r</sub> = 22 A · 0,87 = <b>19,1 A</b>.</div></div>
+<div class="task"><h3>6. Auslöseklasse (4 P)</h3><div class="ans">Den Einstellwert zu erhöhen ist falsch: Der Motor ist dann im Betrieb nicht mehr gegen Überlast geschützt, und eine Leitung mit kleinerem I<sub>z</sub> ebenfalls nicht. Richtig: Auslöseklasse an die Anlaufzeit anpassen, also CLASS 20 (6 … 20 s) oder sicherer CLASS 30. Die Blockierzeit des Motors laut Hersteller beachten. Alternativ Sanftanlauf oder FU.</div></div>
+<div class="task"><h3>7. Thermistor (4 P)</h3><div class="ans">a) Ruhestromprinzip: Drahtbruch → Widerstand unendlich, wie „heiß“ → Auslösung, sicherer Zustand. b) Die Fühler vertragen nur kleine Spannungen (Messspannung ≤ 2,5 V); 500 V zerstören sie bzw. die Isolation zwischen Fühler und Wicklung wird überlastet. c) z. B. behinderte Kühlung / hohe Umgebungstemperatur, FU-Betrieb bei kleiner Drehzahl, hohe Schalthäufigkeit, polumschaltbare Motoren.</div></div>
+<div class="task"><h3>8. Fehlersuche (5 P)</h3><div class="ans">a) <b>Phasenausfall L2</b> (Zweiphasenlauf); die beiden anderen Ströme sind ≈ 1,7 · I<sub>N</sub>. b) Sicherung/LS in L2 ausgelöst, Kontakt im Schütz abgebrannt, lose oder abgebrannte Klemme, Leitungsunterbrechung, Netzfehler. c) Mit geeignetem Messgerät und Schutzausrüstung die Spannung L2 schrittweise messen: Einspeisung, nach Sicherung, nach Schütz, nach Relais, am Motor. Wo sie fehlt, liegt der Fehler davor. Dann freischalten und sichern, Klemmen und Schützkontakte prüfen, Motorwicklung messen (Widerstand, Isolation). Nach der Reparatur Ströme in allen drei Leitern kontrollieren.</div></div>
+<div class="task wcheck"><h3>9. Wissenscheck A – Geräte, Angaben und Einstellung – Lösungsblatt (8 P)</h3><div class="tscroll"><table class="t"><tr><th>Nr.</th><th>Lösung</th><th>Begründung</th></tr>
+<tr><td>1</td><td><b>a)</b> Schutz gegen alle Ursachen unzulässiger Wicklungserwärmung – stromabhängig und temperaturabhängig</td><td>Erst Strom- und Temperaturüberwachung zusammen erfassen alle Fälle.</td></tr>
+<tr><td>2</td><td><b>b)</b> einen magnetischen Kurzschlussauslöser</td><td>Das Relais braucht eine Vorsicherung.</td></tr>
+<tr><td>3</td><td><b>d)</b> über den Öffner 95-96 im Steuerstromkreis des Schützes</td><td>97-98 ist der Meldekontakt.</td></tr>
+<tr><td>4</td><td><b>d)</b> 7,9 A</td><td>400 V → Stern → Strom für 400 V.</td></tr>
+<tr><td>5</td><td><b>d)</b> 16,5 A</td><td>0,58 · 28,5 A ≈ 16,5 A.</td></tr>
+<tr><td>6</td><td><b>a)</b> Ansprechstrom des Kurzschlussauslösers</td><td>≈ 13 · 10 A.</td></tr>
+<tr><td>7</td><td><b>c)</b> 3,94 A</td><td>315 / 80.</td></tr>
+<tr><td>8</td><td><b>c)</b> H – Hand-Reset</td><td>Mit A läuft der Motor nach dem Abkühlen selbsttätig an.</td></tr>
+</table></div></div>
+<div class="task wcheck"><h3>10. Wissenscheck B – Auslöseklassen, Thermistor und Fehlersuche – Lösungsblatt (8 P)</h3><div class="tscroll"><table class="t"><tr><th>Nr.</th><th>Lösung</th><th>Begründung</th></tr>
+<tr><td>1</td><td><b>a)</b> die Auslösezeit bei 7,2-fachem Einstellstrom</td><td>–</td></tr>
+<tr><td>2</td><td><b>c)</b> Relais mit CLASS 20 oder 30 einsetzen</td><td>Den Einstellstrom zu erhöhen hebt den Überlastschutz auf.</td></tr>
+<tr><td>3</td><td><b>a)</b> wenn der Widerstand des Fühlerkreises etwa 3,6 kΩ übersteigt</td><td>Wiedereinschalten unter ≈ 1,6 kΩ.</td></tr>
+<tr><td>4</td><td><b>c)</b> Ruhestromprinzip – offener Kreis wirkt wie heißer Fühler</td><td>–</td></tr>
+<tr><td>5</td><td><b>c)</b> Fühlerleitungen abklemmen</td><td>Kaltleiter nur mit ≤ 2,5 V prüfen.</td></tr>
+<tr><td>6</td><td><b>b)</b> verschmutzte Kühlrippen</td><td>–</td></tr>
+<tr><td>7</td><td><b>d)</b> Phasenausfall L2</td><td>≈ 1,7 · I_N in zwei Leitern.</td></tr>
+<tr><td>8</td><td><b>d)</b> Wicklungswiderstände und Isolationswiderstand</td><td>Sofortige Auslösung = magnetischer Auslöser → Kurz-/Erd-/Windungsschluss.</td></tr>
+</table></div></div>
+  </div></section>
+</article>
+<script>
+TOPIC_INIT["gm12"] = function(root){
+  var R = refFn(root), RS = refsFn(root);
+// ---------- Hilfen ----------
+function pl12(pts, c, w, x) { return '<polyline points="' + pts.map(function (p) { return p[0].toFixed(1) + "," + p[1].toFixed(1); }).join(" ") + '" fill="none" stroke="' + c + '" stroke-width="' + (w || 2) + '" stroke-linejoin="round"' + (x || "") + '/>'; }
+var C12 = { o: "#d9822b", b: "#2b6cc4", r: "#c0392b", g: "#2d8a4e", v: "#7a4ab8", y: "#c9a227" };
+function ln12(x1, y1, x2, y2, c, w, x) { return '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="' + (c || "currentColor") + '" stroke-width="' + (w || 1) + '"' + (x || "") + '/>'; }
+function rc12(x, y, w, h, f, s, rx, x2) { return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="' + (rx || 0) + '" fill="' + (f || "var(--card)") + '" stroke="' + (s || "currentColor") + '" stroke-width="2"' + (x2 || "") + '/>'; }
+function call12(n, x, y) { return '<circle cx="' + x + '" cy="' + y + '" r="9" fill="var(--accent)"/>' + txt(x, y + 4, n, { a: "middle", fs: 10, b: 1, c: "#fff" }); }
+/* thermischer Auslöser (IEC 60617: Rechteck mit Stufe) auf senkrechter Leitung */
+function therm12(x, y1, y2, live) { var m = (y1 + y2) / 2; return EL.w("M" + x + " " + y1 + " V" + (m - 13) + " M" + x + " " + (m + 13) + " V" + y2, live) + rc12(x - 10, m - 13, 20, 26) + EL.w("M" + x + " " + (m - 13) + " V" + (m - 6) + " H" + (x + 6) + " V" + (m + 6) + " H" + x + " V" + (m + 13), false, null, 1.8); }
+/* magnetischer Auslöser: Rechteck mit I> */
+function mag12(x, y1, y2, live) { var m = (y1 + y2) / 2; return EL.w("M" + x + " " + y1 + " V" + (m - 12) + " M" + x + " " + (m + 12) + " V" + y2, live) + rc12(x - 11, m - 12, 22, 24) + txt(x, m + 4, "I>", { a: "middle", fs: 10, b: 1 }); }
+/* Kaltleiter (PTC) senkrecht: Widerstand mit Kennlinienstrich und +ϑ */
+function ptc12(x, y1, y2, live, label) { var m = (y1 + y2) / 2; return EL.w("M" + x + " " + y1 + " V" + (m - 16) + " M" + x + " " + (m + 16) + " V" + y2, live) + rc12(x - 7, m - 16, 14, 32) + EL.w("M" + (x - 16) + " " + (m + 14) + " H" + (x - 10) + " L" + (x + 12) + " " + (m - 14), false, null, 1.5) + txt(x + 14, m + 16, "+ϑ", { fs: 9 }) + (label ? txt(x + 14, m - 4, label, { fs: 10, b: 1 }) : ""); }
+/* Auslösezeit thermisch: tau·ln(k²/(k²−k0²)) */
+function tTrip(k, tau, k0) { return k <= k0 ? Infinity : tau * Math.log(k * k / (k * k - k0 * k0)); }
+var CLS = { "10A": 6, "10": 8, "20": 16, "30": 24 }, K0R = 1.1, K0M = 1.15;
+function tauR(c) { return CLS[c] / Math.log(7.2 * 7.2 / (7.2 * 7.2 - K0R * K0R)); }
+
+// ---------- Abbildungen ----------
+(function () { // Isolierstoffklassen
+  var h = [svgOpen(430, 240)], y0 = 205, sc = 0.95, d = [["B", 80, 10], ["F", 105, 10], ["H", 125, 15]];
+  [0, 50, 100, 150, 200].forEach(function (t) { h.push(ln12(60, y0 - t * sc, 400, y0 - t * sc, "var(--muted)", 1, ' opacity=".25"') + txt(54, y0 - t * sc + 3, t + " °C", { a: "end", fs: 8.5 })); });
+  d.forEach(function (k, i) { var x = 90 + i * 105, w = 70, y = y0;
+    h.push('<rect x="' + x + '" y="' + (y - 40 * sc) + '" width="' + w + '" height="' + 40 * sc + '" fill="#8a96a3"/>' + txt(x + w / 2, y - 16, "40 °C", { a: "middle", fs: 9, b: 1, c: "#fff" }));
+    y -= 40 * sc; h.push('<rect x="' + x + '" y="' + (y - k[1] * sc) + '" width="' + w + '" height="' + k[1] * sc + '" fill="' + C12.o + '"/>' + txt(x + w / 2, y - k[1] * sc / 2 + 4, k[1] + " K", { a: "middle", fs: 10, b: 1, c: "#fff" }));
+    y -= k[1] * sc; h.push('<rect x="' + x + '" y="' + (y - k[2] * sc) + '" width="' + w + '" height="' + k[2] * sc + '" fill="' + C12.r + '"/>');
+    y -= k[2] * sc; h.push(txt(x + w / 2, y - 6, "Klasse " + k[0] + ": " + (40 + k[1] + k[2]) + " °C", { a: "middle", fs: 10, b: 1 })); });
+  h.push('<rect x="70" y="222" width="10" height="10" fill="#8a96a3"/>' + txt(84, 231, "Kühlmittel", { fs: 8.5 }) + '<rect x="150" y="222" width="10" height="10" fill="' + C12.o + '"/>' + txt(164, 231, "zulässige Erwärmung", { fs: 8.5 }) + '<rect x="270" y="222" width="10" height="10" fill="' + C12.r + '"/>' + txt(284, 231, "Heißpunktzuschlag", { fs: 8.5 }) + '</svg>');
+  R("figtemp").innerHTML = h.join("");
+})();
+(function () { // Schaltzeichen
+  var h = [svgOpen(560, 270)], xs = [40, 75, 110];
+  h.push(txt(75, 16, "Motorschutzschalter −Q1", { a: "middle", fs: 10, b: 1 }));
+  xs.forEach(function (x, i) { h.push(txt(x + 4, 34, String(2 * i + 1), { fs: 8.5 }) + EL.no(x, 30, 90, false, false) + mag12(x, 90, 150) + therm12(x, 150, 210) + EL.w("M" + x + " 210 V235") + txt(x + 4, 248, String(2 * i + 2), { fs: 8.5 })); });
+  h.push(EL.w("M" + (xs[0] - 8) + " 60 H" + (xs[2] + 4), false, null, 1.4).replace('stroke-width="1.4"', 'stroke-width="1.4" stroke-dasharray="4 3"'));
+  h.push(EL.w("M" + (xs[2] + 11) + " 120 H135 V60 H" + (xs[2] + 4) + " M" + (xs[2] + 10) + " 180 H135 V120", false, null, 1.4).replace('stroke-width="1.4"', 'stroke-width="1.4" stroke-dasharray="4 3"'));
+  h.push(txt(140, 124, "magn.", { fs: 8 }) + txt(140, 184, "therm.", { fs: 8 }));
+  // Überlastrelais
+  var xr = [215, 250, 285];
+  h.push(txt(285, 16, "Motorschutzrelais −F2", { a: "middle", fs: 10, b: 1 }));
+  xr.forEach(function (x, i) { h.push(EL.w("M" + x + " 40 V100") + txt(x + 4, 54, (2 * i + 2) + "/T" + (i + 1), { fs: 8 }) + therm12(x, 100, 160) + EL.w("M" + x + " 160 V230")); });
+  h.push(EL.w("M" + (xr[2] + 10) + " 130 H330", false, null, 1.4).replace('stroke-width="1.4"', 'stroke-width="1.4" stroke-dasharray="4 3"'));
+  h.push(EL.nc(345, 80, 180, true, false, "", { t1: "95", t2: "96" }) + EL.no(390, 80, 180, false, false, "", { t1: "97", t2: "98" }) + EL.w("M330 130 H392", false, null, 1.4).replace('stroke-width="1.4"', 'stroke-width="1.4" stroke-dasharray="4 3"'));
+  h.push(txt(367, 205, "Hilfskontakte", { a: "middle", fs: 8.5 }) + txt(367, 217, "Öffner / Schließer", { a: "middle", fs: 8.5 }));
+  // Kaltleiter
+  h.push(txt(490, 16, "Kaltleiter −R1", { a: "middle", fs: 10, b: 1 }) + ptc12(470, 40, 140, false) + txt(470, 160, "in der Wicklung", { a: "middle", fs: 8.5 }) + rc12(440, 180, 90, 50, "var(--card)", "currentColor", 4) + txt(485, 200, "Auslösegerät", { a: "middle", fs: 9, b: 1 }) + txt(485, 214, "−F3", { a: "middle", fs: 9 }) + txt(452, 226, "T1", { fs: 8 }) + txt(508, 226, "T2", { fs: 8 }));
+  h.push('</svg>'); R("figsym").innerHTML = h.join("");
+})();
+(function () { // Motorschutzschalter Frontansicht
+  var h = [svgOpen(470, 350)], X = 40, Y = 30, W = 170, H = 300;
+  h.push(rc12(X, Y, W, H, "#e9edf1", "#55606b", 10) + '<rect x="' + X + '" y="' + Y + '" width="' + W + '" height="' + H + '" rx="10" fill="none" stroke="#55606b" stroke-width="2"/>');
+  [0, 1, 2].forEach(function (i) { var x = X + 35 + i * 50; h.push('<circle cx="' + x + '" cy="' + (Y + 18) + '" r="9" fill="#b9c1c9" stroke="#55606b"/>' + ln12(x - 5, Y + 18, x + 5, Y + 18, "#55606b", 2) + txt(x, Y + 40, ["1/L1", "3/L2", "5/L3"][i], { a: "middle", fs: 8.5, c: "#222" }) + '<circle cx="' + x + '" cy="' + (Y + H - 18) + '" r="9" fill="#b9c1c9" stroke="#55606b"/>' + ln12(x - 5, Y + H - 18, x + 5, Y + H - 18, "#55606b", 2) + txt(x, Y + H - 32, ["2/T1", "4/T2", "6/T3"][i], { a: "middle", fs: 8.5, c: "#222" })); });
+  // Drehgriff
+  var gx = X + 85, gy = Y + 100; h.push('<circle cx="' + gx + '" cy="' + gy + '" r="34" fill="#2f3a45"/><rect x="' + (gx - 8) + '" y="' + (gy - 34) + '" width="16" height="68" rx="5" fill="#d9822b" transform="rotate(90 ' + gx + ' ' + gy + ')"/>' + txt(gx - 46, gy - 30, "0", { fs: 11, b: 1, c: "#222" }) + txt(gx + 40, gy - 30, "I", { fs: 11, b: 1, c: "#222" }) + txt(gx + 34, gy + 44, "TRIP", { fs: 8, b: 1, c: C12.r }));
+  // Einstellrad
+  var dx = X + 50, dy = Y + 175; h.push('<circle cx="' + dx + '" cy="' + dy + '" r="18" fill="#fff" stroke="#55606b" stroke-width="2"/>' + ln12(dx, dy, dx + 12, dy - 12, "#222", 2.5) + ln12(dx - 7, dy + 7, dx + 7, dy - 7, "#888", 1));
+  ["6,3", "8", "10"].forEach(function (s, i) { var a = (-200 + i * 110) * Math.PI / 180; h.push(txt(dx + Math.cos(a) * 30, dy + Math.sin(a) * 30 + 3, s, { a: "middle", fs: 8, c: "#222" })); });
+  // Prüftaste
+  h.push('<rect x="' + (X + 128) + '" y="' + (Y + 168) + '" width="22" height="14" rx="3" fill="#c0392b"/>' + txt(X + 139, Y + 194, "TEST", { a: "middle", fs: 7.5, b: 1, c: "#222" }));
+  // Aufschrift
+  h.push(txt(X + 85, Y + 218, "6,3 … 10 A   I_i 130 A", { a: "middle", fs: 8, c: "#222" }) + txt(X + 85, Y + 230, "400 V AC-3 4 kW  CLASS 10", { a: "middle", fs: 8, c: "#222" }));
+  // Callouts
+  var co = [[1, X + 135, Y + 18, "Einspeisung 1/L1 3/L2 5/L3"], [7, X + W, Y + 55, "seitlich: Hilfsschalter, Unterspannungsauslöser"], [2, gx + 30, gy - 15, "Drehgriff 0 / I, abschließbar; TRIP = ausgelöst"], [3, dx + 18, dy - 6, "Einstellrad für I_r (Bemessungsstrom Motor)"], [4, X + 150, Y + 175, "Prüftaste (Test)"], [5, X + 160, Y + 224, "Aufschrift: Einstellbereich, I_i, AC-3, Klasse"], [6, X + 135, Y + H - 18, "Abgang zum Motor 2/T1 4/T2 6/T3"]];
+  co.forEach(function (c, i) { var ly = 45 + i * 44; h.push(ln12(c[1], c[2], 255, ly, "var(--accent)", 1.2) + call12(c[0], 255, ly) + txt(270, ly + 4, c[3], { fs: 9 })); });
+  h.push('</svg>'); R("figmss").innerHTML = h.join("");
+})();
+(function () { // Motorschutzrelais unter Schütz
+  var h = [svgOpen(470, 330)], X = 50, W = 160;
+  h.push(rc12(X, 20, W, 120, "#e9edf1", "#55606b", 8) + txt(X + W / 2, 80, "Schütz −Q2", { a: "middle", fs: 12, b: 1, c: "#222" }) + txt(X + 14, 38, "A1", { fs: 8.5, c: "#222" }) + txt(X + W - 26, 38, "A2", { fs: 8.5, c: "#222" }));
+  [0, 1, 2].forEach(function (i) { h.push(ln12(X + 35 + i * 45, 140, X + 35 + i * 45, 156, "#55606b", 4)); });
+  h.push(rc12(X, 152, W, 150, "#dfe4e9", "#55606b", 8));
+  var dx = X + 45, dy = 200; h.push('<circle cx="' + dx + '" cy="' + dy + '" r="20" fill="#fff" stroke="#55606b" stroke-width="2"/>' + ln12(dx, dy, dx + 14, dy - 12, "#222", 2.5) + txt(dx - 26, dy - 18, "5,5", { fs: 8, c: "#222" }) + txt(dx + 12, dy - 24, "8", { fs: 8, c: "#222" }));
+  h.push('<rect x="' + (X + 95) + '" y="178" width="46" height="18" rx="4" fill="#2b6cc4"/>' + txt(X + 118, 191, "RESET", { a: "middle", fs: 8, b: 1, c: "#fff" }) + txt(X + 100, 210, "H", { fs: 9, b: 1, c: "#222" }) + txt(X + 132, 210, "A", { fs: 9, b: 1, c: "#222" }) + '<rect x="' + (X + 95) + '" y="218" width="20" height="12" rx="3" fill="#c0392b"/>' + txt(X + 105, 242, "TEST", { a: "middle", fs: 7.5, b: 1, c: "#222" }) + '<rect x="' + (X + 123) + '" y="218" width="20" height="12" rx="3" fill="#222"/>' + txt(X + 133, 242, "STOP", { a: "middle", fs: 7.5, b: 1, c: "#222" }));
+  [["95", 0], ["96", 1], ["97", 2], ["98", 3]].forEach(function (k) { var x = X + 20 + k[1] * 22; h.push('<circle cx="' + x + '" cy="262" r="6" fill="#b9c1c9" stroke="#55606b"/>' + txt(x, 252, k[0], { a: "middle", fs: 7.5, c: "#222" })); });
+  [0, 1, 2].forEach(function (i) { var x = X + 35 + i * 45; h.push('<circle cx="' + x + '" cy="288" r="8" fill="#b9c1c9" stroke="#55606b"/>' + txt(x + 12, 280, ["2/T1", "4/T2", "6/T3"][i], { fs: 7.5, c: "#222" })); });
+  h.push(txt(X + W / 2, 168, "Motorschutzrelais −F2", { a: "middle", fs: 9, b: 1, c: "#222" }));
+  var co = [[1, X + 35, 148, "Kontaktstifte, im Schütz gesteckt"], [2, dx - 18, dy + 6, "Einstellrad I_r"], [3, X + 140, 187, "Reset, Wahl H (Hand) / A (Automatik)"], [4, X + 105, 225, "Test: löst aus (Verdrahtung prüfen)"], [5, X + 133, 225, "Stopp: öffnet 95-96"], [6, X + 75, 262, "95-96 Öffner, 97-98 Schließer"], [7, X + 125, 288, "Abgang zum Motor"]];
+  co.forEach(function (c, i) { var ly = 40 + i * 40; h.push(ln12(c[1], c[2], 245, ly, "var(--accent)", 1.2) + call12(c[0], 245, ly) + txt(260, ly + 4, c[3], { fs: 9 })); });
+  h.push('</svg>'); R("figomr").innerHTML = h.join("");
+})();
+function klPlot(o) { // log-log Kennlinienplot, gibt {h, X, Y}
+  var x0 = 55, y0 = o.H - 30, w = o.W - 75, hh = o.H - 50, lx0 = Math.log10(o.xa), lx1 = Math.log10(o.xb), ly0 = 0, ly1 = 4;
+  var X = function (x) { return x0 + (Math.log10(x) - lx0) / (lx1 - lx0) * w; }, Y = function (t) { return y0 - (Math.log10(Math.max(1, Math.min(1e4, t))) - ly0) / (ly1 - ly0) * hh; }, h = [];
+  [1, 10, 100, 1000, 10000].forEach(function (t) { h.push(ln12(x0, Y(t), x0 + w, Y(t), "var(--muted)", 1, ' opacity=".25"') + txt(x0 - 4, Y(t) + 3, t >= 1000 ? (t === 1000 ? "1000 s" : "2,8 h") : t + " s", { a: "end", fs: 8 })); });
+  o.xt.forEach(function (x) { h.push(ln12(X(x), y0, X(x), y0 - hh, "var(--muted)", 1, ' opacity=".25"') + txt(X(x), y0 + 12, fmtAuto(x), { a: "middle", fs: 8 })); });
+  h.push(ln12(x0, y0, x0 + w, y0) + ln12(x0, y0, x0, y0 - hh) + txt(x0 + w, y0 + 24, o.xl, { a: "end", fs: 9 }) + txt(x0 - 50, 12, "Auslösezeit", { fs: 9 }));
+  return { h: h, X: X, Y: Y };
+}
+function curve12(P, f, xa, xb, col, w, dash) { var pts = []; for (var i = 0; i <= 200; i++) { var x = xa * Math.pow(xb / xa, i / 200), t = f(x); if (isFinite(t) && t <= 1e4) pts.push([P.X(x), P.Y(t)]); } return pl12(pts, col, w || 2.4, dash ? ' stroke-dasharray="' + dash + '"' : ""); }
+(function () { // Kennlinien der Klassen
+  var P = klPlot({ W: 440, H: 270, xa: 1, xb: 10, xt: [1, 1.5, 2, 3, 5, 7.2, 10], xl: "Vielfaches des Einstellstroms I / I_r" }), h = [svgOpen(440, 270)].concat(P.h), cols = { "10A": C12.g, "10": C12.b, "20": C12.o, "30": C12.r };
+  h.push(ln12(P.X(7.2), P.Y(1), P.X(7.2), P.Y(1e4), C12.v, 1.5, ' stroke-dasharray="4 3"'));
+  ["10A", "10", "20", "30"].forEach(function (c, i) { var t = tauR(c); h.push(curve12(P, function (k) { return tTrip(k, t, K0R); }, 1.105, 10, cols[c])); h.push('<rect x="70" y="' + (178 + i * 15) + '" width="14" height="4" fill="' + cols[c] + '"/>' + txt(88, 183 + i * 15, "CLASS " + c, { fs: 9, b: 1, c: cols[c] })); });
+  h.push(txt(P.X(7.2) - 4, P.Y(1) - 6, "7,2 · I_r", { a: "end", fs: 9, b: 1, c: C12.v }) + '</svg>');
+  R("figkl").innerHTML = h.join("");
+})();
+function rPTC(T, nat) { var pts = [[nat - 80, 60], [nat - 20, 250], [nat - 5, 550], [nat + 5, 1330], [nat + 15, 4000], [nat + 40, 12000]]; if (T <= pts[0][0]) return 60; for (var i = 1; i < pts.length; i++) if (T <= pts[i][0]) { var a = pts[i - 1], b = pts[i], f = (T - a[0]) / (b[0] - a[0]); return Math.pow(10, Math.log10(a[1]) + f * (Math.log10(b[1]) - Math.log10(a[1]))); } return 12000; }
+(function () { // PTC-Kennlinie
+  var W = 420, H = 250, x0 = 55, y0 = 215, w = 340, hh = 190, nat = 145, X = function (T) { return x0 + (T - 60) / 140 * w; }, Y = function (r) { return y0 - (Math.log10(r) - 1.5) / 2.7 * hh; }, h = [svgOpen(W, H)], pts = [];
+  [100, 1000, 10000].forEach(function (r) { h.push(ln12(x0, Y(r), x0 + w, Y(r), "var(--muted)", 1, ' opacity=".25"') + txt(x0 - 4, Y(r) + 3, r >= 1000 ? r / 1000 + " kΩ" : r + " Ω", { a: "end", fs: 8 })); });
+  for (var T = 60; T <= 200; T += 1) pts.push([X(T), Y(rPTC(T, nat))]);
+  h.push(ln12(x0, y0, x0 + w, y0) + ln12(x0, y0, x0, y0 - hh) + pl12(pts, C12.r, 2.6));
+  [[nat - 20, 250, "≤ 250 Ω"], [nat - 5, 550, "≤ 550 Ω"], [nat + 5, 1330, "≥ 1330 Ω"], [nat + 15, 4000, "≥ 4 kΩ"]].forEach(function (p, i) { h.push('<circle cx="' + X(p[0]) + '" cy="' + Y(p[1]) + '" r="4" fill="' + C12.b + '"/>' + txt(X(p[0]) + (i < 2 ? -6 : 7), Y(p[1]) + (i < 2 ? -6 : 4), p[2] + " (" + (p[0] - nat >= 0 ? "NAT+" : "NAT−") + Math.abs(p[0] - nat) + ")", { a: i < 2 ? "end" : "start", fs: 8.5, c: C12.b })); });
+  h.push(ln12(X(nat), y0, X(nat), y0 - hh, C12.o, 1.5, ' stroke-dasharray="4 3"') + txt(X(nat) + 4, y0 - hh + 10, "NAT = " + nat + " °C", { fs: 9, b: 1, c: C12.o }));
+  [60, 100, 140, 180].forEach(function (T) { h.push(txt(X(T), y0 + 13, T + " °C", { a: "middle", fs: 8 })); });
+  h.push(txt(x0 + w, y0 + 28, "Wicklungstemperatur", { a: "end", fs: 9 }) + txt(x0 - 50, 12, "R je Fühler (log.)", { fs: 9 }) + '</svg>'); R("figptc").innerHTML = h.join("");
+})();
+(function () { // Stern-Dreieck Einbauort
+  var h = [svgOpen(330, 340)], x = 90;
+  var blk = function (y, lab, sub, col) { return rc12(x - 32, y, 64, 34, "var(--card)", col || "currentColor", 4) + txt(x, y + 15, lab, { a: "middle", fs: 10, b: 1 }) + (sub ? txt(x, y + 28, sub, { a: "middle", fs: 8 }) : ""); };
+  var tri = function (y) { return '<path d="M' + (x - 6) + ' ' + (y + 4) + ' l12 -8 M' + (x - 6) + ' ' + (y + 8) + ' l12 -8" stroke="currentColor" stroke-width="1.4"/>' + txt(x + 9, y + 6, "3", { fs: 8 }); };
+  h.push(txt(x, 14, "L1 L2 L3", { a: "middle", fs: 10, b: 1 }) + EL.w("M" + x + " 20 V40") + blk(40, "F1", "Sicherung") + EL.w("M" + x + " 74 V95") + EL.dot(x, 95) + tri(85));
+  h.push(EL.w("M" + x + " 95 V110") + rc12(x - 40, 110, 80, 38, "var(--ok-soft)", C12.g, 4, ' stroke-dasharray="5 3"') + txt(x, 126, "A: F2 hier", { a: "middle", fs: 9.5, b: 1, c: C12.g }) + txt(x, 140, "I_r = I_N", { a: "middle", fs: 9.5, b: 1, c: C12.g }));
+  h.push(EL.w("M" + x + " 148 V160") + blk(160, "Q1", "Netzschütz") + EL.w("M" + x + " 194 V205") + rc12(x - 40, 205, 80, 38, "var(--warm-soft)", C12.o, 4, ' stroke-dasharray="5 3"') + txt(x, 221, "B: F2 hier", { a: "middle", fs: 9.5, b: 1, c: C12.o }) + txt(x, 235, "I_r = 0,58 · I_N", { a: "middle", fs: 9.5, b: 1, c: C12.o }) + EL.w("M" + x + " 243 V262"));
+  h.push('<circle cx="' + x + '" cy="290" r="28" fill="var(--card)" stroke="currentColor" stroke-width="2.4"/>' + txt(x, 295, "M 3~", { a: "middle", fs: 11, b: 1 }) + txt(x - 34, 270, "U1 V1 W1", { a: "end", fs: 8.5 }) + txt(x + 34, 270, "W2 U2 V2", { fs: 8.5 }));
+  h.push(EL.w("M" + (x + 22) + " 272 H230 V200") + rc12(198, 160, 64, 34) + txt(230, 175, "Q3", { a: "middle", fs: 10, b: 1 }) + txt(230, 188, "Dreieck", { a: "middle", fs: 8 }) + EL.w("M230 160 V95 H" + x) + EL.w("M230 230 H290") + EL.dot(230, 230) + rc12(268, 245, 50, 34) + txt(293, 260, "Q2", { a: "middle", fs: 10, b: 1 }) + txt(293, 273, "Stern", { a: "middle", fs: 8 }) + EL.w("M290 230 H293 V245"));
+  h.push(txt(250, 305, "Einbauort B: Strangstrom", { a: "middle", fs: 8.5, c: "var(--muted)" }) + txt(250, 318, "fließt durch F2 – auch", { a: "middle", fs: 8.5, c: "var(--muted)" }) + txt(250, 331, "in der Sternstufe geschützt", { a: "middle", fs: 8.5, c: "var(--muted)" }) + '</svg>');
+  R("figyd").innerHTML = h.join("");
+})();
+
+// ---------- S1 Kennlinie ----------
+SIM.calc(R("skl"), {
+  in: [{ k: "ir", l: "Einstellstrom I_r (in % von I_N)", min: 60, max: 150, step: 5, v: 100, u: "%" }, { k: "c", l: "Auslöseklasse", opts: [["10A", "CLASS 10A"], ["10", "CLASS 10"], ["20", "CLASS 20"], ["30", "CLASS 30"]], v: "10" }, { k: "L", l: "Belastung (Strom in % von I_N)", min: 40, max: 250, step: 5, v: 100, u: "%" }, { k: "ph", l: "Netz", opts: [[0, "alle drei Außenleiter"], [1, "Phasenausfall (Zweiphasenlauf)"]], v: 0 }, { k: "ta", l: "Anlaufzeit des Motors", min: 1, max: 30, step: 1, v: 4, u: "s" }, { k: "tb", l: "zul. Blockierzeit des Motors (warm)", min: 6, max: 30, step: 1, v: 15, u: "s" }],
+  f: function (v) {
+    var r = v.ir / 100, tr = tauR(v.c), tm = v.tb / Math.log(49 / (49 - K0M * K0M)), x = v.L / 100 * (v.ph ? 1.73 : 1), xm = x * (v.ph ? 1.15 : 1), kE = v.ph ? 1.25 : 1;
+    var fR = function (xi) { return tTrip(xi / r * kE, tr, K0R); }, fM = function (xi) { return tTrip(xi, tm, K0M); }, fR0 = function (xi) { return tTrip(xi / r, tr, K0R); };
+    var tRb = fR(x), tMb = fM(xm), tRA = fR0(7), tMA = fM(7);
+    var P = klPlot({ W: 560, H: 300, xa: 0.8, xb: 12, xt: [1, 1.5, 2, 3, 5, 7, 10], xl: "Strom als Vielfaches von I_N" }), h = [svgOpen(560, 300)].concat(P.h);
+    h.push('<path d="' + (function () { var d = "", s = []; for (var i = 0; i <= 120; i++) { var xx = 1.16 * Math.pow(12 / 1.16, i / 120), t = fM(xx); if (t <= 1e4) s.push([P.X(xx), P.Y(t)]); } return "M" + s.map(function (p) { return p[0].toFixed(1) + " " + p[1].toFixed(1); }).join(" L") + " L" + P.X(12) + " " + P.Y(1e4) + " Z"; })() + '" fill="' + C12.r + '" opacity=".10"/>');
+    h.push(curve12(P, fM, 1.155, 12, C12.r, 2.4, "6 3") + curve12(P, fR0, r * 1.101, 12, C12.b, 2.6));
+    if (v.ph) h.push(curve12(P, fR, r * 1.101 / kE, 12, C12.b, 1.6, "2 3"));
+    h.push(txt(P.X(3.2), P.Y(2500), "Motor überhitzt (Bereich)", { fs: 9, b: 1, c: C12.r }) + txt(P.X(9.5), P.Y(Math.min(9000, fR0(9.5))) - 6, "Relais", { a: "end", fs: 9, b: 1, c: C12.b }));
+    // Anlauf
+    var okA = v.ta < tRA * 0.85, protB = tRA < tMA;
+    h.push('<rect x="' + (P.X(7) - 5) + '" y="' + P.Y(v.ta) + '" width="10" height="' + (P.Y(1) - P.Y(v.ta)) + '" fill="' + (okA ? C12.g : C12.r) + '" opacity=".55"/>' + txt(P.X(7) - 8, P.Y(v.ta) + 4, "Anlauf " + v.ta + " s", { a: "end", fs: 9, b: 1, c: okA ? C12.g : C12.r }));
+    // Betrieb
+    var tB = Math.min(isFinite(tRb) ? tRb : 1e4, 1e4);
+    h.push('<circle cx="' + P.X(Math.max(0.8, Math.min(12, x))) + '" cy="' + P.Y(isFinite(tRb) ? tRb : 9000) + '" r="6" fill="' + C12.v + '"/>' + txt(P.X(Math.max(0.8, Math.min(12, x))) + 8, P.Y(isFinite(tRb) ? tRb : 9000) + 14, isFinite(tRb) ? "Betrieb" : "Betrieb – keine Auslösung", { fs: 9, b: 1, c: C12.v }) + '</svg>');
+    var notes = [], ok = true;
+    if (!okA) { ok = false; notes.push([0, "<b>Fehlauslösung beim Anlauf:</b> Das Relais löst bei 7 · I_N nach " + fmt(tRA, 1) + " s aus, der Anlauf dauert " + v.ta + " s. Höhere Auslöseklasse wählen, nicht den Einstellstrom erhöhen."]); }
+    if (!protB) { ok = false; notes.push([0, "<b>Blockierter Läufer:</b> Das Relais braucht " + fmt(tRA, 1) + " s, der Motor hält nur " + v.tb + " s aus. Die Klasse ist zu träge für diesen Motor."]); }
+    if (xm > K0M) { if (isFinite(tRb) && tRb < tMb) notes.push([1, "<b>Überlast</b> (" + fmt(x * 100, 0) + " % I_N" + (v.ph ? " in den verbleibenden Leitern" : "") + "): Das Relais schaltet nach " + (tRb < 120 ? fmt(tRb, 0) + " s" : fmt(tRb / 60, 1) + " min") + " ab, der Motor wäre nach " + (tMb < 120 ? fmt(tMb, 0) + " s" : fmt(tMb / 60, 0) + " min") + " zu heiß. Der Motor ist geschützt."]); else { ok = false; notes.push([0, "<b>Motor ungeschützt:</b> Bei " + fmt(x * 100, 0) + " % I_N wird die Wicklung nach " + (isFinite(tMb) ? (tMb < 120 ? fmt(tMb, 0) + " s" : fmt(tMb / 60, 0) + " min") : "–") + " zu heiß, das Relais " + (isFinite(tRb) ? "löst erst nach " + fmt(tRb / 60, 0) + " min aus" : "löst gar nicht aus") + ". Einstellstrom zu hoch?"]); } }
+    else if (isFinite(tRb)) { ok = false; notes.push([0, "<b>Unnötige Auslösung:</b> Der Motor verträgt " + fmt(x * 100, 0) + " % I_N dauernd, das Relais löst aber nach " + (tRb < 120 ? fmt(tRb, 0) + " s" : fmt(tRb / 60, 0) + " min") + " aus. Einstellstrom zu klein."]); }
+    else notes.push([1, "Dauerbetrieb im zulässigen Bereich – keine Auslösung, Motor nicht überlastet."]);
+    if (v.ph) notes.push([2, "Phasenausfall: In den beiden verbleibenden Leitern fließt etwa 1,73-mal so viel Strom; die gepunktete Linie zeigt die frühere Auslösung eines phasenausfallempfindlichen Relais."]);
+    return { svg: h.join(""), out: [["Auslösezeit beim Anlaufstrom 7 · I_N", fmt(tRA, 1) + " s"], ["Strom im Betrieb", fmt(x * 100, 0) + " % I_N"], ["Auslösung im Betrieb", isFinite(tRb) ? (tRb < 120 ? fmt(tRb, 0) + " s" : fmt(tRb / 60, 1) + " min") : "keine"], ["Grenze des Motors", isFinite(tMb) ? (tMb < 120 ? fmt(tMb, 0) + " s" : fmt(tMb / 60, 0) + " min") : "dauernd zulässig"]], note: notes.map(function (n) { return n[0] === 2 ? '<p class="ab-intro">' + n[1] + '</p>' : '<div class="fb ' + (n[0] ? "ok" : "bad") + '">' + n[1] + '</div>'; }).join("") + '<p class="ab-intro">Modell: thermisches Abbild t = τ · ln(k²/(k² − k₀²)), kalter Zustand, Anlaufstrom 7 · I_N. Werte schematisch.</p>' };
+  }
+});
+
+// ---------- S2 Einstellwert ----------
+var MOT12 = { m1: { P: 1.5, U: [230, 400], I: [5.9, 3.4], cos: 0.79, n: 1420 }, m2: { P: 4, U: [230, 400], I: [14.2, 8.2], cos: 0.82, n: 1440 }, m3: { P: 7.5, U: [400, 690], I: [14.6, 8.4], cos: 0.84, n: 1455 }, m4: { P: 22, U: [400, 690], I: [41, 23.7], cos: 0.86, n: 1470 }, m5: { P: 160, U: [400, 690], I: [280, 162], cos: 0.87, n: 1488 } };
+var RNG12 = [[0.63, 1], [1, 1.6], [1.6, 2.5], [2.5, 4], [4, 6.3], [5.5, 8], [7, 10], [9, 12.5], [11, 16], [14, 20], [17, 22], [20, 25], [23, 32], [28, 40], [37, 50], [45, 63], [57, 75], [70, 90]];
+SIM.calc(R("seinst"), {
+  in: [{ k: "m", l: "Motor (Leistungsschild)", opts: [["m1", "1,5 kW – 230/400 V"], ["m2", "4 kW – 230/400 V"], ["m3", "7,5 kW – 400/690 V"], ["m4", "22 kW – 400/690 V"], ["m5", "160 kW – 400/690 V"]], v: "m3" }, { k: "un", l: "Netz (Leiterspannung)", opts: [[400, "3~ 400 V"], [230, "3~ 230 V (Altnetz)"], [690, "3~ 690 V (Industrie)"]], v: 400 }, { k: "e", l: "Anlauf / Einbauort", opts: [["d", "Direktanlauf – Relais in der Zuleitung"], ["a", "Stern-Dreieck – Einbauort A (Zuleitung)"], ["b", "Stern-Dreieck – Einbauort B (Strang)"]], v: "d" }, { k: "w", l: "Stromwandler", opts: [[0, "ohne"], [20, "100/5 A"], [40, "200/5 A"], [60, "300/5 A"], [80, "400/5 A"]], v: 0 }, { k: "t", l: "Kühlmitteltemperatur am Motor", opts: [[1, "bis 40 °C (Faktor 1)"], [0.96, "45 °C (Faktor 0,96)"], [0.92, "50 °C (Faktor 0,92)"], [0.87, "55 °C (Faktor 0,87)"], [0.82, "60 °C (Faktor 0,82)"]], v: 1 }],
+  f: function (v) {
+    var M = MOT12[v.m], idx = M.U.indexOf(+v.un), sch = idx === 0 ? "Δ" : idx === 1 ? "Y" : null, warn = [], h = [svgOpen(560, 230)];
+    // Leistungsschild
+    h.push(rc12(10, 10, 270, 205, "#f4f1e8", "#7a7060", 6) + txt(145, 30, "3~ Mot.   Nr. 2026-0815", { a: "middle", fs: 10, b: 1, c: "#222" }) + ln12(18, 38, 272, 38, "#7a7060"));
+    var row = function (y, a, b, hl) { return (hl ? '<rect x="16" y="' + (y - 13) + '" width="258" height="18" rx="3" fill="#ffd54f" opacity=".7"/>' : "") + txt(22, y, a, { fs: 10, c: "#222" }) + txt(268, y, b, { a: "end", fs: 10, b: 1, c: "#222" }); };
+    h.push(row(58, "Δ / Y   " + M.U[0] + " / " + M.U[1] + " V", fmt(M.I[0], M.I[0] < 100 ? 1 : 0) + " / " + fmt(M.I[1], M.I[1] < 100 ? 1 : 0) + " A", !!sch) + row(80, fmtAuto(M.P) + " kW   S1", "cos φ " + fmt(M.cos, 2)) + row(102, M.n + " /min", "50 Hz") + row(124, "Th.Cl. 155 (F)", "IP55") + row(146, "IE3", "EN 60034-1") + txt(145, 180, "Rahmen-Leistungsschild (Beispiel)", { a: "middle", fs: 8.5, c: "#7a7060" }));
+    if (!sch) { h.push('</svg>'); return { svg: h.join(""), out: [["Schaltung", "nicht möglich"]], note: '<div class="fb bad">Der Motor ist für ' + M.U[0] + '/' + M.U[1] + ' V gebaut und kann an einem ' + v.un + '-V-Netz nicht betrieben werden.</div>' }; }
+    var IN = M.I[idx], f = 1, steps = ["I_N bei " + v.un + " V (" + sch + ") = " + fmtAuto(IN) + " A"];
+    if (v.e !== "d" && sch !== "Δ") warn.push("Stern-Dreieck-Anlauf geht nur, wenn der Motor im Betrieb im <b>Dreieck</b> läuft. Bei " + v.un + " V läuft dieser Motor im Stern – Direktanlauf oder Sanftanlauf/FU verwenden.");
+    if (v.e === "b" && sch === "Δ") { f *= 0.58; steps.push("· 0,58 (Strangstrom)"); }
+    if (v.t < 1) { f *= v.t; steps.push("· " + fmt(v.t, 2) + " (Temperatur)"); }
+    var Ir = IN * f; if (v.w) { Ir = Ir / v.w; steps.push("÷ " + v.w + " (Wandler " + v.w * 5 + "/5 A)"); }
+    if (!v.w && Ir > 90) warn.push("Für " + fmt(Ir, 0) + " A gibt es hier kein Relais zum Direktanbau – <b>Stromwandler</b> verwenden (Sekundärauslöser).");
+    if (v.w && Ir < 0.63) warn.push("Wandler zu groß gewählt – der Sekundärstrom ist zu klein.");
+    if (v.w && IN > v.w * 5) warn.push("Der Motorstrom ist größer als der Primärnennstrom des Wandlers – größeren Wandler wählen.");
+    var rg = null; RNG12.forEach(function (g) { if (!rg && Ir >= g[0] && Ir <= g[1]) rg = g; }); RNG12.forEach(function (g) { if (Ir >= g[0] + 0.1 * (g[1] - g[0]) && Ir <= g[1] - 0.1 * (g[1] - g[0]) && (!rg || Ir < rg[0] + 0.1 * (rg[1] - rg[0]) || Ir > rg[1] - 0.1 * (rg[1] - rg[0]))) rg = g; });
+    // Einstellrad
+    var cx = 440, cy = 115, r = 62;
+    h.push(EL.w("M285 110 H360", false, "var(--accent)", 2) + '<path d="M354 104 l8 6 l-8 6" fill="none" stroke="var(--accent)" stroke-width="2"/>');
+    if (rg) {
+      var ang = function (I) { return (-225 + (I - rg[0]) / (rg[1] - rg[0]) * 270) * Math.PI / 180; };
+      h.push('<circle cx="' + cx + '" cy="' + cy + '" r="' + (r + 18) + '" fill="#dfe4e9" stroke="#55606b" stroke-width="2"/><circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="#fff" stroke="#55606b" stroke-width="2"/>');
+      for (var i = 0; i <= 10; i++) { var I = rg[0] + i / 10 * (rg[1] - rg[0]), a = ang(I); h.push(ln12(cx + Math.cos(a) * (r - (i % 5 ? 6 : 12)), cy + Math.sin(a) * (r - (i % 5 ? 6 : 12)), cx + Math.cos(a) * r, cy + Math.sin(a) * r, "#222", i % 5 ? 1 : 2)); if (i % 5 === 0) h.push(txt(cx + Math.cos(a) * (r + 10), cy + Math.sin(a) * (r + 10) + 3, fmtAuto(+I.toFixed(2)), { a: "middle", fs: 8.5, b: 1, c: "#222" })); }
+      var a = ang(Ir); h.push(ln12(cx, cy, cx + Math.cos(a) * (r - 14), cy + Math.sin(a) * (r - 14), C12.r, 4) + '<circle cx="' + cx + '" cy="' + cy + '" r="8" fill="#55606b"/>' + txt(cx, cy + 30, fmt(Ir, Ir < 10 ? 2 : 1) + " A", { a: "middle", fs: 12, b: 1, c: C12.r }) + txt(cx, 222, "Relais " + fmtAuto(rg[0]) + " … " + fmtAuto(rg[1]) + " A", { a: "middle", fs: 9.5, b: 1 }));
+    } else h.push(txt(cx, cy, "kein passender", { a: "middle", fs: 11, b: 1, c: C12.r }) + txt(cx, cy + 16, "Einstellbereich", { a: "middle", fs: 11, b: 1, c: C12.r }));
+    h.push('</svg>');
+    var ok = !warn.length && rg;
+    return { svg: h.join(""), out: [["Schaltung im Betrieb", sch === "Δ" ? "Dreieck" : "Stern"], ["I_N laut Schild", fmtAuto(IN) + " A"], ["Einstellwert I_r", fmt(Ir, Ir < 10 ? 2 : 1) + " A"], ["Gerät", rg ? fmtAuto(rg[0]) + " … " + fmtAuto(rg[1]) + " A" : "–"]], calc: "I_r = " + steps.join(" ") + (steps.length > 1 ? " = " + fmt(Ir, Ir < 10 ? 2 : 1) + " A" : ""), note: (warn.length ? warn.map(function (w) { return '<div class="fb bad">' + w + '</div>'; }).join("") : '<div class="fb ok">Einstellwert ermittelt. Rad genau auf ' + fmt(Ir, Ir < 10 ? 2 : 1) + ' A drehen, danach mit der Test-Taste prüfen und den Wert dokumentieren.</div>') + (v.e === "a" && sch === "Δ" ? '<p class="ab-intro">Einbauort A: In der Sternstufe fließt nur ⅓ des Stroms – dort ist der Motor praktisch ungeschützt.</p>' : "") };
+  }
+});
+
+// ---------- S3 Relais im Steuerstromkreis ----------
+(function () {
+  var k1 = 0, trip = 0, warn = "", prev = { trip: 0 };
+  SIM.toggles(R("somr"), [["d", 0, "Dauerkontakt S3 statt Taster", 0], ["A", 0, "Reset auf A (Automatik)", 0], ["O", 0, "Überlast (Motor schwergängig)", 0], ["Q", 0, "S3 EIN", 0], ["S2", 1, "Start S2"], ["S1", 1, "Stopp S1"], ["R", 1, "Reset F2"]], function (s) {
+    warn = ""; var was = trip;
+    if (s.O && k1) trip = 1;
+    if (trip && !s.O && (s.A || s.R)) trip = 0;
+    if (trip && s.O && s.R) warn = "Reset nicht möglich: Das Bimetall ist noch warm bzw. die Überlast besteht weiter.";
+    if (s.d) { var old = k1; k1 = s.Q && !trip ? 1 : 0; if (s.O && k1) { trip = 1; k1 = 0; } if (was && !trip && k1 && s.A) warn = "<b>Gefahr:</b> Automatik-Reset + Dauerkontakt → der Motor läuft nach dem Abkühlen <b>selbsttätig wieder an</b>. Hier muss auf H (Hand) gestellt werden."; }
+    else { if (trip || s.S1) k1 = 0; else if (s.S2) k1 = 1; if (s.O && k1) { trip = 1; k1 = 0; } }
+    var h = [svgOpen(560, 280)], L = true, x1 = 120, a = !trip;
+    h.push(txt(20, 24, "L1", { fs: 11, b: 1 }) + EL.w("M40 20 H520", L) + txt(20, 264, "N", { fs: 11, b: 1, c: "#2b6cc4" }) + EL.w("M40 260 H520", false, "#2b6cc4"));
+    h.push(EL.dot(x1, 20, L) + EL.nc(x1, 20, 75, a, L, "F2", { t1: "95", t2: "96" }));
+    if (s.d) { h.push(EL.no(x1, 75, 170, !!s.Q, L && a, "S3") + EL.coil(x1, 170, 260, !!k1, !!k1, "K1") + EL.dot(x1, 260)); }
+    else { h.push(EL.nc(x1, 75, 120, !s.S1, L && a, "S1", { push: 1 }) + EL.dot(x1, 120, a && !s.S1) + EL.w("M" + x1 + " 120 H200", a && !s.S1) + EL.no(x1, 120, 170, !!s.S2, a && !s.S1, "S2", { push: 1 }) + EL.no(200, 120, 170, !!k1, a && !s.S1, "K1") + EL.w("M" + x1 + " 170 H200", !!k1 || (a && !s.S1 && s.S2)) + EL.dot(x1, 170, !!k1) + EL.coil(x1, 170, 260, !!k1, !!k1, "K1") + EL.dot(x1, 260)); }
+    h.push(EL.dot(290, 20, L) + EL.no(290, 20, 120, !!trip, L, "F2", { t1: "97", t2: "98" }) + EL.lamp(290, 120, 260, !!trip, !!trip, "H1", "#e53935") + EL.dot(290, 260) + txt(312, 210, "Störung", { fs: 9 }));
+    var run = !!k1;
+    h.push(rc12(370, 40, 140, 70, trip ? "var(--bad-soft)" : "var(--card)", "currentColor", 6) + txt(440, 62, "F2 " + (trip ? "AUSGELÖST" : "bereit"), { a: "middle", fs: 11, b: 1, c: trip ? C12.r : "currentColor" }) + txt(440, 80, "Reset: " + (s.A ? "A – Automatik" : "H – Hand"), { a: "middle", fs: 9.5 }) + txt(440, 96, s.O ? "Bimetall heiß" : "Bimetall kalt", { a: "middle", fs: 9.5, c: s.O ? C12.o : "var(--muted)" }));
+    h.push('<circle cx="440" cy="190" r="32" fill="' + (run ? "var(--warm-soft)" : "var(--card)") + '" stroke="currentColor" stroke-width="2.4"/>' + txt(440, 196, "M", { a: "middle", fs: 18, b: 1 }) + txt(478, 196, "3~", { fs: 10 }) + txt(440, 240, run ? "läuft" : "steht", { a: "middle", fs: 11, b: 1, c: run ? C12.o : "var(--muted)" }) + '</svg>');
+    var note = warn ? '<div class="fb bad">' + warn + '</div>' : trip ? '<div class="fb bad">F2 hat ausgelöst: 95-96 offen → K1 abgefallen, 97-98 zu → Störmeldung H1.' + (s.A ? " Nach dem Abkühlen (Überlast aus) setzt sich F2 selbst zurück." : " Erst Überlast beseitigen, dann Reset drücken.") + '</div>' : (s.d ? '<p class="ab-intro">Dauerkontakt-Steuerung: Schalte S3 EIN, erzeuge Überlast, nimm sie wieder weg – einmal mit H, einmal mit A.</p>' : '<p class="ab-intro">Taster-Steuerung mit Selbsthaltung: Nach einer Auslösung bleibt der Motor aus, egal ob H oder A – es muss neu gestartet werden.</p>');
+    return { svg: h.join(""), out: [["K1", k1 ? "angezogen" : "abgefallen"], ["F2", trip ? "ausgelöst" : "bereit"], ["Motor", run ? "läuft" : "steht"]], note: note };
+  });
+})();
+
+// ---------- S4 Thermistor ----------
+(function () {
+  var trip = 0;
+  SIM.calc(R("sptc"), {
+    in: [{ k: "T", l: "Wicklungstemperatur", min: 20, max: 200, step: 1, v: 90, u: "°C" }, { k: "nat", l: "Nennansprechtemperatur NAT", opts: [[130, "130 °C (Klasse B)"], [145, "145 °C (Klasse F)"], [155, "155 °C"], [170, "170 °C (Klasse H)"]], v: 145 }, { k: "f", l: "Fühlerkreis", opts: [["ok", "in Ordnung"], ["br", "Drahtbruch Fühlerleitung"], ["ks", "Kurzschluss Fühlerleitung"]], v: "ok" }, { k: "ksu", l: "Auslösegerät", opts: [[1, "mit Kurzschlussüberwachung"], [0, "ohne Kurzschlussüberwachung"]], v: 1 }],
+    f: function (v) {
+      var r1 = rPTC(v.T, v.nat), Rt = v.f === "br" ? Infinity : v.f === "ks" ? 0.5 : 3 * r1, ks = v.ksu && Rt < 20;
+      if (Rt >= 3600 || ks) trip = 1; else if (Rt <= 1600) trip = 0;
+      var W = 560, H = 250, x0 = 50, y0 = 210, w = 230, hh = 180, X = function (T) { return x0 + (T - 20) / 180 * w; }, Y = function (r) { return y0 - (Math.log10(Math.max(30, Math.min(30000, r))) - 1.5) / 3 * hh; }, h = [svgOpen(W, H)], pts = [];
+      for (var T = 20; T <= 200; T++) pts.push([X(T), Y(3 * rPTC(T, v.nat))]);
+      [100, 1000, 10000].forEach(function (r) { h.push(ln12(x0, Y(r), x0 + w, Y(r), "var(--muted)", 1, ' opacity=".25"') + txt(x0 - 4, Y(r) + 3, r >= 1000 ? r / 1000 + " kΩ" : r + " Ω", { a: "end", fs: 8 })); });
+      [20, 80, 140, 200].forEach(function (T) { h.push(txt(X(T), y0 + 13, T + " °C", { a: "middle", fs: 8 })); });
+      h.push(ln12(x0, y0, x0 + w, y0) + ln12(x0, y0, x0, y0 - hh) + pl12(pts, C12.r, 2.4) + ln12(x0, Y(3600), x0 + w, Y(3600), C12.r, 1.4, ' stroke-dasharray="5 3"') + txt(x0 + 4, Y(3600) - 4, "Auslösen 3,6 kΩ", { fs: 8.5, c: C12.r }) + ln12(x0, Y(1600), x0 + w, Y(1600), C12.g, 1.4, ' stroke-dasharray="5 3"') + txt(x0 + 4, Y(1600) + 12, "Wiedereinschalten 1,6 kΩ", { fs: 8.5, c: C12.g }) + txt(x0 - 44, 12, "R gesamt (3 Fühler)", { fs: 9 }));
+      if (v.f === "ok") h.push('<circle cx="' + X(v.T) + '" cy="' + Y(Rt) + '" r="6" fill="' + C12.v + '"/>');
+      // Schaltung
+      var mx = 340, live = false;
+      h.push(rc12(mx - 20, 30, 90, 200, "var(--soft)", "var(--muted)", 8) + txt(mx + 25, 22, "Motor", { a: "middle", fs: 9, b: 1 }));
+      [0, 1, 2].forEach(function (i) { h.push(ptc12(mx + 10, 55 + i * 55, 105 + i * 55, false, ["U", "V", "W"][i])); });
+      h.push(EL.w("M" + (mx + 10) + " 55 V42 H" + (mx + 120) + " V95") + EL.w("M" + (mx + 10) + " 220 V238 H" + (mx + 120) + " V185"));
+      if (v.f === "br") h.push(txt(mx + 92, 46, "✕", { fs: 16, b: 1, c: C12.r }) + txt(mx + 80, 30, "Bruch", { fs: 9, b: 1, c: C12.r }));
+      if (v.f === "ks") h.push(EL.w("M" + (mx + 90) + " 42 V238", true, C12.r, 2.4) + txt(mx + 94, 140, "Kurzschluss", { fs: 9, b: 1, c: C12.r }));
+      h.push(rc12(mx + 100, 95, 110, 90, trip ? "var(--bad-soft)" : "var(--card)", "currentColor", 6) + txt(mx + 155, 112, "Auslösegerät −F3", { a: "middle", fs: 9, b: 1 }) + txt(mx + 116, 90, "T1", { a: "end", fs: 8 }) + txt(mx + 116, 198, "T2", { a: "end", fs: 8 }));
+      [["Power", 1, "#2fbf4f"], ["Trip", trip, "#e53935"]].forEach(function (l, i) { h.push('<circle cx="' + (mx + 135) + '" cy="' + (132 + i * 22) + '" r="6" fill="' + (l[1] ? l[2] : "#555") + '"/>' + txt(mx + 146, 136 + i * 22, l[0], { fs: 9 })); });
+      h.push('</svg>');
+      var fb = v.f === "br" ? "Drahtbruch → Widerstand unendlich → Auslösung (Ruhestromprinzip). Motor ist kalt – Fühlerleitung und Klemmen prüfen." : v.f === "ks" ? (v.ksu ? "Kurzschlussüberwachung erkennt R < 20 Ω → Auslösung, Fehlermeldung." : "<b>Gefährlich:</b> Ohne Kurzschlussüberwachung bleibt der Widerstand immer klein – der Motor ist ungeschützt, auch wenn er überhitzt.") : trip ? (Rt > 1600 ? "Ausgelöst. Wiedereinschalten erst, wenn der Motor so weit abgekühlt ist, dass R ≤ 1,6 kΩ." : "") : "Fühlerkreis niederohmig – Motor frei.";
+      var bad = trip || (v.f === "ks" && !v.ksu);
+      return { svg: h.join(""), out: [["R je Fühler", v.f === "ok" ? (r1 < 1000 ? fmt(r1, 0) + " Ω" : fmt(r1 / 1000, 2) + " kΩ") : "–"], ["R gesamt an T1–T2", isFinite(Rt) ? (Rt < 1000 ? fmt(Rt, 0) + " Ω" : fmt(Rt / 1000, 2) + " kΩ") : "∞"], ["Ausgang", trip ? "Motor AUS" : "Motor frei"]], note: fb ? '<div class="fb ' + (bad ? "bad" : "ok") + '">' + fb + '</div>' : "" };
+    }
+  });
+})();
+
+// ---------- S5 Fehlersuche ----------
+(function () {
+  var el = R("sfs"), DG = ["mechanische Überlast (Arbeitsmaschine schwergängig, Lager)", "Phasenausfall (Zweiphasenlauf)", "Einstellwert falsch (zu klein)", "Auslöseklasse zu klein für den Schweranlauf", "Kühlung behindert", "Windungs- bzw. Körperschluss in der Wicklung", "Unterbrechung im Kaltleiterkreis", "Unterspannung im Netz"];
+  var OKs = { set: "Einstellwert 8,2 A = I_N laut Schild (400 V, Y), Relais in der Zuleitung, CLASS 10, Reset H ✓", U: "L1–L2 399 V, L2–L3 401 V, L3–L1 400 V ✓", I: "L1 7,8 A · L2 7,9 A · L3 7,8 A (I_N = 8,2 A) ✓", mech: "Welle lässt sich leicht von Hand drehen, Lager ruhig, Lüfter und Kühlrippen sauber ✓", el: "Wicklungen U, V, W je 2,9 Ω, Isolation > 200 MΩ ✓", ptc: "keine Kaltleiter eingebaut" };
+  var CASES = [
+    { m: "Motorschutzrelais F2 hat nach etwa 25 min Betrieb ausgelöst (Förderband).", d: 0, x: { I: "L1 10,4 A · L2 10,6 A · L3 10,3 A – alle gleich, ≈ 1,27 · I_N ✗", mech: "Antriebsrolle schleift, Band lässt sich nur schwer bewegen ✗" }, e: "Gleichmäßig zu hohe Ströme bei richtiger Spannung und Einstellung → Überlast. Ursache in der Mechanik beheben, nicht den Einstellwert erhöhen." },
+    { m: "F2 hat nach etwa 15 min ausgelöst. Der Bediener sagt, der Motor habe „anders gebrummt“.", d: 1, x: { U: "L1–L2 215 V, L2–L3 196 V, L3–L1 399 V – L2 fehlt (nur vom Motor rückgespeist) ✗", I: "L1 14,1 A · L2 0 A · L3 14,0 A ✗" }, e: "Ein Leiter stromlos, die anderen ≈ 1,7 · I_N → Zweiphasenlauf. Sicherung, Schützkontakt und Klemmen in L2 prüfen." },
+    { m: "Nach Motortausch löst F2 immer wieder nach 40 … 60 min aus.", d: 2, x: { set: "Neuer Motor: 4 kW, 400/690 V Δ/Y, 8,2/4,7 A – Relais steht auf 4,7 A, Motor läuft am 400-V-Netz im Dreieck ✗", I: "L1 7,8 A · L2 7,9 A · L3 7,8 A – unter I_N, aber über dem Einstellwert" }, e: "Beim 400/690-V-Motor gilt am 400-V-Netz der größere Strom (8,2 A). Das Relais war auf den 690-V-Wert eingestellt." },
+    { m: "F2 löst jedes Mal beim Einschalten nach etwa 9 s aus (Radiallüfter).", d: 3, x: { set: "Einstellwert 8,2 A = I_N ✓, Auslöseklasse CLASS 10 (4 … 10 s bei 7,2 · I_r)", I: "Anlauf: ≈ 55 A über 12 s (Zange mit Einschaltstrom-Funktion); Betrieb 7,6 A ✓", mech: "Lüfterrad mit großer Schwungmasse, dreht frei, Lager ruhig ✓", U: "399 / 401 / 400 V; beim Anlauf Einbruch auf 386 V ✓" }, e: "Anlaufzeit (12 s) länger als die Auslösezeit der Klasse 10. Relais CLASS 20 oder 30 einsetzen (Blockierzeit des Motors beachten) oder Sanftanlauf." },
+    { m: "Thermistor-Auslösegerät F3 meldet Übertemperatur. F2 hat nicht ausgelöst.", d: 4, x: { mech: "Lüfterhaube mit Staub und Fasern zugesetzt, Kühlrippen verschmutzt ✗", ptc: "Fühlerkreis direkt nach der Auslösung 4,8 kΩ, nach Abkühlen 420 Ω ✓" }, e: "Strom normal, Temperatur zu hoch → Kühlung. Genau der Fall, den nur der Thermistor erkennt (Motorvollschutz)." },
+    { m: "Motorschutzschalter Q1 löst sofort beim Einschalten aus (Anzeige TRIP).", d: 5, x: { I: "nicht messbar – Q1 löst sofort aus", el: "Wicklung U 2,9 Ω, V 2,9 Ω, W 1,6 Ω; Isolation W–PE 0,04 MΩ ✗" }, e: "Unterschiedliche Strangwiderstände und schlechte Isolation → Windungs- und Körperschluss. Motor tauschen bzw. neu wickeln lassen." },
+    { m: "Thermistor-Auslösegerät F3 zeigt Auslösung, der Motor steht seit Stunden und ist kalt.", d: 6, x: { I: "– Motor lässt sich nicht einschalten", ptc: "an T1–T2: ∞ (offen); direkt im Motorklemmkasten an den Fühlerklemmen 390 Ω ✓ → Fehler in der Fühlerleitung ✗" }, e: "Der Fühler ist in Ordnung, die Leitung dazwischen unterbrochen (Ruhestromprinzip). Klemmen und Leitung zum Schaltschrank prüfen." },
+    { m: "F2 löst an heißen Nachmittagen gelegentlich aus; mehrere Antriebe in der Halle sind betroffen.", d: 7, x: { U: "L1–L2 361 V, L2–L3 358 V, L3–L1 362 V (≈ −10 %) ✗", I: "L1 9,0 A · L2 9,1 A · L3 9,0 A – leicht über I_N ✗" }, e: "Bei Unterspannung braucht der Motor für dieselbe Leistung mehr Strom. Ursache im Netz (Netzbetreiber, Trafo-Stufe, Zuleitungsquerschnitt)." }
+  ];
+  var CH = [["set", "Einstellung prüfen"], ["U", "Spannungen unter Last messen"], ["I", "Ströme messen (Zange)"], ["mech", "Mechanik prüfen*"], ["el", "Wicklung/Isolation messen*"], ["ptc", "Kaltleiterkreis messen*"]], cur, n, done;
+  el.innerHTML = '<div class="box"><b>Störmeldung:</b> <span data-m></span></div><div class="chips" data-c>' + CH.map(function (c) { return '<button class="btn" data-k="' + c[0] + '">' + c[1] + '</button>'; }).join("") + '</div><p class="ab-intro">* nur freigeschaltet und gegen Wiedereinschalten gesichert; Kaltleiter mit ≤ 2,5 V.</p><ul data-l style="padding-left:20px;margin:8px 0"></ul><div class="ctrls"><div class="ctrl" style="min-width:280px"><label>Deine Diagnose</label><select data-d><option value="">– wählen –</option>' + DG.map(function (d, i) { return '<option value="' + i + '">' + d + '</option>'; }).join("") + '</select></div><button class="btn pri" data-ok>Diagnose prüfen</button><button class="btn" data-n>Neuer Fall</button></div><div data-f></div>';
+  var q = function (s) { return el.querySelector(s); };
+  function nw() { var o = cur; do { cur = pick(CASES); } while (cur === o); n = 0; done = false; q("[data-m]").textContent = cur.m; q("[data-l]").innerHTML = ""; q("[data-f]").innerHTML = ""; q("[data-d]").value = ""; Array.prototype.forEach.call(q("[data-c]").children, function (b) { b.disabled = false; b.classList.remove("on"); }); }
+  q("[data-c]").addEventListener("click", function (e) { var b = e.target.closest("[data-k]"); if (!b || b.disabled) return; var k = b.dataset.k; n++; b.disabled = true; b.classList.add("on"); var li = document.createElement("li"); li.innerHTML = "<b>" + b.textContent.replace("*", "") + ":</b> " + (cur.x[k] || OKs[k]); q("[data-l]").appendChild(li); });
+  q("[data-ok]").addEventListener("click", function () { var d = q("[data-d]").value; if (d === "") { q("[data-f]").innerHTML = '<div class="fb bad">Bitte eine Diagnose wählen.</div>'; return; } var ok = +d === cur.d; q("[data-f]").innerHTML = '<div class="fb ' + (ok ? "ok" : "bad") + '">' + (ok ? "Richtig" : "Nicht ganz – richtig ist: " + DG[cur.d]) + " (" + n + " Prüfung" + (n === 1 ? "" : "en") + "). " + cur.e + (n === 0 ? " Tipp: Ohne Messung zu raten ist in der Praxis keine gute Idee." : "") + '</div>'; });
+  q("[data-n]").addEventListener("click", nw); nw();
+})();
+
+// ---------- S6 Generator ----------
+SIM.gen(R("sgen"), {
+  S: ["Einstellwert im Strang (Stern-Dreieck)", function () { var I = pick([14.6, 22.5, 28.5, 41, 56, 71]); return { t: "Ein Motor mit I_N = " + fmtAuto(I) + " A läuft im Stern-Dreieck-Anlauf. Das Relais sitzt hinter dem Netzschütz im Wicklungsstrang. Einstellwert in A?", u: "A", a: I * 0.58, s: "I_r = 0,58 · I_N = 0,58 · " + fmtAuto(I) + " A = " + fmt(I * 0.58, 1) + " A" }; }],
+  W: ["Einstellwert mit Stromwandler", function () { var I = pick([180, 240, 315, 410, 480]), p = pick([200, 300, 400, 500, 600].filter(function (x) { return x >= I; })); return { t: "Motor I_N = " + I + " A, Stromwandler " + p + "/5 A. Einstellwert des Sekundärauslösers in A?", u: "A", a: I / (p / 5), s: "ü = " + p + "/5 = " + p / 5 + "; I_r = " + I + " / " + p / 5 + " = " + fmt(I / (p / 5), 2) + " A" }; }],
+  T: ["Abminderung bei hoher Temperatur", function () { var I = pick([8.2, 15.4, 22, 28.5]), t = pick([[45, 0.96], [50, 0.92], [55, 0.87], [60, 0.82]]); return { t: "Motor I_N = " + fmtAuto(I) + " A, Kühlmitteltemperatur " + t[0] + " °C, Abminderungsfaktor laut Hersteller " + fmt(t[1], 2) + ". Einstellwert in A?", u: "A", a: I * t[1], s: "I_r = " + fmtAuto(I) + " · " + fmt(t[1], 2) + " = " + fmt(I * t[1], 2) + " A" }; }],
+  I: ["Bemessungsstrom aus der Leistung", function () { var P = pick([2.2, 4, 5.5, 7.5, 11, 15]), c = pick([0.8, 0.82, 0.85]), e = pick([0.84, 0.87, 0.9]); var I = P * 1000 / (Math.sqrt(3) * 400 * c * e); return { t: "Drehstrommotor " + fmtAuto(P) + " kW (abgegebene Leistung), 400 V, cos φ = " + fmt(c, 2) + ", η = " + fmt(e, 2) + ". Bemessungsstrom in A?", u: "A", a: I, s: "I_N = P / (√3 · U · cos φ · η) = " + P * 1000 + " / (1,732 · 400 · " + fmt(c, 2) + " · " + fmt(e, 2) + ") = " + fmt(I, 2) + " A" }; }],
+  Z: ["Strom beim Zweiphasenlauf", function () { var I = pick([3.4, 8.2, 14.6, 23.7]); return { t: "Ein Motor (I_N = " + fmtAuto(I) + " A) läuft bei Volllast nach Ausfall eines Außenleiters weiter. Welcher Strom fließt ungefähr in den beiden anderen Leitern (in A)?", u: "A", a: I * Math.sqrt(3), tol: 0.03, s: "I ≈ √3 · I_N = 1,73 · " + fmtAuto(I) + " = " + fmt(I * Math.sqrt(3), 1) + " A" }; }]
+});
+SIM.sort(R("ssort"), [["s", "nur stromabhängiger Schutz (MSS/Relais)"], ["t", "nur Thermistor (Kaltleiter)"], ["b", "beide erkennen es"]], [["Kurzschluss in der Motorzuleitung (MSS, magnetisch)", "s"], ["großer Motor mit blockiertem Läufer (läuferkritisch)", "s"], ["verschmutzte Kühlrippen", "t"], ["defektes Lüfterrad", "t"], ["Umgebungstemperatur 60 °C", "t"], ["FU-Betrieb mit 10 Hz und Eigenlüfter", "t"], ["Tippbetrieb mit sehr vielen Anläufen", "t"], ["schwergängige Arbeitsmaschine", "b"], ["Phasenausfall bei Volllast", "b"], ["Lagerschaden mit erhöhtem Moment", "b"]]);
+
+SIM.quiz(R("wcq"), [["Was bedeutet Motorvollschutz?", ["Schutz gegen alle Ursachen unzulässiger Wicklungserwärmung – stromabhängig und temperaturabhängig", "ein Motorschutzschalter mit Unterspannungsauslöser", "Schutz nur gegen Kurzschluss", "Schutz durch eine Sicherung der Klasse gG"], 0, "Erst Strom- und Temperaturüberwachung zusammen erfassen alle Fälle."], ["Was hat ein Motorschutzschalter, ein Motorschutzrelais aber nicht?", ["Bimetallauslöser", "einen magnetischen Kurzschlussauslöser", "ein Einstellrad", "eine Phasenausfallempfindlichkeit"], 1, "Das Relais braucht eine Vorsicherung."], ["Wie schaltet ein thermisches Motorschutzrelais den Motor ab?", ["über den Schließer 97-98 vor der Schützspule", "direkt über seine Hauptkontakte", "durch Auslösen des RCD", "über den Öffner 95-96 im Steuerstromkreis des Schützes"], 3, "97-98 ist der Meldekontakt."], ["Ein Motor 230/400 V, 13,6/7,9 A wird am 400-V-Netz direkt angelassen. Einstellwert?", ["13,6 A", "8,7 A", "4,6 A", "7,9 A"], 3, "400 V → Stern → Strom für 400 V."], ["Das Relais sitzt bei Stern-Dreieck-Anlauf hinter dem Netzschütz im Strang. I_N = 28,5 A. Einstellwert?", ["9,5 A", "28,5 A", "49,4 A", "16,5 A"], 3, "0,58 · 28,5 A ≈ 16,5 A."], ["Wozu dient die Angabe I_i = 130 A auf einem Motorschutzschalter 6,3 … 10 A?", ["Ansprechstrom des Kurzschlussauslösers", "größter Einstellstrom", "Anlaufstrom des Motors", "Kurzschlussausschaltvermögen"], 0, "≈ 13 · 10 A."], ["Ein Motor (I_N = 315 A) wird über Stromwandler 400/5 A geschützt. Einstellwert?", ["5 A", "315 A", "3,94 A", "0,79 A"], 2, "315 / 80."], ["Welche Reset-Einstellung ist bei einer Pumpe mit Schwimmerschalter (Dauerkontakt) richtig, wenn ein Wiederanlauf gefährlich ist?", ["A – Automatik-Reset", "Reset-Taste überbrücken", "H – Hand-Reset", "egal"], 2, "Mit A läuft der Motor nach dem Abkühlen selbsttätig an."]]);
+SIM.quiz(R("wcq2"), [["Was gibt die Auslöseklasse (CLASS) an?", ["die Auslösezeit bei 7,2-fachem Einstellstrom", "die Schutzart des Geräts", "die Isolierstoffklasse des Motors", "den Kurzschlussstrom"], 0, ""], ["Ein Lüfter braucht 14 s zum Hochlaufen, CLASS 10 löst aus. Richtige Maßnahme?", ["Relais überbrücken", "Reset auf Automatik stellen", "Relais mit CLASS 20 oder 30 einsetzen", "Einstellstrom um 30 % erhöhen"], 2, "Den Einstellstrom zu erhöhen hebt den Überlastschutz auf."], ["Wann löst ein Thermistor-Auslösegerät aus?", ["wenn der Widerstand des Fühlerkreises etwa 3,6 kΩ übersteigt", "wenn der Motorstrom 1,2 · I_N übersteigt", "bei jeder Erwärmung über 40 °C", "wenn der Widerstand unter 1,6 kΩ fällt"], 0, "Wiedereinschalten unter ≈ 1,6 kΩ."], ["Warum löst das Thermistor-Gerät bei Drahtbruch aus?", ["das tut es nicht", "weil der Motor dann einphasig läuft", "Ruhestromprinzip – offener Kreis wirkt wie heißer Fühler", "weil der Strom steigt"], 2, ""], ["Was ist vor einer Isolationsmessung an einem Motor mit Kaltleitern zu tun?", ["Messspannung auf 1000 V erhöhen", "Kaltleiter mit PE verbinden", "Fühlerleitungen abklemmen", "nichts"], 2, "Kaltleiter nur mit ≤ 2,5 V prüfen."], ["Welche Ursache erkennt nur der Thermistor-Schutz?", ["Kurzschluss", "verschmutzte Kühlrippen", "mechanische Überlast", "Phasenausfall"], 1, ""], ["Zangenmessung: L1 8,9 A, L2 0 A, L3 8,8 A bei I_N = 5,2 A. Fehler?", ["Einstellwert zu hoch", "mechanische Überlast", "Unterspannung", "Phasenausfall L2"], 3, "≈ 1,7 · I_N in zwei Leitern."], ["Ein Motorschutzschalter löst sofort beim Einschalten aus. Was misst du zuerst (freigeschaltet)?", ["die Ströme mit der Zange im Betrieb", "die Netzfrequenz", "die Drehzahl", "Wicklungswiderstände und Isolationswiderstand"], 3, "Sofortige Auslösung = magnetischer Auslöser → Kurz-/Erd-/Windungsschluss."]]);
+(function(){if(document.getElementById("wcstyle"))return;var s=document.createElement("style");s.id="wcstyle";s.textContent=".wc>li{margin:0 0 10px;break-inside:avoid}.wc p{margin:0 0 4px}.wco{list-style:none;padding-left:6px;margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 18px}@media (max-width:560px){.wco{grid-template-columns:1fr}}.wcb{font-size:1.15em}.wcpts{margin-top:10px;font-weight:600}";document.head.appendChild(s);})();
+
+};
+</script>
+<p class="foot">Fachliche Lernunterlage, kein rechtsverbindlicher Ausbildungs- oder Prüfungsplan. Erweitert nach „Fachkunde Elektrotechnik“ (Europa-Lehrmittel, 27. Aufl.); das Buch verweist auf deutsche DIN-VDE-Normen – in Österreich gelten sinngemäß ÖVE/ÖNORM E 8101 und die ESV. Für die österreichische Lehrlingsausbildung mit dem geltenden Berufsbild und den Prüfungsvorgaben abgleichen. Normen und Rechtsstand vor Verwendung prüfen (Stand: November 2026).</p>
+</main>
+</body>
+</html>

@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grundlagen Elektrotechnik – Teil 1</title>
+<style>
+  :root{
+    --ink:#1d2433; --muted:#5b6475; --line:#d5dae3; --bg:#f5f7fa; --paper:#ffffff;
+    --accent:#0b6bcb; --accent-soft:#e6f0fb;
+    --c-i:#0b6bcb; --c-u:#c2410c; --c-r:#7c3aed; --c-p:#15803d;
+    --warn:#b45309; --warn-soft:#fdf3e4;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Segoe UI",system-ui,-apple-system,Arial,sans-serif}
+  .wrap{max-width:1040px;margin:0 auto;padding:20px 16px 80px}
+  header.top{background:linear-gradient(135deg,#0b3d75,#0b6bcb);color:#fff;border-radius:14px;padding:26px 24px;margin-bottom:14px}
+  header.top h1{margin:0 0 4px;font-size:1.8rem}
+  header.top p{margin:0;opacity:.9}
+  nav{position:sticky;top:0;z-index:10;background:var(--bg);padding:8px 0;margin-bottom:10px;display:flex;gap:8px;flex-wrap:wrap}
+  nav a{text-decoration:none;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-weight:600;font-size:.95rem}
+  nav a:hover{border-color:var(--accent);color:var(--accent)}
+  nav a .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+  section.topic{scroll-margin-top:60px;margin-bottom:36px}
+  .topic-head{display:flex;align-items:center;gap:12px;margin:8px 0 12px}
+  .badge{width:44px;height:44px;border-radius:12px;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.3rem;flex-shrink:0}
+  .topic-head h2{margin:0;font-size:1.5rem}
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:14px}
+  .card h3{margin:0 0 10px;font-size:1.1rem}
+  .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0}
+  .fact{background:var(--accent-soft);border-radius:8px;padding:10px 12px}
+  .fact small{display:block;color:var(--muted);font-size:.8rem;text-transform:uppercase;letter-spacing:.04em}
+  .fact b{font-size:1.1rem}
+  .formula{font-family:"Cambria Math","Times New Roman",serif;font-size:1.25rem;background:#f1f3f7;border-radius:8px;padding:8px 14px;display:inline-block;margin:4px 6px 4px 0}
+  .merke{background:var(--warn-soft);border-left:4px solid var(--warn);border-radius:6px;padding:10px 14px;margin-top:10px}
+  .sim{display:grid;grid-template-columns:300px 1fr;gap:20px;align-items:start}
+  .controls label{display:flex;justify-content:space-between;font-weight:600;font-size:.93rem;margin-top:12px}
+  .controls label output{font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
+  input[type=range]{width:100%;accent-color:var(--accent)}
+  select{width:100%;font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line);margin-top:4px}
+  .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  button{font:inherit;font-size:.9rem;padding:7px 12px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
+  button.ghost{background:#fff;color:var(--accent)}
+  .chk{display:flex !important;justify-content:flex-start !important;gap:8px;align-items:center;font-weight:500 !important}
+  .readout{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:12px}
+  .ro{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fbfcfe}
+  .ro small{display:block;color:var(--muted);font-size:.8rem}
+  .ro b{font-size:1.35rem;font-variant-numeric:tabular-nums}
+  svg.circuit{width:100%;height:auto;background:#fbfcfe;border:1px solid var(--line);border-radius:10px}
+  canvas.plot{width:100%;height:320px;display:block;background:#fff;border:1px solid var(--line);border-radius:10px}
+  .bar{display:flex;height:34px;border-radius:8px;overflow:hidden;margin-top:12px;border:1px solid var(--line);font-size:.85rem;font-weight:700;color:#fff}
+  .bar div{display:flex;align-items:center;justify-content:center;transition:width .2s;white-space:nowrap;overflow:hidden}
+  .hint{color:var(--muted);font-size:.9rem;margin:8px 0 0}
+  .try{margin:0;padding-left:20px}
+  .try li{margin:4px 0}
+  table.mt{width:100%;border-collapse:collapse;font-size:.9rem;margin-top:10px}
+  table.mt th,table.mt td{border:1px solid var(--line);padding:5px 8px;text-align:right}
+  table.mt th{background:var(--accent-soft)}
+  table.mt td:first-child,table.mt th:first-child{text-align:left}
+  .tabs{display:flex;gap:6px;margin-bottom:8px}
+  .tabs button{background:#fff;color:var(--accent)}
+  .tabs button.on{background:var(--accent);color:#fff}
+  .presets{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+  .presets button{font-size:.82rem;padding:5px 9px}
+  @media (max-width:820px){.sim{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>Grundlagen der Elektrotechnik – Teil 1</h1>
+  <p>Strom · Spannung · Widerstand · Leistung – mit interaktiven Simulatoren und Kennlinien</p>
+</header>
+
+<nav>
+  <a href="#strom"><span class="dot" style="background:var(--c-i)"></span>Strom</a>
+  <a href="#spannung"><span class="dot" style="background:var(--c-u)"></span>Spannung</a>
+  <a href="#widerstand"><span class="dot" style="background:var(--c-r)"></span>Widerstand</a>
+  <a href="#leistung"><span class="dot" style="background:var(--c-p)"></span>Leistung</a>
+</nav>
+
+<!-- =============================== STROM =============================== -->
+<section class="topic" id="strom">
+  <div class="topic-head"><div class="badge" style="background:var(--c-i)">I</div><h2>Elektrischer Strom</h2></div>
+
+  <div class="card">
+    <h3>Theorie</h3>
+    <p>Elektrischer Strom ist die <b>gerichtete Bewegung von elektrischen Ladungsträgern</b>. In Metallen sind das freie Elektronen. Ein Strom fließt nur, wenn der <b>Stromkreis geschlossen</b> ist und eine Spannung anliegt.</p>
+    <div class="facts">
+      <div class="fact"><small>Formelzeichen</small><b>I</b></div>
+      <div class="fact"><small>Einheit</small><b>Ampere (A)</b></div>
+      <div class="fact"><small>Messgerät</small><b>Amperemeter – in Reihe</b></div>
+      <div class="fact"><small>Definition</small><b>1 A = 1 C/s</b></div>
+    </div>
+    <span class="formula">I = Q / t</span><span class="formula">I = U / R</span>
+    <p><b>Stromrichtung:</b> Die <i>technische Stromrichtung</i> geht von <b>Plus nach Minus</b>. Die Elektronen fließen in Wirklichkeit von <b>Minus nach Plus</b>.</p>
+    <p><b>Wirkungen des Stroms:</b> Wärme, Licht, Magnetismus, chemische Wirkung, Wirkung auf Lebewesen.</p>
+    <div class="merke"><b>Merke:</b> Das Amperemeter wird immer <b>in Reihe</b> geschaltet – der Strom muss durch das Messgerät fließen. Schon Ströme von einigen zehn Milliampere durch den Körper können lebensgefährlich sein.</div>
+  </div>
+
+  <div class="card">
+    <h3>Simulator: Einfacher Stromkreis</h3>
+    <div class="sim">
+      <div class="controls">
+        <label>Spannung U <output id="s1Uo"></output></label>
+        <input type="range" id="s1U" min="0" max="24" step="0.5" value="12">
+        <label>Widerstand R <output id="s1Ro"></output></label>
+        <input type="range" id="s1R" min="5" max="100" step="1" value="24">
+        <label class="chk"><input type="checkbox" id="s1Dir"> Elektronenfluss statt technischer Stromrichtung zeigen</label>
+        <div class="btns"><button id="s1Sw">Schalter öffnen</button></div>
+        <div class="readout">
+          <div class="ro"><small>Stromstärke I</small><b id="s1I" style="color:var(--c-i)"></b></div>
+          <div class="ro"><small>Ladung pro Sekunde</small><b id="s1Q"></b></div>
+        </div>
+        <p class="hint" id="s1E"></p>
+      </div>
+      <div>
+        <svg class="circuit" viewBox="0 0 400 220" id="s1Svg">
+          <path id="s1Path" d="M60 40 H340 V180 H60 Z" fill="none" stroke="#1d2433" stroke-width="3"/>
+          <g id="s1Dots"></g>
+          <!-- Batterie -->
+          <rect x="40" y="92" width="40" height="34" fill="#fbfcfe"/>
+          <line x1="42" y1="100" x2="78" y2="100" stroke="#c2410c" stroke-width="3"/>
+          <line x1="52" y1="116" x2="68" y2="116" stroke="#1d2433" stroke-width="6"/>
+          <text x="86" y="104" font-size="16" fill="#c2410c" font-weight="700">+</text>
+          <text x="86" y="124" font-size="18" font-weight="700">−</text>
+          <text x="8" y="114" font-size="13" id="s1Ulbl" fill="#c2410c" font-weight="700"></text>
+          <!-- Widerstand -->
+          <rect x="165" y="29" width="70" height="22" fill="#fff" stroke="#7c3aed" stroke-width="3" rx="2"/>
+          <text x="200" y="20" font-size="13" text-anchor="middle" fill="#7c3aed" font-weight="700" id="s1Rlbl"></text>
+          <!-- Amperemeter -->
+          <circle cx="340" cy="110" r="20" fill="#fff" stroke="#0b6bcb" stroke-width="3"/>
+          <text x="340" y="116" font-size="17" text-anchor="middle" fill="#0b6bcb" font-weight="800">A</text>
+          <text x="366" y="114" font-size="13" fill="#0b6bcb" font-weight="700" id="s1Alb"></text>
+          <!-- Schalter -->
+          <rect x="178" y="172" width="44" height="16" fill="#fbfcfe"/>
+          <circle cx="180" cy="180" r="4" fill="#1d2433"/><circle cx="220" cy="180" r="4" fill="#1d2433"/>
+          <line id="s1Lever" x1="180" y1="180" x2="220" y2="180" stroke="#1d2433" stroke-width="3"/>
+          <text x="200" y="208" font-size="12" text-anchor="middle" fill="#5b6475">Schalter</text>
+        </svg>
+        <p class="hint">Die Punkte zeigen die Ladungsträger. Je größer der Strom, desto schneller bewegen sie sich.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Kennlinie: Strom in Abhängigkeit vom Widerstand I = f(R)</h3>
+    <canvas class="plot" id="s1Plot"></canvas>
+    <p class="hint">Bei gleicher Spannung gilt: <b>doppelter Widerstand → halber Strom</b>. Die Kurve ist eine Hyperbel. Ändere U und beobachte, wie sich die ganze Kurve verschiebt.</p>
+  </div>
+
+  <div class="card">
+    <h3>Probier's aus</h3>
+    <ol class="try">
+      <li>Stelle U = 12 V und R = 24 Ω ein. Welcher Strom fließt? Rechne nach.</li>
+      <li>Verdopple den Widerstand. Was passiert mit dem Strom?</li>
+      <li>Öffne den Schalter. Warum fließt kein Strom mehr, obwohl die Spannung noch da ist?</li>
+    </ol>
+  </div>
+</section>
+
+<!-- =============================== SPANNUNG =============================== -->
+<section class="topic" id="spannung">
+  <div class="topic-head"><div class="badge" style="background:var(--c-u)">U</div><h2>Elektrische Spannung</h2></div>
+
+  <div class="card">
+    <h3>Theorie</h3>
+    <p>Die Spannung ist der <b>„Druck“, der die Elektronen antreibt</b>. Sie entsteht durch eine Ladungstrennung – an einem Pol gibt es einen Elektronenüberschuss (−), am anderen einen Elektronenmangel (+). Die Spannung ist die <b>Ursache für den Stromfluss</b>.</p>
+    <div class="facts">
+      <div class="fact"><small>Formelzeichen</small><b>U</b></div>
+      <div class="fact"><small>Einheit</small><b>Volt (V)</b></div>
+      <div class="fact"><small>Messgerät</small><b>Voltmeter – parallel</b></div>
+      <div class="fact"><small>Typische Werte</small><b>1,5 V · 12 V · 230 V · 400 V</b></div>
+    </div>
+    <p><b>Wasser-Vergleich:</b> Die Spannung entspricht dem Höhenunterschied zwischen zwei Wasserbehältern. Je größer der Höhenunterschied, desto stärker fließt das Wasser.</p>
+    <p><b>Reihenschaltung:</b> Die Spannungen der einzelnen Zellen addieren sich. An in Reihe geschalteten Widerständen teilt sich die Spannung auf <b>(Spannungsteiler)</b>. Am größeren Widerstand liegt die größere Spannung.</p>
+    <span class="formula">U<sub>ges</sub> = U<sub>1</sub> + U<sub>2</sub></span>
+    <span class="formula">U<sub>1</sub> : U<sub>2</sub> = R<sub>1</sub> : R<sub>2</sub></span>
+    <span class="formula">U<sub>2</sub> = U · R<sub>2</sub> / (R<sub>1</sub> + R<sub>2</sub>)</span>
+    <div class="merke"><b>Merke:</b> Das Voltmeter wird immer <b>parallel</b> zum Bauteil geschaltet. Spannung wird immer <b>zwischen zwei Punkten</b> gemessen.</div>
+  </div>
+
+  <div class="card">
+    <h3>Simulator: Batterien in Reihe und Spannungsteiler</h3>
+    <div class="sim">
+      <div class="controls">
+        <label>Anzahl Zellen (je 1,5 V) <output id="s2No"></output></label>
+        <input type="range" id="s2N" min="1" max="8" step="1" value="4">
+        <label>Widerstand R₁ <output id="s2R1o"></output></label>
+        <input type="range" id="s2R1" min="10" max="200" step="5" value="100">
+        <label>Widerstand R₂ <output id="s2R2o"></output></label>
+        <input type="range" id="s2R2" min="0" max="200" step="5" value="50">
+        <div class="readout">
+          <div class="ro"><small>Gesamtspannung U</small><b id="s2U" style="color:var(--c-u)"></b></div>
+          <div class="ro"><small>Strom I</small><b id="s2I" style="color:var(--c-i)"></b></div>
+          <div class="ro"><small>Spannung U₁</small><b id="s2U1"></b></div>
+          <div class="ro"><small>Spannung U₂</small><b id="s2U2"></b></div>
+        </div>
+      </div>
+      <div>
+        <svg class="circuit" viewBox="0 0 440 220">
+          <path d="M90 40 H330 V180 H90 Z" fill="none" stroke="#1d2433" stroke-width="3"/>
+          <rect x="70" y="80" width="40" height="60" fill="#fbfcfe"/>
+          <g id="s2Cells"></g>
+          <text x="10" y="114" font-size="13" fill="#c2410c" font-weight="700" id="s2Ulbl"></text>
+          <rect x="175" y="29" width="70" height="22" fill="#fff" stroke="#7c3aed" stroke-width="3"/>
+          <text x="210" y="45" font-size="12" text-anchor="middle" fill="#7c3aed" font-weight="700">R₁</text>
+          <text x="210" y="20" font-size="13" text-anchor="middle" fill="#c2410c" font-weight="700" id="s2U1lbl"></text>
+          <rect x="319" y="75" width="22" height="70" fill="#fff" stroke="#7c3aed" stroke-width="3"/>
+          <text x="330" y="114" font-size="12" text-anchor="middle" fill="#7c3aed" font-weight="700">R₂</text>
+          <text x="350" y="114" font-size="13" fill="#c2410c" font-weight="700" id="s2U2lbl"></text>
+        </svg>
+        <div class="bar"><div id="s2B1" style="background:#c2410c">U₁</div><div id="s2B2" style="background:#f59e0b">U₂</div></div>
+        <p class="hint">Der Balken zeigt, wie sich die Gesamtspannung auf R₁ und R₂ aufteilt.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Kennlinie: Teilspannungen in Abhängigkeit von R₂</h3>
+    <canvas class="plot" id="s2Plot"></canvas>
+    <p class="hint">Wird R₂ größer, steigt U₂ und U₁ sinkt. Die Summe bleibt immer gleich der Gesamtspannung (gestrichelte Linie). Bei R₁ = R₂ teilt sich die Spannung genau zur Hälfte.</p>
+  </div>
+
+  <div class="card">
+    <h3>Probier's aus</h3>
+    <ol class="try">
+      <li>Wie viele Zellen brauchst du für 9 V? Prüfe es im Simulator.</li>
+      <li>Stelle R₁ = R₂ ein. Wie groß sind U₁ und U₂?</li>
+      <li>Stelle R₂ auf 0 Ω. Welche Spannung liegt jetzt an R₁? Warum?</li>
+    </ol>
+  </div>
+</section>
+
+<!-- =============================== WIDERSTAND =============================== -->
+<section class="topic" id="widerstand">
+  <div class="topic-head"><div class="badge" style="background:var(--c-r)">R</div><h2>Elektrischer Widerstand</h2></div>
+
+  <div class="card">
+    <h3>Theorie</h3>
+    <p>Der Widerstand gibt an, wie stark ein Bauteil den <b>Stromfluss hemmt</b>. Die Elektronen stoßen im Material an Atome und geben dabei Energie als Wärme ab.</p>
+    <div class="facts">
+      <div class="fact"><small>Formelzeichen</small><b>R</b></div>
+      <div class="fact"><small>Einheit</small><b>Ohm (Ω)</b></div>
+      <div class="fact"><small>Leitwert</small><b>G = 1/R in Siemens (S)</b></div>
+      <div class="fact"><small>Messung</small><b>Ohmmeter – nur spannungsfrei!</b></div>
+    </div>
+    <span class="formula">R = U / I</span><span class="formula">U = R · I</span><span class="formula">R = ρ · l / A</span>
+    <p><b>Ohmsches Gesetz:</b> Bei einem ohmschen (linearen) Widerstand ist der Strom proportional zur Spannung. Die I-U-Kennlinie ist eine <b>Gerade durch den Ursprung</b>.</p>
+    <p><b>Leiterwiderstand:</b> Ein Leiter hat einen größeren Widerstand, je <b>länger</b> (l) und je <b>dünner</b> (A) er ist. Außerdem hängt der Widerstand vom <b>Material</b> ab (spezifischer Widerstand ρ in Ω·mm²/m).</p>
+    <p><b>Nichtlineare Widerstände:</b> Bei einer Glühlampe steigt der Widerstand mit der Temperatur (Kaltleiter, PTC). Eine Diode leitet erst ab ca. 0,7 V (Silizium).</p>
+    <div class="merke"><b>Merke:</b> Je steiler die I-U-Kennlinie, desto <b>kleiner</b> ist der Widerstand.</div>
+  </div>
+
+  <div class="card">
+    <h3>Simulator 1: I-U-Kennlinie aufnehmen</h3>
+    <div class="sim">
+      <div class="controls">
+        <label>Bauteil</label>
+        <select id="s3C">
+          <option value="r47">Widerstand 47 Ω</option>
+          <option value="r100">Widerstand 100 Ω</option>
+          <option value="lamp">Glühlampe 12 V / 0,5 A</option>
+          <option value="diode">Si-Diode mit Vorwiderstand 20 Ω</option>
+        </select>
+        <label>Spannung U <output id="s3Uo"></output></label>
+        <input type="range" id="s3U" min="0" max="12" step="0.1" value="6">
+        <label class="chk"><input type="checkbox" id="s3All" checked> Alle Kennlinien zum Vergleich zeigen</label>
+        <div class="readout">
+          <div class="ro"><small>Strom I</small><b id="s3I" style="color:var(--c-i)"></b></div>
+          <div class="ro"><small>Widerstand R = U/I</small><b id="s3R" style="color:var(--c-r)"></b></div>
+        </div>
+        <div class="btns">
+          <button id="s3Save">Messpunkt speichern</button>
+          <button class="ghost" id="s3Clr">Messwerte löschen</button>
+        </div>
+        <table class="mt" id="s3Tab"><thead><tr><th>Bauteil</th><th>U in V</th><th>I in mA</th><th>R in Ω</th></tr></thead><tbody></tbody></table>
+      </div>
+      <div>
+        <canvas class="plot" id="s3Plot" style="height:380px"></canvas>
+        <p class="hint">Nimm für jedes Bauteil mehrere Messpunkte auf. Vergleiche: Bei welchem Bauteil bleibt R konstant?</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Simulator 2: Leiterwiderstand und Spannungsfall</h3>
+    <div class="sim">
+      <div class="controls">
+        <label>Material</label>
+        <select id="s4M">
+          <option value="0.0178">Kupfer (ρ = 0,0178)</option>
+          <option value="0.0286">Aluminium (ρ = 0,0286)</option>
+          <option value="0.13">Stahl (ρ ≈ 0,13)</option>
+          <option value="0.49">Konstantan (ρ = 0,49)</option>
+        </select>
+        <label>Querschnitt A</label>
+        <select id="s4A">
+          <option>0.75</option><option selected>1.5</option><option>2.5</option><option>4</option><option>6</option><option>10</option>
+        </select>
+        <label>Leitungslänge l <output id="s4Lo"></output></label>
+        <input type="range" id="s4L" min="1" max="200" step="1" value="30">
+        <label class="chk"><input type="checkbox" id="s4D" checked> Hin- und Rückleiter (2 · l)</label>
+        <label>Laststrom I <output id="s4Io"></output></label>
+        <input type="range" id="s4I" min="0" max="32" step="0.5" value="16">
+        <div class="readout">
+          <div class="ro"><small>Leiterwiderstand R</small><b id="s4R" style="color:var(--c-r)"></b></div>
+          <div class="ro"><small>Spannungsfall ΔU</small><b id="s4dU" style="color:var(--c-u)"></b></div>
+          <div class="ro"><small>ΔU bezogen auf 230 V</small><b id="s4pc"></b></div>
+          <div class="ro"><small>Verlustleistung</small><b id="s4Pv" style="color:var(--c-p)"></b></div>
+        </div>
+      </div>
+      <div>
+        <div class="tabs"><button class="on" id="s4T1">R = f(l)</button><button id="s4T2">R = f(A)</button></div>
+        <canvas class="plot" id="s4Plot"></canvas>
+        <p class="hint">Doppelte Länge → doppelter Widerstand (Gerade). Doppelter Querschnitt → halber Widerstand (Hyperbel).</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Probier's aus</h3>
+    <ol class="try">
+      <li>Nimm bei 47 Ω Messpunkte bei 2, 4, 6, 8 und 10 V auf. Was fällt dir bei R auf?</li>
+      <li>Mache dasselbe bei der Glühlampe. Warum wird R größer?</li>
+      <li>Ab welcher Spannung beginnt die Diode zu leiten?</li>
+      <li>Eine Kupferleitung 1,5 mm² ist 30 m lang, I = 16 A. Ist der Spannungsfall unter 3 %? Was hilft, wenn nicht?</li>
+    </ol>
+  </div>
+</section>
+
+<!-- =============================== LEISTUNG =============================== -->
+<section class="topic" id="leistung">
+  <div class="topic-head"><div class="badge" style="background:var(--c-p)">P</div><h2>Elektrische Leistung und Energie</h2></div>
+
+  <div class="card">
+    <h3>Theorie</h3>
+    <p>Die elektrische Leistung gibt an, <b>wie viel Energie pro Sekunde</b> umgewandelt wird – zum Beispiel in Wärme, Licht oder Bewegung.</p>
+    <div class="facts">
+      <div class="fact"><small>Formelzeichen</small><b>P</b></div>
+      <div class="fact"><small>Einheit</small><b>Watt (W)</b></div>
+      <div class="fact"><small>Energie</small><b>W in kWh</b></div>
+      <div class="fact"><small>Wirkungsgrad</small><b>η = P<sub>ab</sub> / P<sub>zu</sub></b></div>
+    </div>
+    <span class="formula">P = U · I</span><span class="formula">P = I² · R</span><span class="formula">P = U² / R</span><span class="formula">W = P · t</span>
+    <p><b>Wichtig:</b> Die Leistung steigt mit dem <b>Quadrat</b> der Spannung. Doppelte Spannung am gleichen Widerstand → <b>vierfache Leistung</b>.</p>
+    <div class="merke"><b>Merke:</b> 1 kWh = 1000 W · 1 h. Ein Gerät mit 1000 W braucht in einer Stunde 1 kWh Energie.</div>
+  </div>
+
+  <div class="card">
+    <h3>Simulator: Leistung und Energiekosten</h3>
+    <div class="sim">
+      <div class="controls">
+        <label>Gerät auswählen (bei 230 V)</label>
+        <div class="presets">
+          <button class="ghost" data-r="881">Glühlampe 60 W</button>
+          <button class="ghost" data-r="44">Föhn 1200 W</button>
+          <button class="ghost" data-r="26.5">Wasserkocher 2000 W</button>
+        </div>
+        <label>Spannung U <output id="s5Uo"></output></label>
+        <input type="range" id="s5U" min="0" max="230" step="1" value="230">
+        <label>Widerstand R <output id="s5Ro"></output></label>
+        <input type="range" id="s5R" min="10" max="1000" step="0.5" value="881">
+        <label>Betriebsdauer pro Tag <output id="s5Ho"></output></label>
+        <input type="range" id="s5H" min="0" max="24" step="0.25" value="4">
+        <label>Strompreis <output id="s5Po"></output></label>
+        <input type="range" id="s5Pr" min="10" max="60" step="1" value="25">
+      </div>
+      <div>
+        <svg class="circuit" viewBox="0 0 400 170">
+          <defs><radialGradient id="glow"><stop offset="0" stop-color="#fde047"/><stop offset=".5" stop-color="#facc15" stop-opacity=".6"/><stop offset="1" stop-color="#facc15" stop-opacity="0"/></radialGradient></defs>
+          <circle id="s5Glow" cx="200" cy="70" r="70" fill="url(#glow)" opacity="0"/>
+          <circle cx="200" cy="70" r="30" fill="#fff" stroke="#1d2433" stroke-width="3" id="s5Bulb"/>
+          <line x1="179" y1="49" x2="221" y2="91" stroke="#1d2433" stroke-width="2.5"/>
+          <line x1="221" y1="49" x2="179" y2="91" stroke="#1d2433" stroke-width="2.5"/>
+          <rect x="188" y="100" width="24" height="16" fill="#9ca3af"/>
+          <text x="200" y="150" text-anchor="middle" font-size="14" fill="#5b6475" id="s5Lbl"></text>
+        </svg>
+        <div class="readout">
+          <div class="ro"><small>Leistung P</small><b id="s5P" style="color:var(--c-p)"></b></div>
+          <div class="ro"><small>Strom I</small><b id="s5I" style="color:var(--c-i)"></b></div>
+          <div class="ro"><small>Energie pro Tag</small><b id="s5E"></b></div>
+          <div class="ro"><small>Kosten pro Tag</small><b id="s5Kd"></b></div>
+          <div class="ro"><small>Kosten pro Jahr</small><b id="s5Ky"></b></div>
+        </div>
+        <p class="hint">Der Strompreis ist ein Beispielwert – stelle deinen eigenen Tarif ein.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Kennlinie: Leistung in Abhängigkeit von der Spannung P = f(U)</h3>
+    <canvas class="plot" id="s5Plot"></canvas>
+    <p class="hint">Die Kurve ist eine <b>Parabel</b>, weil P = U²/R. Die gestrichelte Kurve zeigt zum Vergleich den doppelten Widerstand – dort ist die Leistung nur halb so groß.</p>
+  </div>
+
+  <div class="card">
+    <h3>Probier's aus</h3>
+    <ol class="try">
+      <li>Wähle den Wasserkocher. Senke die Spannung von 230 V auf 115 V. Wie stark sinkt die Leistung?</li>
+      <li>Was kostet eine 60-W-Glühlampe, die 4 Stunden am Tag ein Jahr lang leuchtet?</li>
+      <li>Ein Föhn hat 1200 W. Wie groß ist der Strom bei 230 V? Rechne mit I = P / U.</li>
+    </ol>
+  </div>
+</section>
+
+</div>
+
+<script>
+/* ---------- Hilfsfunktionen ---------- */
+const $ = id => document.getElementById(id);
+const nf = (v, d = 2) => Number(v).toLocaleString('de-AT', {minimumFractionDigits: 0, maximumFractionDigits: d});
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const redraws = [];
+window.addEventListener('resize', () => redraws.forEach(f => f()));
+
+function niceMax(v){
+  if (!(v > 0)) return 1;
+  const e = Math.pow(10, Math.floor(Math.log10(v))), m = v / e;
+  return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10) * e;
+}
+
+function plot(cv, o){
+  const dpr = window.devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight;
+  if (!w) return;
+  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+  const c = cv.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, w, h);
+  const L = 62, Rm = 16, T = 16, B = 46, pw = w - L - Rm, ph = h - T - B;
+  const x0 = o.xmin || 0;
+  const X = x => L + (x - x0) / (o.xmax - x0) * pw, Y = y => T + ph - y / o.ymax * ph;
+  c.font = '12px "Segoe UI", system-ui, sans-serif'; c.lineWidth = 1;
+  for (let i = 0; i <= 5; i++){
+    const v = x0 + (o.xmax - x0) * i / 5, px = X(v);
+    c.strokeStyle = '#e8ebf1'; c.beginPath(); c.moveTo(px, T); c.lineTo(px, T + ph); c.stroke();
+    c.fillStyle = '#5b6475'; c.textAlign = 'center'; c.fillText(nf(v, 2), px, T + ph + 16);
+    const vy = o.ymax * i / 5, py = Y(vy);
+    c.beginPath(); c.moveTo(L, py); c.lineTo(L + pw, py); c.stroke();
+    c.textAlign = 'right'; c.fillText(nf(vy, 3), L - 6, py + 4);
+  }
+  c.strokeStyle = '#1d2433'; c.lineWidth = 1.5;
+  c.beginPath(); c.moveTo(L, T); c.lineTo(L, T + ph); c.lineTo(L + pw, T + ph); c.stroke();
+  c.fillStyle = '#1d2433'; c.font = '600 13px "Segoe UI", system-ui, sans-serif';
+  c.textAlign = 'center'; c.fillText(o.xlabel, L + pw / 2, h - 8);
+  c.save(); c.translate(15, T + ph / 2); c.rotate(-Math.PI / 2); c.fillText(o.ylabel, 0, 0); c.restore();
+
+  c.save(); c.beginPath(); c.rect(L, T, pw, ph); c.clip();
+  (o.curves || []).forEach(cu => {
+    c.strokeStyle = cu.color; c.lineWidth = cu.width || 2.5; c.setLineDash(cu.dash || []); c.globalAlpha = cu.alpha || 1;
+    c.beginPath(); let st = false;
+    for (let i = 0; i <= 400; i++){
+      const x = x0 + (o.xmax - x0) * i / 400, y = cu.f(x);
+      if (!isFinite(y)) { st = false; continue; }
+      const py = Math.max(T - 40, Math.min(T + ph + 40, Y(y)));
+      st ? c.lineTo(X(x), py) : c.moveTo(X(x), py); st = true;
+    }
+    c.stroke(); c.setLineDash([]); c.globalAlpha = 1;
+  });
+  (o.points || []).forEach(p => {
+    c.fillStyle = p.color; c.strokeStyle = '#fff'; c.lineWidth = 1.5;
+    c.beginPath(); c.arc(X(p.x), Y(p.y), 4.5, 0, Math.PI * 2); c.fill(); c.stroke();
+  });
+  if (o.marker){
+    const mx = X(o.marker.x), my = Y(o.marker.y);
+    c.strokeStyle = '#1d2433'; c.lineWidth = 1; c.setLineDash([4, 4]);
+    c.beginPath(); c.moveTo(mx, T + ph); c.lineTo(mx, my); c.lineTo(L, my); c.stroke(); c.setLineDash([]);
+    c.fillStyle = o.marker.color || '#1d2433'; c.strokeStyle = '#fff'; c.lineWidth = 2;
+    c.beginPath(); c.arc(mx, my, 7, 0, Math.PI * 2); c.fill(); c.stroke();
+  }
+  c.restore();
+
+  const leg = (o.curves || []).filter(cu => cu.label);
+  if (leg.length){
+    c.font = '12px "Segoe UI", system-ui, sans-serif'; c.textAlign = 'left';
+    const lw = Math.max(...leg.map(cu => c.measureText(cu.label).width)) + 40;
+    const lx = o.legendLeft ? L + 10 : L + pw - lw - 8, ly = T + 8;
+    c.fillStyle = 'rgba(255,255,255,.92)'; c.strokeStyle = '#d5dae3'; c.lineWidth = 1;
+    c.fillRect(lx, ly, lw, leg.length * 18 + 8); c.strokeRect(lx, ly, lw, leg.length * 18 + 8);
+    leg.forEach((cu, i) => {
+      const yy = ly + 16 + i * 18;
+      c.strokeStyle = cu.color; c.lineWidth = 3; c.setLineDash(cu.dash || []); c.globalAlpha = Math.max(cu.alpha || 1, .6);
+      c.beginPath(); c.moveTo(lx + 8, yy - 4); c.lineTo(lx + 28, yy - 4); c.stroke(); c.setLineDash([]); c.globalAlpha = 1;
+      c.fillStyle = '#1d2433'; c.fillText(cu.label, lx + 34, yy);
+    });
+  }
+}
+
+/* ---------- 1  STROM ---------- */
+(() => {
+  const path = $('s1Path'), len = path.getTotalLength(), g = $('s1Dots'), N = 28, dots = [];
+  for (let i = 0; i < N; i++){
+    const d = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    d.setAttribute('r', 4); d.setAttribute('fill', '#0b6bcb'); g.appendChild(d); dots.push(d);
+  }
+  let on = true, I = 0, s = 0, last = performance.now();
+  function upd(){
+    const U = +$('s1U').value, R = +$('s1R').value;
+    I = on ? U / R : 0;
+    $('s1Uo').textContent = nf(U, 1) + ' V'; $('s1Ro').textContent = nf(R, 0) + ' Ω';
+    $('s1I').textContent = I >= 1 ? nf(I, 2) + ' A' : nf(I * 1000, 0) + ' mA';
+    $('s1Q').textContent = nf(I, 2) + ' C';
+    const ne = I / 1.602e-19;
+    $('s1E').innerHTML = I > 0
+      ? 'Das sind etwa <b>' + nf(ne / Math.pow(10, Math.floor(Math.log10(ne))), 2) + ' · 10<sup>' + Math.floor(Math.log10(ne)) + '</sup></b> Elektronen pro Sekunde.'
+      : 'Kein Stromfluss – der Stromkreis ist offen oder U = 0.';
+    $('s1Ulbl').textContent = nf(U, 1) + ' V';
+    $('s1Rlbl').textContent = 'R = ' + nf(R, 0) + ' Ω';
+    $('s1Alb').textContent = nf(I, 2) + ' A';
+    $('s1Lever').setAttribute('y2', on ? 180 : 158);
+    $('s1Sw').textContent = on ? 'Schalter öffnen' : 'Schalter schließen';
+    dots.forEach(d => d.setAttribute('fill', $('s1Dir').checked ? '#c2410c' : '#0b6bcb'));
+    draw();
+  }
+  function draw(){
+    const U = +$('s1U').value, R = +$('s1R').value;
+    plot($('s1Plot'), {
+      xmin: 5, xmax: 100, ymax: niceMax(Math.max(U, 0.5) / 5),
+      xlabel: 'Widerstand R in Ω', ylabel: 'Strom I in A',
+      curves: [{f: r => U / r, color: css('--c-i'), label: 'I = U / R  (U = ' + nf(U, 1) + ' V)'}],
+      marker: on ? {x: R, y: U / R, color: css('--c-i')} : null
+    });
+  }
+  function anim(t){
+    const dt = Math.min(0.05, (t - last) / 1000); last = t;
+    const v = Math.min(420, I * 70) * ($('s1Dir').checked ? -1 : 1);
+    s = (s + v * dt + len) % len;
+    dots.forEach((d, i) => {
+      const p = path.getPointAtLength((s + i * len / N) % len);
+      d.setAttribute('cx', p.x); d.setAttribute('cy', p.y);
+    });
+    requestAnimationFrame(anim);
+  }
+  ['s1U', 's1R', 's1Dir'].forEach(id => $(id).addEventListener('input', upd));
+  $('s1Sw').onclick = () => { on = !on; upd(); };
+  redraws.push(draw); upd(); requestAnimationFrame(anim);
+})();
+
+/* ---------- 2  SPANNUNG ---------- */
+(() => {
+  function upd(){
+    const n = +$('s2N').value, R1 = +$('s2R1').value, R2 = +$('s2R2').value;
+    const U = n * 1.5, I = U / (R1 + R2), U1 = I * R1, U2 = I * R2;
+    $('s2No').textContent = n + ' × 1,5 V'; $('s2R1o').textContent = R1 + ' Ω'; $('s2R2o').textContent = R2 + ' Ω';
+    $('s2U').textContent = nf(U, 2) + ' V'; $('s2I').textContent = nf(I * 1000, 1) + ' mA';
+    $('s2U1').textContent = nf(U1, 2) + ' V'; $('s2U2').textContent = nf(U2, 2) + ' V';
+    $('s2Ulbl').textContent = 'U = ' + nf(U, 1) + ' V';
+    $('s2U1lbl').textContent = 'U₁ = ' + nf(U1, 2) + ' V';
+    $('s2U2lbl').textContent = 'U₂ = ' + nf(U2, 2) + ' V';
+    let svg = ''; const h = 56 / n;
+    for (let i = 0; i < n; i++){
+      const y = 82 + i * h + h * 0.3;
+      svg += '<line x1="74" y1="' + y + '" x2="106" y2="' + y + '" stroke="#c2410c" stroke-width="2.5"/>' +
+             '<line x1="82" y1="' + (y + h * 0.4) + '" x2="98" y2="' + (y + h * 0.4) + '" stroke="#1d2433" stroke-width="4"/>';
+    }
+    $('s2Cells').innerHTML = svg;
+    const p1 = U1 / U * 100;
+    $('s2B1').style.width = p1 + '%'; $('s2B2').style.width = (100 - p1) + '%';
+    $('s2B1').textContent = p1 > 12 ? 'U₁ ' + nf(p1, 0) + ' %' : '';
+    $('s2B2').textContent = 100 - p1 > 12 ? 'U₂ ' + nf(100 - p1, 0) + ' %' : '';
+    draw();
+  }
+  function draw(){
+    const n = +$('s2N').value, R1 = +$('s2R1').value, R2 = +$('s2R2').value, U = n * 1.5;
+    plot($('s2Plot'), {
+      xmax: 200, ymax: niceMax(U * 1.05),
+      xlabel: 'Widerstand R₂ in Ω', ylabel: 'Spannung in V',
+      curves: [
+        {f: x => U, color: '#1d2433', dash: [6, 5], width: 1.5, label: 'U gesamt'},
+        {f: x => U * R1 / (R1 + x), color: '#c2410c', label: 'U₁ an R₁'},
+        {f: x => U * x / (R1 + x), color: '#f59e0b', label: 'U₂ an R₂'}
+      ],
+      points: [{x: R2, y: U * R1 / (R1 + R2), color: '#c2410c'}],
+      marker: {x: R2, y: U * R2 / (R1 + R2), color: '#f59e0b'}
+    });
+  }
+  ['s2N', 's2R1', 's2R2'].forEach(id => $(id).addEventListener('input', upd));
+  redraws.push(draw); upd();
+})();
+
+/* ---------- 3  WIDERSTAND: I-U-Kennlinie ---------- */
+(() => {
+  const softplus = x => x > 30 ? x : Math.log(1 + Math.exp(x));
+  const comps = {
+    r47:   {name: '47 Ω',      color: '#7c3aed', f: u => u / 47 * 1000},
+    r100:  {name: '100 Ω',     color: '#0b6bcb', f: u => u / 100 * 1000},
+    lamp:  {name: 'Glühlampe', color: '#c2410c', f: u => u <= 0 ? 0 : 500 * Math.pow(u / 12, 0.55)},
+    diode: {name: 'Diode',     color: '#15803d', f: u => 1000 * 0.03 * softplus((u - 0.7) / 0.03) / 20}
+  };
+  const meas = [];
+  function cur(){ return comps[$('s3C').value]; }
+  function upd(){
+    const U = +$('s3U').value, c = cur(), I = c.f(U);
+    $('s3Uo').textContent = nf(U, 1) + ' V';
+    $('s3I').textContent = nf(I, 1) + ' mA';
+    $('s3R').textContent = I > 0.05 ? nf(U / (I / 1000), 1) + ' Ω' : '—';
+    draw();
+  }
+  function draw(){
+    const U = +$('s3U').value, key = $('s3C').value, all = $('s3All').checked;
+    const curves = Object.entries(comps)
+      .filter(([k]) => all || k === key)
+      .map(([k, c]) => ({f: c.f, color: c.color, label: c.name, width: k === key ? 3.5 : 1.8, alpha: k === key ? 1 : .45}));
+    plot($('s3Plot'), {
+      xmax: 12, ymax: 600, xlabel: 'Spannung U in V', ylabel: 'Strom I in mA', legendLeft: true,
+      curves, points: meas.map(m => ({x: m.u, y: m.i, color: comps[m.k].color})),
+      marker: {x: U, y: cur().f(U), color: cur().color}
+    });
+  }
+  function table(){
+    $('s3Tab').querySelector('tbody').innerHTML = meas.map(m =>
+      '<tr><td>' + comps[m.k].name + '</td><td>' + nf(m.u, 1) + '</td><td>' + nf(m.i, 1) + '</td><td>' +
+      (m.i > 0.05 ? nf(m.u / (m.i / 1000), 1) : '—') + '</td></tr>').join('');
+  }
+  $('s3Save').onclick = () => { const U = +$('s3U').value; meas.push({k: $('s3C').value, u: U, i: cur().f(U)}); table(); draw(); };
+  $('s3Clr').onclick = () => { meas.length = 0; table(); draw(); };
+  ['s3C', 's3U', 's3All'].forEach(id => $(id).addEventListener('input', upd));
+  redraws.push(draw); upd();
+})();
+
+/* ---------- 3b  WIDERSTAND: Leiterwiderstand ---------- */
+(() => {
+  let mode = 'l';
+  function vals(){
+    const rho = +$('s4M').value, A = +$('s4A').value, l = +$('s4L').value, k = $('s4D').checked ? 2 : 1, I = +$('s4I').value;
+    return {rho, A, l, k, I, R: rho * k * l / A};
+  }
+  function upd(){
+    const v = vals(), dU = v.I * v.R;
+    $('s4Lo').textContent = v.l + ' m'; $('s4Io').textContent = nf(v.I, 1) + ' A';
+    $('s4R').textContent = v.R < 1 ? nf(v.R * 1000, 0) + ' mΩ' : nf(v.R, 2) + ' Ω';
+    $('s4dU').textContent = nf(dU, 2) + ' V';
+    const pc = dU / 230 * 100;
+    $('s4pc').textContent = nf(pc, 1) + ' %';
+    $('s4pc').style.color = pc > 3 ? '#b42318' : '#15803d';
+    $('s4Pv').textContent = nf(v.I * v.I * v.R, 1) + ' W';
+    draw();
+  }
+  function draw(){
+    const v = vals(), col = css('--c-r');
+    if (mode === 'l'){
+      plot($('s4Plot'), {
+        xmax: 200, ymax: niceMax(v.rho * v.k * 200 / v.A), xlabel: 'Länge l in m', ylabel: 'Widerstand R in Ω', legendLeft: true,
+        curves: [{f: x => v.rho * v.k * x / v.A, color: col, label: 'A = ' + nf(v.A, 2) + ' mm²'}],
+        marker: {x: v.l, y: v.R, color: col}
+      });
+    } else {
+      plot($('s4Plot'), {
+        xmin: 0.5, xmax: 10, ymax: niceMax(v.rho * v.k * v.l / 0.5), xlabel: 'Querschnitt A in mm²', ylabel: 'Widerstand R in Ω',
+        curves: [{f: x => v.rho * v.k * v.l / x, color: col, label: 'l = ' + v.l + ' m'}],
+        marker: {x: v.A, y: v.R, color: col}
+      });
+    }
+  }
+  $('s4T1').onclick = () => { mode = 'l'; $('s4T1').classList.add('on'); $('s4T2').classList.remove('on'); draw(); };
+  $('s4T2').onclick = () => { mode = 'A'; $('s4T2').classList.add('on'); $('s4T1').classList.remove('on'); draw(); };
+  ['s4M', 's4A', 's4L', 's4D', 's4I'].forEach(id => $(id).addEventListener('input', upd));
+  redraws.push(draw); upd();
+})();
+
+/* ---------- 4  LEISTUNG ---------- */
+(() => {
+  function upd(){
+    const U = +$('s5U').value, R = +$('s5R').value, h = +$('s5H').value, pr = +$('s5Pr').value;
+    const P = U * U / R, I = U / R, E = P * h / 1000, kd = E * pr / 100;
+    $('s5Uo').textContent = U + ' V'; $('s5Ro').textContent = nf(R, 1) + ' Ω';
+    $('s5Ho').textContent = nf(h, 2) + ' h'; $('s5Po').textContent = pr + ' ct/kWh';
+    $('s5P').textContent = P >= 1000 ? nf(P / 1000, 2) + ' kW' : nf(P, 1) + ' W';
+    $('s5I').textContent = nf(I, 2) + ' A';
+    $('s5E').textContent = nf(E, 2) + ' kWh';
+    $('s5Kd').textContent = nf(kd, 2) + ' €';
+    $('s5Ky').textContent = nf(kd * 365, 2) + ' €';
+    const b = Math.log10(1 + P) / Math.log10(1 + 5300);
+    $('s5Glow').setAttribute('opacity', b.toFixed(3));
+    $('s5Glow').setAttribute('r', 40 + 40 * b);
+    $('s5Bulb').setAttribute('fill', P > 1 ? 'rgb(255,' + Math.round(255 - 40 * b) + ',' + Math.round(255 - 200 * b) + ')' : '#fff');
+    $('s5Lbl').textContent = 'P = U² / R = ' + nf(P, 1) + ' W';
+    draw();
+  }
+  function draw(){
+    const U = +$('s5U').value, R = +$('s5R').value;
+    plot($('s5Plot'), {
+      xmax: 230, ymax: niceMax(230 * 230 / R * 1.02), xlabel: 'Spannung U in V', ylabel: 'Leistung P in W', legendLeft: true,
+      curves: [
+        {f: u => u * u / R, color: css('--c-p'), label: 'R = ' + nf(R, 1) + ' Ω'},
+        {f: u => u * u / (2 * R), color: css('--c-p'), dash: [6, 5], width: 2, alpha: .6, label: '2 · R = ' + nf(2 * R, 1) + ' Ω'}
+      ],
+      marker: {x: U, y: U * U / R, color: css('--c-p')}
+    });
+  }
+  document.querySelectorAll('.presets button').forEach(b => b.onclick = () => {
+    $('s5R').value = b.dataset.r; $('s5U').value = 230; upd();
+  });
+  ['s5U', 's5R', 's5H', 's5Pr'].forEach(id => $(id).addEventListener('input', upd));
+  redraws.push(draw); upd();
+})();
+</script>
+</body>
+</html>

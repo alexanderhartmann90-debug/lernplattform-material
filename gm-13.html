@@ -1,0 +1,1131 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GM 13 Netzsysteme und ÖVE-Schutzkonzept – die sieben Fehlerschutzmaßnahmen – Grundmodul</title>
+<style>:root{
+  --bg:#f3f5f7;--card:#ffffff;--ink:#17202b;--muted:#5a6573;--line:#d6dce3;--soft:#eef3f6;
+  --accent:#0a6a85;--accent-ink:#ffffff;--accent-soft:#e1f0f4;--warm:#d9731c;--warm-soft:#fbeee2;
+  --ok:#1b8049;--ok-soft:#e3f3ea;--bad:#b93226;--bad-soft:#f8e4e1;
+  --press:#1d64c8;--press-soft:#dbe7f8;--exh:#8d97a3;--crit:#c8362a;
+  --L:#8B4513;--N:#1d64c8;--PE:#1b8049;--live:#d9361c;
+  --mono:ui-monospace,"Cascadia Mono",Consolas,"Liberation Mono",monospace;
+  --sans:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+@media screen and (prefers-color-scheme:dark){
+  :root{--bg:#11161c;--card:#19212a;--ink:#e4e9ee;--muted:#9aa6b3;--line:#2f3a46;--soft:#202a35;
+  --accent:#4cb3cf;--accent-ink:#06222b;--accent-soft:#163846;--warm:#f0a35c;--warm-soft:#3a2a1a;
+  --ok:#57c487;--ok-soft:#173726;--bad:#ef7b6e;--bad-soft:#3d1f1b;--press:#6aa5ff;--press-soft:#1b2c48;--exh:#7d8794;--crit:#ff7a6b;
+  --L:#d08a52;--N:#6aa5ff;--PE:#57c487;--live:#ff7a5c}
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--sans)}
+a{color:var(--accent)}
+h1,h2,h3,h4{line-height:1.25;margin:1.2em 0 .5em}
+h1{font-size:1.7rem;margin:0}
+h2{font-size:1.3rem;border-bottom:2px solid var(--accent);padding-bottom:.25em}
+h3{font-size:1.08rem}
+p{margin:.5em 0}
+ul,ol{padding-left:1.3em;margin:.4em 0}
+li{margin:.15em 0}
+code,.mono{font-family:var(--mono);font-size:.92em}
+svg{max-width:100%;height:auto}
+.wrap{max-width:1000px;margin:0 auto;padding:0 16px}
+
+/* Kopf */
+.topbar{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.topbar .wrap{display:flex;align-items:center;gap:12px;min-height:52px;flex-wrap:wrap}
+.brand{font-weight:700;letter-spacing:.02em;color:var(--accent);text-decoration:none}
+.brand small{color:var(--muted);font-weight:500;margin-left:6px}
+.topbar .sp{flex:1}
+.hero{padding:22px 0 8px}
+.kicker{font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.lead{color:var(--muted);max-width:70ch}
+
+/* Tabs */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 18px;position:sticky;top:52px;z-index:10;background:var(--bg);padding:8px 0}
+.tabs button{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 14px;border-radius:999px;font:inherit;font-size:.95rem;cursor:pointer}
+.tabs button[aria-selected=true]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.tabs button.prbtn{border-color:var(--warm);color:var(--warm);font-weight:600}
+.panel{display:none}
+.panel.on{display:block}
+.paper{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px 24px;margin-bottom:24px}
+.paper>h2:first-child,.paper>.ph+h2{margin-top:.2em}
+
+/* Bausteine */
+.goals{background:var(--accent-soft);border-radius:8px;padding:10px 16px;margin:10px 0}
+.goals b{display:block;margin-bottom:2px}
+.box{border-left:4px solid var(--accent);background:var(--soft);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
+.merk{border-left:4px solid var(--ok);background:var(--ok-soft);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
+.merk::before{content:"Merke: ";font-weight:700}
+.warn{border-left:4px solid var(--warm);background:var(--warm-soft);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
+.deep{border:1px dashed var(--accent);border-radius:8px;padding:4px 16px 10px;margin:18px 0}
+.deep>h3:first-child,.deep>h2:first-child{margin-top:.6em}
+.book{border:1px solid var(--line);background:var(--soft);border-radius:8px;padding:8px 14px;margin:10px 0;font-size:.9rem}
+.book::before{content:"📗 Fachkunde Elektrotechnik: ";font-weight:700;color:var(--accent)}
+.newbadge{display:inline-block;font-size:.68rem;font-weight:700;padding:1px 7px;border-radius:999px;background:var(--accent);color:var(--accent-ink);vertical-align:middle;margin-left:6px;letter-spacing:.04em}
+.badge{display:inline-block;font-size:.72rem;font-weight:700;padding:1px 8px;border-radius:999px;vertical-align:middle;margin-left:6px;letter-spacing:.03em}
+.b1{background:var(--ok-soft);color:var(--ok)}
+.b2{background:var(--warm-soft);color:var(--warm)}
+.formula{font-family:var(--mono);background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:8px 12px;margin:8px 0;display:inline-block;min-width:min(100%,280px)}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px 16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:720px){.grid2{grid-template-columns:1fr}}
+.fig{margin:12px 0;text-align:center}
+.fig figcaption{font-size:.85rem;color:var(--muted);margin-top:4px}
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table.t{border-collapse:collapse;width:100%;margin:10px 0;font-size:.93rem}
+table.t th,table.t td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+table.t th{background:var(--soft);font-weight:600}
+table.t td.num,table.t th.num{text-align:right;font-variant-numeric:tabular-nums}
+table.t tr.sum td{font-weight:700;background:var(--accent-soft)}
+.steps{counter-reset:s;list-style:none;padding:0}
+.steps>li{counter-increment:s;position:relative;padding-left:34px;margin:6px 0}
+.steps>li::before{content:counter(s);position:absolute;left:0;top:1px;width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+
+/* Simulatoren */
+.sim{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px 18px;margin-bottom:22px;scroll-margin-top:110px}
+.sim>h3{margin-top:0;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.sim>h3 .no{background:var(--accent);color:var(--accent-ink);border-radius:6px;padding:0 8px;font-size:.85rem}
+.sim .how{color:var(--muted);font-size:.92rem;margin:0 0 10px}
+.ctrls{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:flex-end;margin:8px 0 12px}
+.ctrl{display:flex;flex-direction:column;gap:3px;min-width:140px;font-size:.88rem}
+.ctrl label{color:var(--muted)}
+.ctrl output{font-weight:700;color:var(--ink)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number],input[type=text],select{font:inherit;font-size:.95rem;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);min-width:0}
+.btn{font:inherit;font-size:.92rem;border:1px solid var(--accent);background:var(--card);color:var(--accent);padding:7px 14px;border-radius:8px;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.btn:hover{background:var(--accent-soft)}
+.btn.pri,.btn.on{background:var(--accent);color:var(--accent-ink)}
+.btn.sm{padding:4px 10px;font-size:.85rem}
+.btn:disabled{opacity:.45;cursor:default}
+.seg{display:inline-flex;border:1px solid var(--accent);border-radius:8px;overflow:hidden;flex-wrap:wrap}
+.seg button{border:0;background:var(--card);color:var(--accent);font:inherit;font-size:.9rem;padding:7px 12px;cursor:pointer;border-right:1px solid var(--accent)}
+.seg button:last-child{border-right:0}
+.seg button.on{background:var(--accent);color:var(--accent-ink)}
+.stage{background:var(--soft);border-radius:10px;padding:8px;margin:8px 0}
+.stage svg{display:block;margin:0 auto}
+.out{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:10px 0}
+.out div{background:var(--soft);border-radius:8px;padding:8px 10px}
+.out small{display:block;color:var(--muted);font-size:.78rem}
+.out b{font-size:1.1rem;font-variant-numeric:tabular-nums}
+.calc{font-family:var(--mono);font-size:.86rem;background:var(--soft);border-radius:8px;padding:10px 12px;white-space:pre-wrap;line-height:1.6;margin:8px 0;overflow-x:auto}
+.status{background:var(--accent-soft);border-radius:8px;padding:8px 12px;font-size:.92rem;margin:8px 0}
+.fb{padding:8px 12px;border-radius:8px;margin:8px 0;font-size:.93rem}
+.fb.ok{background:var(--ok-soft);color:var(--ok)}
+.fb.bad{background:var(--bad-soft);color:var(--bad)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 10px;font:inherit;font-size:.88rem;cursor:pointer;text-align:left}
+.chip.sel{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 2px var(--accent) inset}
+.chip.ok{border-color:var(--ok);background:var(--ok-soft)}
+.chip.bad{border-color:var(--bad);background:var(--bad-soft)}
+.olist{list-style:none;padding:0;margin:8px 0}
+.olist li{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 8px;margin:5px 0}
+.olist li .n{width:26px;height:26px;border-radius:50%;background:var(--soft);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex:none}
+.olist li .tx{flex:1}
+.olist li.ok{border-color:var(--ok);background:var(--ok-soft)}
+.olist li.bad{border-color:var(--bad);background:var(--bad-soft)}
+.olist li .mv{display:flex;gap:4px}
+.olist li .mv button{width:34px;height:30px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:6px;cursor:pointer;font-size:1rem}
+.svgtxt{font-family:var(--sans)}
+.sv{color:var(--ink)}
+.hl{outline:2px solid var(--warm);outline-offset:1px}
+.clk{cursor:pointer}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.8rem;color:var(--muted);margin:4px 0}
+.legend i{display:inline-block;width:18px;height:4px;border-radius:2px;vertical-align:middle;margin-right:5px}
+
+/* Arbeitsblatt */
+.ab-head{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:10px;margin:4px 0 16px}
+.ab-head div{border-bottom:1px solid var(--ink);padding:16px 0 2px;font-size:.78rem;color:var(--muted)}
+@media (max-width:640px){.ab-head{grid-template-columns:1fr 1fr}}
+.task{margin:16px 0 10px;break-inside:avoid;page-break-inside:avoid}
+.task>h3{margin:0 0 6px;display:flex;gap:8px;align-items:baseline}
+.task>h3 .pts{margin-left:auto;font-size:.8rem;color:var(--muted);font-weight:500;white-space:nowrap}
+.lines{margin:6px 0}
+.lines .l{border-bottom:1px solid #9aa4ae;height:30px}
+.fill{display:inline-block;min-width:90px;border-bottom:1px solid #9aa4ae;height:1.2em;vertical-align:bottom}
+.fill.w2{min-width:180px}
+table.t td.blank{height:30px}
+.sketch{border:1px solid var(--line);border-radius:6px;margin:8px 0}
+.ab-intro{font-size:.9rem;color:var(--muted)}
+.sol{color:var(--ok)}
+.lo .task>h3{color:var(--ink)}
+.lo .ans{border-left:3px solid var(--ok);padding:4px 12px;margin:4px 0 8px;background:var(--ok-soft);border-radius:0 6px 6px 0}
+
+/* Gesamtseite */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin:14px 0 26px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:8px}
+.card h3{margin:0;font-size:1.05rem}
+.card .nr{font-size:.75rem;font-weight:700;color:var(--accent);letter-spacing:.06em}
+.card p{color:var(--muted);font-size:.9rem;margin:0}
+.card .acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}
+.card .sims{display:flex;flex-direction:column;gap:4px}
+.card .sims button{text-align:left;font:inherit;font-size:.88rem;border:0;background:var(--soft);color:var(--ink);border-radius:6px;padding:6px 10px;cursor:pointer}
+.card .sims button:hover{background:var(--accent-soft)}
+.card .sims button::before{content:"▶ ";color:var(--accent)}
+.prmatrix{width:100%;border-collapse:collapse;font-size:.93rem}
+.prmatrix th,.prmatrix td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left}
+.prmatrix td.c,.prmatrix th.c{text-align:center}
+.prmatrix input{width:20px;height:20px;accent-color:var(--accent)}
+.printbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:10px 0}
+.printbar label{display:flex;align-items:center;gap:6px;font-size:.93rem}
+.printbar input{width:18px;height:18px;accent-color:var(--accent)}
+.view{display:none}.view.on{display:block}
+.backlink{font-size:.9rem}
+.print-head,.cover{display:none}
+.foot{color:var(--muted);font-size:.8rem;padding:20px 0 40px}
+
+/* Präsentationsmodus */
+.pres{position:fixed;inset:0;z-index:100;background:var(--bg);display:none;flex-direction:column}
+.pres.on{display:flex}
+body.pres-open{overflow:hidden}
+.pres-bar{display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--card);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.pres-bar .t{font-weight:700;color:var(--accent);flex:1;min-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.92rem}
+.pres-bar .n{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.9rem;min-width:64px;text-align:center}
+.pres-bar button{font:inherit;font-size:.9rem;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 11px;cursor:pointer}
+.pres-bar button.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.pres-bar select{max-width:220px}
+.pres-prog{height:4px;background:var(--line)}
+.pres-prog i{display:block;height:100%;background:var(--warm);width:0;transition:width .25s}
+.pres-stage{flex:1;overflow:hidden;position:relative;display:flex;align-items:stretch;justify-content:center;padding:18px 3vw}
+.pres-slide{width:min(1200px,100%);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:3vh 4vw;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.pres-slide.scroll{overflow:auto}
+.pres-inner{transform-origin:top left;font-size:clamp(17px,1.55vw + .5vh,27px);line-height:1.45}
+.pres-inner h2.ps-title{font-size:1.6em;margin:0 0 .5em;border-bottom:3px solid var(--accent);padding-bottom:.2em}
+.pres-inner h3{font-size:1.15em}
+.pres-inner table.t{font-size:.86em}
+.pres-inner .formula{font-size:.92em}
+.pres-inner .fig svg,.pres-inner .sv svg{max-height:48vh;width:auto}
+.pres-inner .badge{font-size:.55em}
+.pres-inner .ps-kicker{font-size:.7em;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.pres-inner .ps-cover{display:flex;flex-direction:column;justify-content:center;min-height:60vh}
+.pres-inner .ps-cover h1{font-size:2.3em;margin:.2em 0}
+.pres-inner .ps-cover .lead{font-size:1em;max-width:none}
+.pres-inner .ps-simlist{display:flex;flex-direction:column;gap:.4em;margin-top:.6em}
+.pres-inner .ps-simlist button{font:inherit;text-align:left;border:1px solid var(--line);background:var(--soft);color:var(--ink);border-radius:10px;padding:.45em .8em;cursor:pointer}
+.pres-inner .ps-simlist button::before{content:"▶ ";color:var(--accent)}
+.pres-inner .sim{border:0;padding:0;margin:0;font-size:.8em}
+.pres-inner .ps-step{opacity:.18;transition:opacity .25s}
+.pres-inner .ps-step.shown{opacity:1}
+.pres-help{position:absolute;right:16px;bottom:10px;font-size:.75rem;color:var(--muted)}
+.pres.black .pres-stage{background:#000}.pres.black .pres-slide{visibility:hidden}
+.pres.pointer .pres-slide{cursor:none}
+.pres-dot{position:fixed;width:22px;height:22px;border-radius:50%;background:rgba(230,40,30,.55);box-shadow:0 0 14px 4px rgba(230,40,30,.45);pointer-events:none;z-index:120;display:none;transform:translate(-50%,-50%)}
+.pres.pointer~.pres-dot{display:block}
+.pres-ov{position:absolute;inset:0;overflow:auto;background:var(--bg);padding:16px;display:none;z-index:5}
+.pres-ov.on{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;align-content:start}
+.pres-ov button{font:inherit;font-size:.85rem;text-align:left;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:10px;cursor:pointer;min-height:64px}
+.pres-ov button.cur{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+.pres-ov button small{display:block;color:var(--muted)}
+@media (max-width:640px){.pres-stage{padding:8px}.pres-slide{padding:14px;border-radius:10px}.pres-help{display:none}.pres-inner{font-size:16px}}
+
+/* Druck */
+@page{size:A4;margin:14mm 14mm 16mm}
+@media print{
+  :root{--bg:#fff;--card:#fff;--ink:#000;--muted:#444;--line:#999;--soft:#f1f1f1;--accent:#0a6a85;--accent-soft:#e6f1f4}
+  body{background:#fff;font-size:10.5pt;line-height:1.45}
+  .noprint,.topbar,.tabs,.printbar,.sim,.panel.sim,.view.home .cards,.hero .lead,.backlink,.pres,.pres-dot{display:none!important}
+  .view{display:block!important}
+  .topic{display:none!important}
+  .topic.pr-topic{display:block!important}
+  .hero{display:none!important}
+  .panel{display:none!important}
+  .panel.pr-show{display:block!important;break-before:page;page-break-before:always}
+  .panel.pr-show.pr-first{break-before:auto;page-break-before:auto}
+  .paper{border:0;padding:0;margin:0;border-radius:0}
+  .print-head{display:flex;justify-content:space-between;border-bottom:1.5px solid #000;font-size:8.5pt;padding-bottom:3px;margin-bottom:10px}
+  .wrap{max-width:none;padding:0}
+  h2{break-after:avoid}
+  h3{break-after:avoid}
+  table,figure,.box,.merk,.warn,.formula,.fig{break-inside:avoid}
+  .tscroll{overflow:visible}
+  .home-inner{display:none!important}
+  .cover.pr-on{display:block!important}
+  .lines .l{border-bottom:.6pt solid #777;height:8.5mm}
+  .ab-head div{border-bottom:.8pt solid #000}
+  a{color:#000;text-decoration:none}
+  .fb,.status{display:none}
+}
+.cover{padding-top:60mm;text-align:center}
+.cover h1{font-size:28pt;margin-bottom:6mm}
+.cover .toc{text-align:left;max-width:140mm;margin:20mm auto 0;font-size:11pt}
+.cover .toc li{margin:2mm 0}
+[data-hold]{touch-action:none;-webkit-touch-callout:none}
+@media screen and (max-width:640px){
+  .topbar{position:static}
+  .brand small{display:none}
+  .tabs{top:0}
+  .tabs button{padding:7px 11px;font-size:.88rem}
+  .sim{scroll-margin-top:60px;padding:14px 12px}
+  .paper{padding:16px 14px}
+}
+</style>
+<script>/* ===== Gemeinsame Hilfsfunktionen ===== */
+var TOPIC_INIT = {};
+function fmt(x, d) {
+  if (d === undefined) d = 2;
+  if (!isFinite(x)) return "–";
+  return Number(x).toLocaleString("de-AT", { minimumFractionDigits: d, maximumFractionDigits: d });
+}
+function fmtAuto(x) { // bis 3 signifikante Nachkommastellen, ohne unnötige Nullen
+  if (!isFinite(x)) return "–";
+  var a = Math.abs(x), d = a >= 1000 ? 0 : a >= 100 ? 1 : a >= 10 ? 2 : 3;
+  return Number(x).toLocaleString("de-AT", { minimumFractionDigits: 0, maximumFractionDigits: d });
+}
+function eur(x) { return fmt(x, 2) + " €"; }
+function refFn(root) { return function (n) { return root.querySelector('[data-ref="' + n + '"]'); }; }
+function refsFn(root) { return function (n) { return Array.prototype.slice.call(root.querySelectorAll('[data-ref="' + n + '"]')); }; }
+function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function rnd(a, b, step) { step = step || 1; var n = Math.floor((b - a) / step); return a + step * Math.floor(Math.random() * (n + 1)); }
+function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+function parseNum(s) { if (typeof s === "number") return s; s = String(s).trim().replace(/\s/g, "").replace(/\.(?=\d{3}(\D|$))/g, "").replace(",", "."); return parseFloat(s); }
+function segInit(seg, cb) {
+  seg.addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    Array.prototype.forEach.call(seg.querySelectorAll("button"), function (x) { x.classList.toggle("on", x === b); });
+    cb(b.dataset.v, b);
+  });
+}
+function bindRange(input, out, f) {
+  function upd() { out.textContent = f ? f(+input.value) : input.value; }
+  input.addEventListener("input", upd); upd();
+}
+function simVisible(el) { return !!(el && el.closest(".panel.on")); }
+
+/* ===== Tabs ===== */
+function showTab(topic, name) {
+  Array.prototype.forEach.call(topic.querySelectorAll(".tabs button[data-tab]"), function (b) { b.setAttribute("aria-selected", b.dataset.tab === name ? "true" : "false"); });
+  Array.prototype.forEach.call(topic.querySelectorAll(":scope > .panel"), function (p) { p.classList.toggle("on", p.dataset.panel === name); });
+}
+function initTabs(topic) {
+  topic.querySelector(".tabs").addEventListener("click", function (e) {
+    if (e.target.closest("[data-pres]")) { PRES.start([topic]); return; }
+    var b = e.target.closest("button[data-tab]"); if (!b) return;
+    showTab(topic, b.dataset.tab);
+    if (history.replaceState) history.replaceState(null, "", "#" + topic.dataset.topic + "/" + b.dataset.tab);
+  });
+  showTab(topic, "lu");
+}
+function openSim(topicId, idx) {
+  var topic = document.querySelector('.topic[data-topic="' + topicId + '"]'); if (!topic) return;
+  if (window.showView) window.showView(topicId);
+  showTab(topic, "sim");
+  var s = topic.querySelectorAll(".panel.sim .sim")[idx || 0];
+  setTimeout(function () { (s || topic).scrollIntoView({ behavior: "smooth", block: "start" }); }, 30);
+}
+
+/* ===== Druck ===== */
+function applyPrint() {
+  Array.prototype.forEach.call(document.querySelectorAll(".pr-topic"), function (x) { x.classList.remove("pr-topic"); });
+  Array.prototype.forEach.call(document.querySelectorAll(".pr-show,.pr-first"), function (x) { x.classList.remove("pr-show", "pr-first"); });
+  var cover = document.querySelector(".cover"); var coverOn = false;
+  var cbs = document.querySelectorAll("input[data-pr-kind]:checked");
+  var any = false;
+  Array.prototype.forEach.call(cbs, function (cb) {
+    if (cb.dataset.prKind === "cover") { coverOn = true; return; }
+    var t = document.querySelector('.topic[data-topic="' + cb.dataset.prTopic + '"]'); if (!t) return;
+    var p = t.querySelector(':scope > .panel[data-panel="' + cb.dataset.prKind + '"]'); if (!p) return;
+    t.classList.add("pr-topic"); p.classList.add("pr-show"); any = true;
+  });
+  if (cover) { cover.classList.toggle("pr-on", coverOn); if (coverOn) buildToc(); }
+  if (!any && !coverOn) { // Fallback: aktuelle Ansicht drucken
+    var vis = document.querySelector(".topic .panel.on");
+    if (vis) { vis.closest(".topic").classList.add("pr-topic"); vis.classList.add("pr-show"); }
+  }
+  var first = document.querySelector(".panel.pr-show");
+  if (first && !coverOn) first.classList.add("pr-first");
+}
+function buildToc() {
+  var ol = document.querySelector(".cover .toc ol"); if (!ol) return;
+  var names = { lu: "Lernunterlage", ab: "Arbeitsblatt", lo: "Lösungen" };
+  var items = [];
+  Array.prototype.forEach.call(document.querySelectorAll(".topic.pr-topic"), function (t) {
+    var kinds = []; Array.prototype.forEach.call(t.querySelectorAll(":scope > .panel.pr-show"), function (p) { kinds.push(names[p.dataset.panel]); });
+    items.push("<li><b>" + esc(t.dataset.title) + "</b> – " + kinds.join(", ") + "</li>");
+  });
+  ol.innerHTML = items.join("");
+}
+function doPrint() { applyPrint(); setTimeout(function () { window.print(); }, 60); }
+window.addEventListener("beforeprint", applyPrint);
+
+/* ===== Start ===== */
+document.addEventListener("DOMContentLoaded", function () {
+  Array.prototype.forEach.call(document.querySelectorAll(".topic"), function (t) {
+    initTabs(t);
+    var f = TOPIC_INIT[t.dataset.topic];
+    if (f) { try { f(t); } catch (e) { console.error("Init " + t.dataset.topic, e); } }
+  });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-print]"), function (b) { b.addEventListener("click", doPrint); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-pres-all]"), function (b) { b.addEventListener("click", function () { PRES.start(Array.prototype.slice.call(document.querySelectorAll(".topic"))); }); });
+  if (window.routeInit) window.routeInit();
+  else {
+    var h = location.hash.replace("#", "").split("/");
+    var t = document.querySelector(".topic");
+    if (t && h[1] && t.querySelector('.panel[data-panel="' + h[1] + '"]')) showTab(t, h[1]);
+    if (t && h[1] === "sim" && h[2]) openSim(t.dataset.topic, +h[2]);
+    if (t && h[1] === "pres") PRES.start([t]);
+  }
+});
+
+/* ===== SVG-Helfer ===== */
+function zig(x1, x2, y, a, n) { var d = "M" + x1 + " " + y, w = (x2 - x1) / n; for (var i = 0; i < n; i++) d += " L" + (x1 + w * (i + .5)) + " " + (y + (i % 2 ? a : -a)); return d + " L" + x2 + " " + y; }
+function arrow(x1, y1, x2, y2, attr) { var a = Math.atan2(y2 - y1, x2 - x1), L = 8; return '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" ' + (attr || 'stroke="currentColor" stroke-width="2"') + '/><polygon points="' + x2 + ',' + y2 + ' ' + (x2 - L * Math.cos(a - .45)) + ',' + (y2 - L * Math.sin(a - .45)) + ' ' + (x2 - L * Math.cos(a + .45)) + ',' + (y2 - L * Math.sin(a + .45)) + '" fill="currentColor" stroke="none"/>'; }
+function svgOpen(w, h, extra) { return '<svg viewBox="0 0 ' + w + ' ' + h + '" width="' + w + '" class="sv" font-family="Segoe UI,Arial,sans-serif" ' + (extra || "") + '>'; }
+function txt(x, y, s, o) { o = o || {}; return '<text x="' + x + '" y="' + y + '" font-size="' + (o.fs || 12) + '"' + (o.a ? ' text-anchor="' + o.a + '"' : '') + (o.b ? ' font-weight="700"' : '') + ' fill="' + (o.c || "currentColor") + '">' + s + '</text>'; }
+function outGrid(rows) { return rows.map(function (x) { return "<div><small>" + x[0] + "</small><b>" + x[1] + "</b></div>"; }).join(""); }
+/* Liniendiagramm: series [{pts:[[x,y]...], c:color, n:name}] */
+function plotSVG(series, o) {
+  o = o || {}; var W = o.w || 500, H = o.h || 220, L = 52, B = 30, T = 12, Rr = 12;
+  var xs = [], ys = []; series.forEach(function (s) { s.pts.forEach(function (p) { xs.push(p[0]); ys.push(p[1]); }); });
+  var x0 = o.x0 !== undefined ? o.x0 : Math.min.apply(null, xs), x1 = o.x1 !== undefined ? o.x1 : Math.max.apply(null, xs);
+  var y0 = o.y0 !== undefined ? o.y0 : Math.min(0, Math.min.apply(null, ys)), y1 = o.y1 !== undefined ? o.y1 : Math.max.apply(null, ys) * 1.08 || 1;
+  if (y1 === y0) y1 = y0 + 1;
+  var X = function (x) { return L + (x - x0) / (x1 - x0) * (W - L - Rr); }, Y = function (y) { return H - B - (y - y0) / (y1 - y0) * (H - B - T); };
+  var h = [svgOpen(W, H)];
+  for (var i = 0; i <= 4; i++) { var yv = y0 + (y1 - y0) * i / 4; h.push('<line x1="' + L + '" y1="' + Y(yv) + '" x2="' + (W - Rr) + '" y2="' + Y(yv) + '" stroke="var(--line)"/>' + txt(L - 6, Y(yv) + 4, fmtAuto(yv), { fs: 10, a: "end" })); }
+  for (i = 0; i <= 5; i++) { var xv = x0 + (x1 - x0) * i / 5; h.push(txt(X(xv), H - B + 14, fmtAuto(xv), { fs: 10, a: "middle" })); }
+  if (y0 < 0 && y1 > 0) h.push('<line x1="' + L + '" y1="' + Y(0) + '" x2="' + (W - Rr) + '" y2="' + Y(0) + '" stroke="currentColor" stroke-width="1"/>');
+  h.push('<line x1="' + L + '" y1="' + T + '" x2="' + L + '" y2="' + (H - B) + '" stroke="currentColor"/>');
+  series.forEach(function (s, k) {
+    var d = s.pts.map(function (p, j) { return (j ? "L" : "M") + X(p[0]).toFixed(1) + " " + Y(p[1]).toFixed(1); }).join(" ");
+    h.push('<path d="' + d + '" fill="none" stroke="' + (s.c || "var(--accent)") + '" stroke-width="' + (s.w || 2.4) + '"' + (s.dash ? ' stroke-dasharray="6 4"' : '') + '/>');
+    if (s.n) h.push(txt(W - Rr - 4, T + 12 + k * 14, s.n, { fs: 11, a: "end", c: s.c || "var(--accent)", b: 1 }));
+  });
+  (o.marks || []).forEach(function (m) { h.push('<circle cx="' + X(m[0]) + '" cy="' + Y(m[1]) + '" r="5" fill="' + (m[2] || "var(--warm)") + '"/>' + (m[3] ? txt(X(m[0]) + 8, Y(m[1]) - 8, m[3], { fs: 11 }) : "")); });
+  if (o.xl) h.push(txt((W + L) / 2, H - 2, o.xl, { fs: 10, a: "middle" }));
+  if (o.yl) h.push('<text x="12" y="' + (H / 2) + '" font-size="10" fill="currentColor" transform="rotate(-90 12 ' + (H / 2) + ')" text-anchor="middle">' + o.yl + '</text>');
+  h.push('</svg>'); return h.join("");
+}
+
+/* ===== Schaltzeichen-Bibliothek (IEC 60617), senkrechte Strompfade =====
+   Alle Elemente werden zwischen y1 (oben) und y2 (unten) auf der Senkrechten x gezeichnet,
+   die Anschlussleitungen gehören dazu – so entstehen keine Lücken in den Leitungen. */
+var EL = {
+  col: function (live, c) { return live ? (c || "var(--live)") : "currentColor"; },
+  w: function (d, live, c, sw) { return '<path d="' + d + '" fill="none" stroke="' + EL.col(live, c) + '" stroke-width="' + (sw || 2.4) + '" stroke-linejoin="round" stroke-linecap="round"/>'; },
+  dot: function (x, y, live) { return '<circle cx="' + x + '" cy="' + y + '" r="3.6" fill="' + EL.col(live) + '"/>'; },
+  /* Schließer: geschlossen = Kontakt zu */
+  no: function (x, y1, y2, closed, liveTop, label, o) { o = o || {}; var m = (y1 + y2) / 2, a = m - 14, b = m + 14, liveBot = liveTop && closed;
+    return EL.w("M" + x + " " + y1 + " V" + a, liveTop) + EL.w("M" + x + " " + b + " V" + y2, liveBot) + EL.w("M" + x + " " + b + " L" + (closed ? x + 1 : x - 13) + " " + (closed ? a : a - 3), liveBot, null, 2.6) +
+      (o.push ? EL.w("M" + (x - (closed ? 3 : 8)) + " " + m + " H" + (x - 24) + " M" + (x - 24) + " " + (m - 7) + " V" + (m + 7) + " M" + (x - 24) + " " + (m - 7) + " h-4 M" + (x - 24) + " " + (m + 7) + " h-4", false, null, 1.6).replace('stroke-width="1.6"', 'stroke-width="1.6" stroke-dasharray="3 2"') : "") +
+      (label ? txt(x - (o.push ? 32 : 18), m + 4, label, { a: "end", fs: 11, b: 1 }) : "") + (o.t1 ? txt(x + 5, a + 2, o.t1, { fs: 9 }) : "") + (o.t2 ? txt(x + 5, b + 6, o.t2, { fs: 9 }) : ""); },
+  /* Öffner: geschlossen = Ruhelage (nicht betätigt) */
+  nc: function (x, y1, y2, closed, liveTop, label, o) { o = o || {}; var m = (y1 + y2) / 2, a = m - 14, b = m + 14, liveBot = liveTop && closed;
+    return EL.w("M" + x + " " + y1 + " V" + a + " H" + (x + 11), liveTop) + EL.w("M" + x + " " + b + " V" + y2, liveBot) + EL.w("M" + x + " " + b + " L" + (closed ? x + 13 : x + 18) + " " + (closed ? a - 2 : a - 10), liveBot, null, 2.6) +
+      (o.push ? EL.w("M" + (x + 6) + " " + m + " H" + (x - 22), false, null, 1.6).replace('stroke-width="1.6"', 'stroke-width="1.6" stroke-dasharray="3 2"') + EL.w("M" + (x - 22) + " " + (m - 7) + " V" + (m + 7) + " M" + (x - 22) + " " + (m - 7) + " h-4 M" + (x - 22) + " " + (m + 7) + " h-4", false, null, 1.6) : "") +
+      (label ? txt(x - (o.push ? 30 : 10), m + 4, label, { a: "end", fs: 11, b: 1 }) : "") + (o.t1 ? txt(x + 14, a + 2, o.t1, { fs: 9 }) : "") + (o.t2 ? txt(x + 5, b + 6, o.t2, { fs: 9 }) : ""); },
+  /* Spule (Schütz/Relais) */
+  coil: function (x, y1, y2, on, live, label) { var m = (y1 + y2) / 2; return EL.w("M" + x + " " + y1 + " V" + (m - 13), live) + EL.w("M" + x + " " + (m + 13) + " V" + y2, live) + '<rect x="' + (x - 15) + '" y="' + (m - 13) + '" width="30" height="26" fill="' + (on ? "var(--press-soft)" : "var(--card)") + '" stroke="currentColor" stroke-width="2"/>' + (label ? txt(x + 20, m + 4, label, { fs: 11, b: 1 }) : "") + txt(x + 5, m - 16, "A1", { fs: 8.5 }) + txt(x + 5, m + 22, "A2", { fs: 8.5 }); },
+  /* Leuchte */
+  lamp: function (x, y1, y2, on, live, label, color) { var m = (y1 + y2) / 2, r = 14; return EL.w("M" + x + " " + y1 + " V" + (m - r), live) + EL.w("M" + x + " " + (m + r) + " V" + y2, live) + '<circle cx="' + x + '" cy="' + m + '" r="' + r + '" fill="' + (on ? (color || "rgba(255,200,40,.92)") : "var(--card)") + '" stroke="currentColor" stroke-width="2"/>' + EL.w("M" + (x - 10) + " " + (m - 10) + " L" + (x + 10) + " " + (m + 10) + " M" + (x + 10) + " " + (m - 10) + " L" + (x - 10) + " " + (m + 10), false, null, 1.8) + (label ? txt(x + r + 5, m + 4, label, { fs: 11, b: 1 }) : ""); },
+  /* Widerstand (Rechteck) senkrecht */
+  res: function (x, y1, y2, live, label, val) { var m = (y1 + y2) / 2; return EL.w("M" + x + " " + y1 + " V" + (m - 18), live) + EL.w("M" + x + " " + (m + 18) + " V" + y2, live) + '<rect x="' + (x - 8) + '" y="' + (m - 18) + '" width="16" height="36" fill="var(--card)" stroke="currentColor" stroke-width="2"/>' + (label ? txt(x + 13, m - 2, label, { fs: 11, b: 1 }) : "") + (val ? txt(x + 13, m + 12, val, { fs: 10 }) : ""); },
+  /* Widerstand waagrecht */
+  resH: function (x1, x2, y, live, label, val) { var m = (x1 + x2) / 2; return EL.w("M" + x1 + " " + y + " H" + (m - 22), live) + EL.w("M" + (m + 22) + " " + y + " H" + x2, live) + '<rect x="' + (m - 22) + '" y="' + (y - 8) + '" width="44" height="16" fill="var(--card)" stroke="currentColor" stroke-width="2"/>' + (label ? txt(m, y - 13, label, { a: "middle", fs: 11, b: 1 }) : "") + (val ? txt(m, y + 23, val, { a: "middle", fs: 10 }) : ""); },
+  /* Gleichspannungsquelle: langer Strich = +, oben */
+  src: function (x, y1, y2, label, live) { var m = (y1 + y2) / 2; return EL.w("M" + x + " " + y1 + " V" + (m - 5), live) + EL.w("M" + x + " " + (m + 5) + " V" + y2, false) + '<line x1="' + (x - 16) + '" y1="' + (m - 5) + '" x2="' + (x + 16) + '" y2="' + (m - 5) + '" stroke="currentColor" stroke-width="2.6"/><line x1="' + (x - 8) + '" y1="' + (m + 5) + '" x2="' + (x + 8) + '" y2="' + (m + 5) + '" stroke="currentColor" stroke-width="5"/>' + txt(x - 22, m - 4, "+", { a: "end", b: 1, fs: 13 }) + txt(x - 22, m + 13, "−", { a: "end", b: 1, fs: 13 }) + (label ? txt(x + 22, m + 5, label, { fs: 11, b: 1 }) : ""); },
+  /* Wechselspannungsquelle (Kreis mit ~) */
+  srcAC: function (x, y1, y2, label) { var m = (y1 + y2) / 2; return EL.w("M" + x + " " + y1 + " V" + (m - 15)) + EL.w("M" + x + " " + (m + 15) + " V" + y2) + '<circle cx="' + x + '" cy="' + m + '" r="15" fill="var(--card)" stroke="currentColor" stroke-width="2"/><path d="M' + (x - 9) + ' ' + m + ' q4.5 -9 9 0 t9 0" fill="none" stroke="currentColor" stroke-width="2"/>' + (label ? txt(x + 21, m + 4, label, { fs: 11, b: 1 }) : ""); },
+  /* Erdungszeichen */
+  gnd: function (x, y) { return '<path d="M' + (x - 12) + ' ' + y + ' H' + (x + 12) + ' M' + (x - 8) + ' ' + (y + 5) + ' H' + (x + 8) + ' M' + (x - 4) + ' ' + (y + 10) + ' H' + (x + 4) + '" stroke="currentColor" stroke-width="2"/>'; },
+  /* Wechsler-Schalter, senkrecht: gemeinsamer Anschluss unten (xc,yc), Ausgänge oben bei xa/xb (y = yt) */
+  changeoverUp: function (xc, yc, xa, xb, yt, pos, live, label) { var tipX = pos ? xb : xa; return EL.w("M" + xc + " " + yc + " L" + (tipX + (pos ? -3 : 3)) + " " + (yt + 6), live, null, 2.6) + EL.dot(xc, yc, live) + '<circle cx="' + xa + '" cy="' + yt + '" r="3" fill="var(--card)" stroke="currentColor" stroke-width="1.6"/><circle cx="' + xb + '" cy="' + yt + '" r="3" fill="var(--card)" stroke="currentColor" stroke-width="1.6"/>' + (label ? txt(Math.min(xa, xb) - 8, (yc + yt) / 2 + 4, label, { a: "end", fs: 11, b: 1 }) : ""); },
+  changeoverDown: function (xc, yc, xa, xb, yb, pos, live, label) { var tipX = pos ? xb : xa; return EL.w("M" + xc + " " + yc + " L" + (tipX + (pos ? -3 : 3)) + " " + (yb - 6), live, null, 2.6) + EL.dot(xc, yc, live) + '<circle cx="' + xa + '" cy="' + yb + '" r="3" fill="var(--card)" stroke="currentColor" stroke-width="1.6"/><circle cx="' + xb + '" cy="' + yb + '" r="3" fill="var(--card)" stroke="currentColor" stroke-width="1.6"/>' + (label ? txt(Math.min(xa, xb) - 8, (yc + yb) / 2 + 4, label, { a: "end", fs: 11, b: 1 }) : ""); }
+,
+  /* Diode senkrecht (IEC 60617): up = Durchlassrichtung nach oben (Kathode oben) */
+  diodeV: function (x, y1, y2, up, live, label, z) { var m = (y1 + y2) / 2, a = up ? m + 8 : m - 8, k = up ? m - 8 : m + 8, bar = z ? "M" + (x - 13) + " " + (k + (up ? 4 : -4)) + " L" + (x - 9) + " " + k + " H" + (x + 9) + " L" + (x + 13) + " " + (k + (up ? -4 : 4)) : "M" + (x - 10) + " " + k + " H" + (x + 10);
+    return EL.w("M" + x + " " + y1 + " V" + Math.min(a, k) + " M" + x + " " + Math.max(a, k) + " V" + y2, live) + '<polygon points="' + (x - 10) + ',' + a + ' ' + (x + 10) + ',' + a + ' ' + x + ',' + k + '" fill="var(--card)" stroke="currentColor" stroke-width="2"/>' + EL.w(bar, false, null, 2.4) + (label ? txt(x + 16, m + 4, label, { fs: 11, b: 1 }) : ""); },
+  /* Varistor (VDR) senkrecht: Rechteck mit geknickter Kennlinie und U */
+  vdrV: function (x, y1, y2, live, label) { var m = (y1 + y2) / 2; return EL.w("M" + x + " " + y1 + " V" + (m - 18) + " M" + x + " " + (m + 18) + " V" + y2, live) + '<rect x="' + (x - 8) + '" y="' + (m - 18) + '" width="16" height="36" fill="var(--card)" stroke="currentColor" stroke-width="2"/>' + EL.w("M" + (x - 16) + " " + (m + 16) + " H" + (x - 10) + " L" + (x + 12) + " " + (m - 16), false, null, 1.6) + txt(x - 18, m + 14, "U", { a: "end", fs: 10, b: 1 }) + (label ? txt(x + 14, m + 4, label, { fs: 11, b: 1 }) : ""); },
+  /* Kondensator senkrecht */
+  capV: function (x, y1, y2, live, label) { var m = (y1 + y2) / 2; return EL.w("M" + x + " " + y1 + " V" + (m - 4) + " M" + x + " " + (m + 4) + " V" + y2, live) + EL.w("M" + (x - 13) + " " + (m - 4) + " H" + (x + 13) + " M" + (x - 13) + " " + (m + 4) + " H" + (x + 13), false, null, 3) + (label ? txt(x + 17, m + 4, label, { fs: 11, b: 1 }) : ""); },
+  /* Messgerät (Kreis mit Formelzeichen V, A, Ω …) */
+  meter: function (x, y, letter, hi) { return '<circle cx="' + x + '" cy="' + y + '" r="15" fill="' + (hi ? "var(--warm-soft)" : "var(--card)") + '" stroke="currentColor" stroke-width="2"/>' + txt(x, y + 5, letter, { a: "middle", fs: 14, b: 1 }); },
+  /* Leitungsschutzschalter waagrecht (Schließer mit Leistungsschalter-Kreuz, Überstromauslöser I>) */
+  lsH: function (x1, x2, y, closed, live, label, below, cl) { var m = (x1 + x2) / 2, a = m - 14, b = m + 14, lo = live && closed, d = below ? 1 : -1;
+    return EL.w("M" + x1 + " " + y + " H" + a, live, cl) + EL.w("M" + b + " " + y + " H" + x2, lo, cl) + EL.w("M" + a + " " + y + " L" + (closed ? b : b - 4) + " " + (closed ? y : y - 13), live, cl, 2.6) + EL.w("M" + (b - 4) + " " + (y - 4) + " l8 8 M" + (b + 4) + " " + (y - 4) + " l-8 8", false, null, 1.8) +
+      '<path d="M' + m + ' ' + (y + d * (closed ? 2 : 7)) + ' V' + (y + d * 9) + '" stroke="currentColor" stroke-width="1.4" stroke-dasharray="3 2"/><rect x="' + (m - 12) + '" y="' + (below ? y + 9 : y - 23) + '" width="24" height="14" fill="var(--card)" stroke="currentColor" stroke-width="1.6"/>' + txt(m, (below ? y + 9 : y - 23) + 11, "I&gt;", { a: "middle", fs: 9, b: 1 }) + (label ? txt(m, below ? y - 9 : y + 18, label, { a: "middle", fs: 10, b: 1 }) : ""); },
+  /* Fehlerstrom-Schutzeinrichtung (2-polig) waagrecht über zwei Leitern y1 (L) und y2 (N) */
+  rcdH: function (x1, x2, y1, y2, closed, label, cL, cN) { var m = (x1 + x2) / 2, a = m - 14, b = m + 14, h = "";
+    [[y1, cL], [y2, cN]].forEach(function (p) { h += EL.w("M" + x1 + " " + p[0] + " H" + a, !!p[1], p[1]) + EL.w("M" + b + " " + p[0] + " H" + x2, !!(p[1] && closed), p[1]) + EL.w("M" + a + " " + p[0] + " L" + (closed ? b : b - 4) + " " + (closed ? p[0] : p[0] - 12), !!p[1], p[1], 2.4); });
+    h += '<path d="M' + (m - 2) + ' ' + (y1 - 6) + ' V' + (y2 + 22) + '" stroke="currentColor" stroke-width="1.4" stroke-dasharray="3 2"/><ellipse cx="' + (m - 26) + '" cy="' + ((y1 + y2) / 2) + '" rx="7" ry="' + ((y2 - y1) / 2 + 9) + '" fill="none" stroke="currentColor" stroke-width="1.6"/>' + EL.w("M" + (m - 19) + " " + ((y1 + y2) / 2) + " H" + (m - 2), false, null, 1.4).replace('stroke-width="1.4"', 'stroke-width="1.4" stroke-dasharray="3 2"') + '<rect x="' + (m - 12) + '" y="' + (y2 + 22) + '" width="24" height="14" fill="var(--card)" stroke="currentColor" stroke-width="1.6"/>' + txt(m, y2 + 33, "IΔ", { a: "middle", fs: 9, b: 1 });
+    return h + (label ? txt(m, y2 + 50, label, { a: "middle", fs: 10, b: 1 }) : ""); }
+};
+
+/* ===== Wiederverwendbare Simulatoren ===== */
+var SIM = {};
+/* Quiz: qs = [[Frage, [Antworten], Index richtig, Erklärung], ...] */
+SIM.quiz = function (el, qs) {
+  var st = { order: shuffle(qs.map(function (_, i) { return i; })), p: 0, ok: 0, n: 0, done: false };
+  el.innerHTML = '<div class="box" data-q style="font-size:1.02rem"></div><div class="chips" data-o style="flex-direction:column;max-width:640px"></div><div data-f></div><div class="ctrls"><button class="btn pri" data-n>Nächste Frage</button><b data-s></b></div>';
+  var Q = el.querySelector("[data-q]"), O = el.querySelector("[data-o]"), F = el.querySelector("[data-f]"), S = el.querySelector("[data-s]");
+  function show() {
+    if (st.p >= st.order.length) { st.order = shuffle(st.order); st.p = 0; }
+    var q = qs[st.order[st.p]]; st.done = false; st.cur = q;
+    Q.innerHTML = "<b>Frage " + (st.p + 1) + "/" + qs.length + ":</b> " + q[0];
+    st.map = shuffle(q[1].map(function (_, i) { return i; }));
+    O.innerHTML = st.map.map(function (i) { return '<button class="chip" data-i="' + i + '">' + q[1][i] + '</button>'; }).join(""); F.innerHTML = "";
+  }
+  O.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-i]"); if (!b || st.done) return; st.done = true; st.n++;
+    var ok = +b.dataset.i === st.cur[2]; if (ok) st.ok++;
+    Array.prototype.forEach.call(O.children, function (x) { if (+x.dataset.i === st.cur[2]) x.classList.add("ok"); else if (x === b) x.classList.add("bad"); });
+    F.innerHTML = '<div class="fb ' + (ok ? "ok" : "bad") + '">' + (ok ? "Richtig! " : "Leider falsch. ") + (st.cur[3] || "") + '</div>';
+    S.textContent = "Punkte: " + st.ok + " / " + st.n;
+  });
+  el.querySelector("[data-n]").addEventListener("click", function () { st.p++; show(); });
+  show();
+};
+/* Zuordnen: cats = [[key, Bezeichnung], ...], items = [[Text, key], ...] */
+SIM.sort = function (el, cats, items, hint) {
+  var st = { put: {}, sel: null };
+  el.innerHTML = '<div class="chips" data-p></div><div data-r style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:12px"></div><div class="ctrls"><button class="btn pri" data-c>Prüfen</button><button class="btn" data-x>Zurücksetzen</button></div><div data-f></div>';
+  var P = el.querySelector("[data-p]"), Rg = el.querySelector("[data-r]"), F = el.querySelector("[data-f]");
+  var order = shuffle(items.map(function (_, i) { return i; }));
+  function render(check) {
+    P.innerHTML = order.map(function (i) { return st.put[i] !== undefined ? "" : '<button class="chip' + (st.sel === i ? " sel" : "") + '" data-i="' + i + '">' + items[i][0] + '</button>'; }).join("") || '<span class="ab-intro">Alles zugeordnet – jetzt prüfen.</span>';
+    Rg.innerHTML = cats.map(function (c) {
+      return '<div data-k="' + c[0] + '" class="clk" style="border:2px dashed var(--line);border-radius:10px;padding:8px;min-height:80px;background:var(--soft)"><b style="display:block;margin-bottom:6px">' + c[1] + '</b><div class="chips" style="flex-direction:column">' +
+        order.map(function (i) { return st.put[i] === c[0] ? '<button class="chip' + (check ? (items[i][1] === c[0] ? " ok" : " bad") : "") + '" data-b="' + i + '">' + items[i][0] + '</button>' : ""; }).join("") + '</div></div>';
+    }).join("");
+  }
+  P.addEventListener("click", function (e) { var b = e.target.closest("[data-i]"); if (!b) return; st.sel = st.sel === +b.dataset.i ? null : +b.dataset.i; render(); });
+  Rg.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-b]"); if (b) { delete st.put[+b.dataset.b]; F.innerHTML = ""; render(); return; }
+    var k = e.target.closest("[data-k]"); if (!k) return;
+    if (st.sel === null) { F.innerHTML = '<div class="fb bad">Zuerst oben eine Karte antippen, dann das Feld.</div>'; return; }
+    st.put[st.sel] = k.dataset.k; st.sel = null; F.innerHTML = ""; render();
+  });
+  el.querySelector("[data-c]").addEventListener("click", function () {
+    var ok = items.filter(function (it, i) { return st.put[i] === it[1]; }).length; render(true);
+    F.innerHTML = '<div class="fb ' + (ok === items.length ? "ok" : "bad") + '">' + ok + " von " + items.length + " richtig." + (ok < items.length ? " Rote Karten antippen, um sie zurückzulegen." + (hint ? " " + hint : "") : " Perfekt!") + '</div>';
+  });
+  el.querySelector("[data-x]").addEventListener("click", function () { st.put = {}; st.sel = null; order = shuffle(order); F.innerHTML = ""; render(); });
+  render();
+};
+/* Reihenfolge: sc = [{t: Titel, s: [Schritte in richtiger Reihenfolge], h: Tipp}] */
+SIM.order = function (el, sc) {
+  var st = { k: 0, o: [] };
+  el.innerHTML = (sc.length > 1 ? '<div class="seg" data-g>' + sc.map(function (s, i) { return '<button data-v="' + i + '"' + (i ? "" : ' class="on"') + '>' + s.t + '</button>'; }).join("") + '</div>' : '') + '<ol class="olist" data-l></ol><div class="ctrls"><button class="btn pri" data-c>Prüfen</button><button class="btn" data-m>Neu mischen</button><button class="btn" data-s>Lösung zeigen</button></div><div data-f></div>';
+  var Lst = el.querySelector("[data-l]"), F = el.querySelector("[data-f]");
+  function mix() { var n = sc[st.k].s.length, a; do { a = shuffle(Array.apply(null, { length: n }).map(function (_, i) { return i; })); } while (n > 1 && a.every(function (v, i) { return v === i; })); st.o = a; F.innerHTML = ""; render(); }
+  function render(check) { Lst.innerHTML = st.o.map(function (s, i) { return '<li class="' + (check ? (s === i ? "ok" : "bad") : "") + '"><span class="n">' + (i + 1) + '</span><span class="tx">' + sc[st.k].s[s] + '</span><span class="mv"><button data-mv="' + i + '" data-d="-1" aria-label="nach oben">↑</button><button data-mv="' + i + '" data-d="1" aria-label="nach unten">↓</button></span></li>'; }).join(""); }
+  Lst.addEventListener("click", function (e) { var b = e.target.closest("[data-mv]"); if (!b) return; var i = +b.dataset.mv, j = i + +b.dataset.d; if (j < 0 || j >= st.o.length) return; var t = st.o[i]; st.o[i] = st.o[j]; st.o[j] = t; F.innerHTML = ""; render(); });
+  el.querySelector("[data-c]").addEventListener("click", function () { var ok = st.o.filter(function (s, i) { return s === i; }).length, n = st.o.length; render(true); F.innerHTML = '<div class="fb ' + (ok === n ? "ok" : "bad") + '">' + ok + " von " + n + " Schritten an der richtigen Stelle." + (ok === n ? " Perfekt!" : (sc[st.k].h ? " Tipp: " + sc[st.k].h : "")) + '</div>'; });
+  el.querySelector("[data-m]").addEventListener("click", mix);
+  el.querySelector("[data-s]").addEventListener("click", function () { st.o = sc[st.k].s.map(function (_, i) { return i; }); render(true); });
+  var g = el.querySelector("[data-g]"); if (g) segInit(g, function (v) { st.k = +v; mix(); });
+  mix();
+};
+/* Rechner: cfg.in = [{k, l, min, max, step, v, u, opts:[[wert, text]]}], cfg.f(v) -> {out:[[l,w]], calc:"", svg:""} */
+SIM.calc = function (el, cfg) {
+  el.innerHTML = '<div class="ctrls">' + cfg.in.map(function (c) {
+    if (c.opts) return '<div class="ctrl"><label>' + c.l + '</label><select data-k="' + c.k + '">' + c.opts.map(function (o) { return '<option value="' + o[0] + '"' + (String(o[0]) === String(c.v) ? " selected" : "") + '>' + o[1] + '</option>'; }).join("") + '</select></div>';
+    if (c.num) return '<div class="ctrl"><label>' + c.l + (c.u ? " in " + c.u : "") + '</label><input type="number" data-k="' + c.k + '" min="' + c.min + '" max="' + c.max + '" step="' + (c.step || 1) + '" value="' + c.v + '"></div>';
+    return '<div class="ctrl"><label>' + c.l + '</label><input type="range" data-k="' + c.k + '" min="' + c.min + '" max="' + c.max + '" step="' + (c.step || 1) + '" value="' + c.v + '"><output data-o="' + c.k + '"></output></div>';
+  }).join("") + '</div><div class="stage sv" data-svg></div><div class="out" data-out></div><div class="calc" data-calc></div><div data-note></div>';
+  var Sv = el.querySelector("[data-svg]"), O = el.querySelector("[data-out]"), C = el.querySelector("[data-calc]"), N = el.querySelector("[data-note]");
+  function upd() {
+    var v = {};
+    cfg.in.forEach(function (c) { var i = el.querySelector('[data-k="' + c.k + '"]'); v[c.k] = c.opts && isNaN(+i.value) ? i.value : +i.value; var o = el.querySelector('[data-o="' + c.k + '"]'); if (o) o.textContent = (c.fmt ? c.fmt(v[c.k]) : fmtAuto(v[c.k])) + (c.u ? " " + c.u : ""); });
+    var r = cfg.f(v) || {};
+    Sv.style.display = r.svg ? "" : "none"; if (r.svg) Sv.innerHTML = r.svg;
+    O.style.display = r.out ? "" : "none"; if (r.out) O.innerHTML = outGrid(r.out);
+    C.style.display = r.calc ? "" : "none"; if (r.calc) C.textContent = r.calc;
+    N.innerHTML = r.note || "";
+  }
+  el.addEventListener("input", upd); el.addEventListener("change", upd);
+  if (cfg.anim) { (function loop() { if (el.closest(".panel.on")) upd(); requestAnimationFrame(loop); })(); }
+  upd(); return upd;
+};
+/* Aufgabengenerator: gens = {key: [Bezeichnung, function(){ return {t, u, a, s, tol} }]} */
+SIM.gen = function (el, gens) {
+  var keys = Object.keys(gens), st = { ok: 0, n: 0, cur: null, done: false };
+  el.innerHTML = '<div class="ctrls"><div class="ctrl" style="min-width:230px"><label>Aufgabentyp</label><select data-t><option value="mix">Gemischt</option>' + keys.map(function (k) { return '<option value="' + k + '">' + gens[k][0] + '</option>'; }).join("") + '</select></div><button class="btn pri" data-n>Neue Aufgabe</button><b data-sc></b></div><div class="box" data-q></div><div class="ctrls"><div class="ctrl"><label data-l>Ergebnis</label><input type="text" inputmode="decimal" data-i></div><button class="btn" data-c>Prüfen</button><button class="btn" data-w>Lösungsweg</button></div><div data-f></div><div class="calc" data-s style="display:none"></div>';
+  var q = function (s) { return el.querySelector(s); };
+  function nw() { var t = q("[data-t]").value; if (t === "mix") t = pick(keys); st.cur = gens[t][1](); st.done = false; q("[data-q]").innerHTML = "<b>Aufgabe:</b> " + st.cur.t; q("[data-l]").textContent = "Ergebnis" + (st.cur.u ? " in " + st.cur.u : ""); q("[data-i]").value = ""; q("[data-f]").innerHTML = ""; q("[data-s]").style.display = "none"; q("[data-s]").textContent = st.cur.s; }
+  q("[data-n]").addEventListener("click", nw); q("[data-t]").addEventListener("change", nw);
+  q("[data-c]").addEventListener("click", function () {
+    var raw = q("[data-i]").value, ok;
+    if (typeof st.cur.a === "string") { var nz = function (x) { return String(x).trim().toUpperCase().replace(/[\s%]/g, "").replace(",", "."); }; ok = nz(raw) === nz(st.cur.a); }
+    else { var v = parseNum(raw); if (!isFinite(v)) { q("[data-f]").innerHTML = '<div class="fb bad">Bitte eine Zahl eingeben.</div>'; return; } ok = Math.abs(v - st.cur.a) <= Math.max(Math.abs(st.cur.a) * (st.cur.tol === undefined ? .02 : st.cur.tol), 1e-9); }
+    if (!st.done) { st.n++; if (ok) st.ok++; st.done = true; }
+    q("[data-sc]").textContent = "Richtig: " + st.ok + " / " + st.n;
+    q("[data-f]").innerHTML = '<div class="fb ' + (ok ? "ok" : "bad") + '">' + (ok ? "Richtig! " : "Nicht ganz. ") + "Ergebnis: " + (typeof st.cur.a === "string" ? st.cur.a : fmtAuto(st.cur.a)) + " " + (st.cur.u || "") + '</div>';
+    if (!ok) q("[data-s]").style.display = "";
+  });
+  q("[data-i]").addEventListener("keydown", function (e) { if (e.key === "Enter") q("[data-c]").click(); });
+  q("[data-w]").addEventListener("click", function () { q("[data-s]").style.display = ""; });
+  nw();
+};
+/* Schalter-Logik: inputs = [[Name, Tastend?, Text, Startwert]], f(state)->{svg, out, note} */
+SIM.toggles = function (el, inputs, f) {
+  var st = {}; inputs.forEach(function (i) { st[i[0]] = i[3] || 0; });
+  el.innerHTML = '<div class="chips" data-b>' + inputs.map(function (i) { return '<button class="btn" data-n="' + i[0] + '"' + (i[1] ? ' data-hold="1"' : '') + '>' + (i[2] || i[0]) + (i[1] ? " (halten)" : "") + '</button>'; }).join("") + '</div><div class="stage sv" data-svg></div><div class="out" data-out></div><div class="status" data-note></div>';
+  var B = el.querySelector("[data-b]");
+  function upd() { Array.prototype.forEach.call(B.children, function (b) { b.classList.toggle("on", !!st[b.dataset.n]); }); var r = f(st) || {}; el.querySelector("[data-svg]").innerHTML = r.svg || ""; var o = el.querySelector("[data-out]"); o.style.display = r.out ? "" : "none"; o.innerHTML = r.out ? outGrid(r.out) : ""; var n = el.querySelector("[data-note]"); n.style.display = r.note ? "" : "none"; n.innerHTML = r.note || ""; }
+  B.addEventListener("click", function (e) { var b = e.target.closest("[data-n]"); if (!b || b.dataset.hold) return; st[b.dataset.n] = st[b.dataset.n] ? 0 : 1; upd(); });
+  B.addEventListener("pointerdown", function (e) { var b = e.target.closest("[data-hold]"); if (!b) return; e.preventDefault(); st[b.dataset.n] = 1; try { b.setPointerCapture(e.pointerId); } catch (x) { } upd(); });
+  ["pointerup", "pointercancel", "lostpointercapture"].forEach(function (ev) { B.addEventListener(ev, function (e) { var b = e.target.closest("[data-hold]"); if (!b || !st[b.dataset.n]) return; st[b.dataset.n] = 0; upd(); }); });
+  B.addEventListener("keydown", function (e) { var b = e.target.closest("[data-hold]"); if (b && (e.key === " " || e.key === "Enter")) { e.preventDefault(); st[b.dataset.n] = 1; upd(); } });
+  B.addEventListener("keyup", function (e) { var b = e.target.closest("[data-hold]"); if (b) { st[b.dataset.n] = 0; upd(); } });
+  upd(); return { st: st, upd: upd };
+};
+
+/* ===== Präsentationsmodus =====
+   Erzeugt aus den Lernunterlagen Folien: Titel, Lernziele, je Abschnitt (h3) eine Folie,
+   die echten Simulatoren als Live-Folien, „Das Wichtigste“ (alle Merke-Kästen) und Abschluss.
+   Bedienung: → / Leertaste / Klick rechts = weiter, ← = zurück, S = Schrittweise einblenden,
+   P = Laserpointer, B = Schwarzbild, Ü = Übersicht, F = Vollbild, Esc = Ende. */
+var PRES = (function () {
+  var el, stage, slideBox, inner, bar, prog, ov, dot, slides = [], i = 0, moved = null, stepMode = false;
+  function make() {
+    if (el) return;
+    el = document.createElement("div"); el.className = "pres"; el.setAttribute("role", "dialog"); el.setAttribute("aria-label", "Präsentation");
+    el.innerHTML = '<div class="pres-bar"><span class="t" data-t></span><button data-a="prev" title="zurück (←)">◀</button><span class="n" data-n></span><button data-a="next" title="weiter (→)">▶</button><button data-a="ov" title="Übersicht (Ü)">▦ Übersicht</button><button data-a="step" title="Inhalte schrittweise einblenden (S)">☰ Schritte</button><button data-a="ptr" title="Laserpointer (P)">◉ Pointer</button><button data-a="blk" title="Schwarzbild (B)">■</button><button data-a="fs" title="Vollbild (F)">⛶</button><button data-a="x" title="Beenden (Esc)">✕</button></div><div class="pres-prog"><i></i></div><div class="pres-stage"><div class="pres-slide"><div class="pres-inner"></div></div><div class="pres-ov"></div><div class="pres-help">← → blättern · S Schritte · P Pointer · B Schwarz · Esc Ende</div></div>';
+    document.body.appendChild(el);
+    dot = document.createElement("div"); dot.className = "pres-dot"; document.body.appendChild(dot);
+    bar = el.querySelector(".pres-bar"); prog = el.querySelector(".pres-prog i"); stage = el.querySelector(".pres-stage"); slideBox = el.querySelector(".pres-slide"); inner = el.querySelector(".pres-inner"); ov = el.querySelector(".pres-ov");
+    bar.addEventListener("click", function (e) { var b = e.target.closest("[data-a]"); if (!b) return; act(b.dataset.a); });
+    ov.addEventListener("click", function (e) { var b = e.target.closest("[data-go]"); if (!b) return; ov.classList.remove("on"); go(+b.dataset.go); });
+    inner.addEventListener("click", function (e) { var b = e.target.closest("[data-sim]"); if (b) { var k = slides.findIndex(function (s) { return s.simEl && s.simKey === b.dataset.sim; }); if (k >= 0) go(k); } });
+    document.addEventListener("keydown", key);
+    var sx = null; stage.addEventListener("touchstart", function (e) { sx = e.touches[0].clientX; }, { passive: true });
+    stage.addEventListener("touchend", function (e) { if (sx === null) return; var dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 60 && !e.target.closest(".sim")) act(dx < 0 ? "next" : "prev"); sx = null; });
+    el.addEventListener("mousemove", function (e) { dot.style.left = e.clientX + "px"; dot.style.top = e.clientY + "px"; });
+    window.addEventListener("resize", function () { if (el.classList.contains("on")) fit(); });
+  }
+  function key(e) {
+    if (!el || !el.classList.contains("on")) return;
+    if (e.target.closest && e.target.closest("input,select,textarea")) return;
+    var k = e.key;
+    if (k === "ArrowRight" || k === "PageDown" || k === " ") { e.preventDefault(); act("next"); }
+    else if (k === "ArrowLeft" || k === "PageUp") { e.preventDefault(); act("prev"); }
+    else if (k === "Home") go(0); else if (k === "End") go(slides.length - 1);
+    else if (k === "Escape") { if (ov.classList.contains("on")) ov.classList.remove("on"); else stop(); }
+    else if (k === "f" || k === "F") act("fs"); else if (k === "b" || k === "B" || k === ".") act("blk");
+    else if (k === "p" || k === "P") act("ptr"); else if (k === "s" || k === "S") act("step");
+    else if (k === "ü" || k === "Ü" || k === "o" || k === "O") act("ov");
+  }
+  function act(a) {
+    if (a === "next") { if (stepMode && reveal(1)) return; go(i + 1); }
+    else if (a === "prev") { if (stepMode && reveal(-1)) return; go(i - 1); }
+    else if (a === "x") stop();
+    else if (a === "fs") { if (!document.fullscreenElement) { if (el.requestFullscreen) el.requestFullscreen().catch(function () { }); } else if (document.exitFullscreen) document.exitFullscreen(); }
+    else if (a === "blk") el.classList.toggle("black");
+    else if (a === "ptr") { el.classList.toggle("pointer"); bar.querySelector('[data-a="ptr"]').classList.toggle("on", el.classList.contains("pointer")); }
+    else if (a === "step") { stepMode = !stepMode; bar.querySelector('[data-a="step"]').classList.toggle("on", stepMode); render(); }
+    else if (a === "ov") { if (ov.classList.contains("on")) { ov.classList.remove("on"); return; } ov.innerHTML = slides.map(function (s, k) { return '<button data-go="' + k + '" class="' + (k === i ? "cur" : "") + '"><small>' + (k + 1) + " · " + esc(s.topicTitle) + '</small>' + esc(s.title) + '</button>'; }).join(""); ov.classList.add("on"); var c = ov.querySelector(".cur"); if (c) c.scrollIntoView({ block: "center" }); }
+  }
+  function stripBadges(h) { var c = h.cloneNode(true); Array.prototype.forEach.call(c.querySelectorAll(".badge,.newbadge"), function (b) { b.remove(); }); return c.textContent.trim().replace(/^\d+\s+/, ""); }
+  function cloneClean(n) { var c = n.cloneNode(true); if (c.querySelectorAll) Array.prototype.forEach.call(c.querySelectorAll("[data-ref]"), function (x) { x.removeAttribute("data-ref"); }); if (c.removeAttribute) c.removeAttribute("data-ref"); return c; }
+  function build(topics) {
+    slides = [];
+    topics.forEach(function (t) {
+      var tt = t.dataset.title, paper = t.querySelector(':scope > .panel[data-panel="lu"] .paper'); if (!paper) return;
+      var hero = t.querySelector(".hero"), book = paper.querySelector(".book");
+      slides.push({ topicTitle: tt, topic: t, title: "Titel", html: '<div class="ps-cover"><div class="ps-kicker">' + (hero ? hero.querySelector(".kicker").innerHTML : "") + '</div><h1>' + esc(tt.replace(/^\d+\.\d+\s*/, "")) + '</h1><p class="lead">' + (hero && hero.querySelector(".lead") ? hero.querySelector(".lead").innerHTML : "") + '</p>' + (book ? '<div class="book">' + book.innerHTML + '</div>' : '') + '</div>' });
+      var goals = paper.querySelector(".goals"); if (goals) slides.push({ topicTitle: tt, topic: t, title: "Lernziele", nodes: [cloneClean(goals)], h: "Lernziele" });
+      var cur = null;
+      function flush() { if (cur && cur.nodes.length) slides.push(cur); cur = null; }
+      Array.prototype.forEach.call(paper.children, function (n) {
+        if (n.classList.contains("print-head") || n.tagName === "H2" || n.classList.contains("goals") || n.classList.contains("book") || (n.classList.contains("ab-intro") && n.querySelector(".badge"))) return;
+        if (n.tagName === "H3") { flush(); cur = { topicTitle: tt, topic: t, title: stripBadges(n), h: n.innerHTML, nodes: [] }; return; }
+        if (n.classList.contains("deep")) { flush(); var h3 = n.querySelector("h3"); var s = { topicTitle: tt, topic: t, title: h3 ? stripBadges(h3) : "Vertiefung", h: h3 ? h3.innerHTML : "Vertiefung", nodes: [] }; Array.prototype.forEach.call(n.children, function (c) { if (c !== h3) s.nodes.push(cloneClean(c)); }); slides.push(s); return; }
+        if (!cur) cur = { topicTitle: tt, topic: t, title: "Einführung", h: "Einführung", nodes: [] };
+        cur.nodes.push(cloneClean(n));
+      });
+      flush();
+      var sims = Array.prototype.slice.call(t.querySelectorAll(":scope > .panel.sim .sim"));
+      if (sims.length) {
+        slides.push({ topicTitle: tt, topic: t, title: "Simulatoren", html: '<h2 class="ps-title">Simulatoren – live ausprobieren</h2><div class="ps-simlist">' + sims.map(function (s, k) { return '<button data-sim="' + t.dataset.topic + ":" + k + '">' + s.querySelector("h3").textContent.trim() + '</button>'; }).join("") + '</div><p class="ab-intro" style="margin-top:1em">Tipp: Mit ▶ geht es der Reihe nach durch alle Simulatoren.</p>' });
+        sims.forEach(function (s, k) { slides.push({ topicTitle: tt, topic: t, title: s.querySelector("h3").textContent.trim(), simEl: s, simKey: t.dataset.topic + ":" + k }); });
+      }
+      var merk = paper.querySelectorAll(".merk");
+      if (merk.length) slides.push({ topicTitle: tt, topic: t, title: "Das Wichtigste", h: "Das Wichtigste in Kürze", nodes: Array.prototype.map.call(merk, cloneClean) });
+      slides.push({ topicTitle: tt, topic: t, title: "Abschluss", html: '<div class="ps-cover"><div class="ps-kicker">' + esc(tt) + '</div><h1>Fragen?</h1><p class="lead">Weiter mit dem Arbeitsblatt (✏️) – Lösungen zum Vergleichen (✅).</p></div>' });
+    });
+  }
+  function restore() { if (moved) { moved.ph.parentNode.replaceChild(moved.el, moved.ph); moved = null; } }
+  function render() {
+    restore(); var s = slides[i]; if (!s) return;
+    inner.style.transform = ""; inner.style.width = ""; slideBox.classList.remove("scroll"); slideBox.classList.remove("panel", "on");
+    if (s.simEl) {
+      inner.innerHTML = '<div class="ps-kicker">Live-Simulator · ' + esc(s.topicTitle) + '</div>';
+      var ph = document.createComment("sim"); s.simEl.parentNode.replaceChild(ph, s.simEl); moved = { el: s.simEl, ph: ph };
+      inner.appendChild(s.simEl); slideBox.classList.add("panel", "on"); showTab(s.topic, "sim");
+    } else if (s.html) { inner.innerHTML = s.html; }
+    else { inner.innerHTML = '<h2 class="ps-title">' + s.h + '</h2>'; s.nodes.forEach(function (n) { var c = n.cloneNode(true); if (stepMode) c.classList.add("ps-step"); inner.appendChild(c); }); if (stepMode) { var f = inner.querySelector(".ps-step"); if (f) f.classList.add("shown"); } }
+    el.querySelector("[data-t]").textContent = s.topicTitle + " – " + s.title;
+    el.querySelector("[data-n]").textContent = (i + 1) + " / " + slides.length;
+    prog.style.width = ((i + 1) / slides.length * 100) + "%";
+    slideBox.scrollTop = 0; fit();
+  }
+  function reveal(d) { var st = inner.querySelectorAll(".ps-step"); if (!st.length) return false; var sh = inner.querySelectorAll(".ps-step.shown").length; if (d > 0 && sh < st.length) { st[sh].classList.add("shown"); return true; } if (d < 0 && sh > 1) { st[sh - 1].classList.remove("shown"); return true; } return false; }
+  function fit() {
+    var s = slides[i]; if (!s) return; inner.style.transform = ""; inner.style.width = "";
+    if (s.simEl) { slideBox.classList.add("scroll"); return; }
+    var avail = slideBox.clientHeight - parseFloat(getComputedStyle(slideBox).paddingTop) * 2, need = inner.scrollHeight;
+    if (need > avail) { var k = Math.max(0.58, avail / need); inner.style.transform = "scale(" + k + ")"; inner.style.width = (100 / k) + "%"; if (need * k > avail + 2) slideBox.classList.add("scroll"); }
+  }
+  function go(n) { n = Math.max(0, Math.min(slides.length - 1, n)); i = n; render(); }
+  function start(topics, at) {
+    make(); build(topics); if (!slides.length) return;
+    i = at || 0; el.classList.add("on"); document.body.classList.add("pres-open"); render();
+  }
+  function stop() { restore(); if (!el) return; el.classList.remove("on", "black", "pointer"); document.body.classList.remove("pres-open"); if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen(); var s = slides[i]; if (s && s.topic) { showTab(s.topic, s.simEl ? "sim" : "lu"); } }
+  return { start: start, stop: stop, go: go };
+})();
+</script>
+
+</head>
+<body>
+<div class="topbar"><div class="wrap"><a class="brand" href="/">Grundmodul<small>Grundmodul · Grundmodul – Elektrotechnik und Elektronik</small></a><span class="sp"></span><a class="btn sm noprint" href="/">Grundmodul · Übersicht</a><button class="btn sm noprint" data-print>🖨 Drucken</button></div></div>
+<main class="wrap">
+<article class="topic" data-topic="gm13" data-title="GM 13 Netzsysteme und ÖVE-Schutzkonzept – die sieben Fehlerschutzmaßnahmen">
+  <header class="hero">
+    <div class="kicker">Grundmodul · Grundmodul – Elektrotechnik und Elektronik · Thema GM 13</div>
+    <h1>Netzsysteme und ÖVE-Schutzkonzept – die sieben Fehlerschutzmaßnahmen</h1>
+    <p class="lead">TN-C, TN-S, TN-C-S, TT und IT, der Weg des Fehlerstroms, Basis-, Fehler- und Zusatzschutz, die sieben Fehlerschutzmaßnahmen und ihre Einteilung nach dem Netzsystem, Nullungsbedingung und Erdungswiderstand berechnen, Vorschriften, Prüffristen und Gefahren.</p>
+  </header>
+  <nav class="tabs noprint" role="tablist">
+    <button data-tab="lu" role="tab">📘 Lernunterlage</button>
+    <button data-tab="sim" role="tab">🧪 Simulatoren (9)</button>
+    <button data-tab="ab" role="tab">✏️ Arbeitsblatt</button>
+    <button data-tab="lo" role="tab">✅ Lösungen</button>
+    <button class="prbtn" data-pres="1" title="Lernunterlage als Folien vortragen">🎤 Präsentation</button>
+  </nav>
+  <section class="panel lu" data-panel="lu"><div class="paper"><div class="print-head"><span>Elektrotechnik & Mechatronik – Grundmodul · GM 13 Netzsysteme und ÖVE-Schutzkonzept – die sieben Fehlerschutzmaßnahmen</span><span>Lernunterlage</span></div>
+    <h2>Netzsysteme und ÖVE-Schutzkonzept – die sieben Fehlerschutzmaßnahmen</h2>
+    <div class="goals"><b>Lernziele – nach diesem Kapitel kannst du …</b><ul><li>die Netzsysteme TN-C, TN-S, TN-C-S, TT und IT an ihren Kennbuchstaben erkennen, zeichnen und vergleichen</li><li>den Weg des Fehlerstroms in jedem Netzsystem beschreiben und daraus die passende Schutzeinrichtung ableiten</li><li>das Schutzkonzept nach ÖVE/ÖNORM E 8101 (Basis-, Fehler-, Zusatzschutz) erklären</li><li>die sieben Fehlerschutzmaßnahmen nennen, beschreiben und in netzunabhängige und netzabhängige einteilen</li><li>Nullungsbedingung, Erdungswiderstand im TT-System und Isolationsüberwachung im IT-System berechnen</li><li>die wichtigsten Vorschriften und Prüffristen nennen und typische Gefahren erkennen</li></ul></div>
+    <div class="book">Kap. 11 „Schutzmaßnahmen“ (Netzsysteme, Schutz gegen elektrischen Schlag, Schutzleiter, Potentialausgleich), Kap. 10.4 „Überstrom-Schutzeinrichtungen“, Kap. 13 „Prüfen von Schutzmaßnahmen“. Österreich: ETG 1992, ETV 2020, ÖVE/ÖNORM E 8101 (Teil 4-41, 5-54, 6), ESV 2012 (§ 4, § 7, § 9), TAEV. Ergänzung zu GM 4 (Schutzmaßnahmen) und GT 2 (Erdung, Potentialausgleich).</div>
+    <p class="ab-intro"><span class="badge b1">★ Grundlagen</span> für alle · <span class="badge b2">★★ Vertiefung</span> für Fortgeschrittene / LAP-Vorbereitung · <span class="newbadge">ÖVE</span> = österreichische Vorschrift</p>
+
+<h3>1 Netzsysteme und ihre Kennbuchstaben <span class="badge b1">★</span></h3>
+<p>Ein Niederspannungsnetz wird durch die <b>Erdungsverhältnisse</b> beschrieben: Wie ist die Stromquelle (Sternpunkt des Transformators) geerdet, und wie sind die Körper der Verbrauchsmittel geerdet? Das ist entscheidend dafür, welchen Weg ein Fehlerstrom nimmt und welche Schutzeinrichtung ihn abschalten kann.</p>
+<div class="tscroll"><table class="t"><tr><th>Buchstabe</th><th>Bedeutung</th></tr>
+<tr><td><b>1. Buchstabe</b>: Erdung der Stromquelle</td><td><b>T</b> (terre) = ein Punkt, meist der Sternpunkt, ist direkt geerdet (Betriebserder R<sub>B</sub>) · <b>I</b> (isolé) = alle aktiven Teile von Erde getrennt oder ein Punkt über hohe Impedanz geerdet</td></tr>
+<tr><td><b>2. Buchstabe</b>: Erdung der Körper</td><td><b>T</b> = Körper direkt mit einem eigenen Erder verbunden (Anlagenerder R<sub>A</sub>), unabhängig vom Betriebserder · <b>N</b> = Körper über den Schutzleiter mit dem geerdeten Punkt der Stromquelle verbunden</td></tr>
+<tr><td><b>weitere Buchstaben</b> (nur TN)</td><td><b>S</b> (séparé) = Neutralleiter und Schutzleiter getrennt (N + PE) · <b>C</b> (combiné) = Neutral- und Schutzleiterfunktion in einem Leiter (<b>PEN</b>)</td></tr></table></div>
+<figure class="fig"><div class="sv" data-ref="fignetz"></div><figcaption>Bild: Netzsysteme TN-C, TN-S, TN-C-S, TT und IT (eigene Darstellung; L = Außenleiter, N blau, PE grün-gelb, PEN grün-gelb mit blauen Markierungen)</figcaption></figure>
+<div class="tscroll"><table class="t"><tr><th>System</th><th>Merkmal</th><th>Fehlerstrom fließt über</th><th>Schutz durch</th><th>Vorkommen in Österreich</th></tr>
+<tr><td><b>TN-C</b></td><td>PEN durchgehend bis zum Verbraucher</td><td>PEN zum Sternpunkt (niederohmig)</td><td>Überstrom-Schutzeinrichtung; <b>kein RCD möglich</b></td><td>Verteilnetz, ältere Anlagen; in neuen Anlagen nur ab 10 mm² Cu fest verlegt</td></tr>
+<tr><td><b>TN-S</b></td><td>N und PE ab der Quelle getrennt</td><td>PE zum Sternpunkt</td><td>Überstrom-Schutzeinrichtung, RCD</td><td>Industrie mit eigenem Trafo, Krankenhäuser</td></tr>
+<tr><td><b>TN-C-S</b></td><td>PEN bis zum Hausanschluss, dort Aufteilung in N und PE (Nullungsverbindung)</td><td>PE und PEN zum Sternpunkt</td><td>Überstrom-Schutzeinrichtung, RCD</td><td><b>Standard</b> in den meisten Netzgebieten („genulltes Netz“)</td></tr>
+<tr><td><b>TT</b></td><td>Körper an eigenem Anlagenerder</td><td>Erde: R<sub>A</sub> + R<sub>B</sub> (Ohm-Bereich!)</td><td><b>RCD</b> (Fehlerstrom-Schutzschaltung)</td><td>einzelne, vor allem ländliche Netzgebiete</td></tr>
+<tr><td><b>IT</b></td><td>Quelle nicht geerdet</td><td>beim 1. Fehler nur Ableitströme (kapazitiv, mA)</td><td>Isolationsüberwachung; Abschaltung erst beim 2. Fehler</td><td>OP-Säle, Bergbau, Prozessindustrie, Notstrom, Schiffe</td></tr></table></div>
+<div class="merk"><b>Das Netzsystem bestimmt der Netzbetreiber.</b> Es steht in den Technischen Anschlussbedingungen (TAEV) bzw. in der Netzzugangsbestätigung. Der Errichter darf es nicht selbst wählen. Hinter dem Hausanschluss eines TN-C-S-Netzes muss die Anlage mit getrenntem N und PE ausgeführt werden. Ein RCD darf nie in einem PEN liegen.</div>
+
+<h3>2 Der Weg des Fehlerstroms <span class="badge b1">★</span></h3>
+<div class="grid2"><div>
+<p>Bei einem <b>Körperschluss</b> berührt ein Außenleiter das leitfähige Gehäuse. Ob jetzt eine Schutzeinrichtung auslöst, hängt nur davon ab, <b>wie groß der Strom in der Fehlerschleife</b> ist:</p>
+<ul><li><b>TN</b>: Schleife = Trafo → Außenleiter → Körper → PE/PEN → Sternpunkt. Sie besteht nur aus Metall, hat einen Widerstand von etwa 0,3 … 2 Ω, der Fehlerstrom beträgt hunderte Ampere, und der LS löst magnetisch in Millisekunden aus. Die Berührungsspannung bis dahin liegt bei etwa der Hälfte von U<sub>0</sub> (≈ 115 V), weil Außenleiter und PE meist den gleichen Querschnitt haben.</li><li><b>TT</b>: Schleife = Trafo → Außenleiter → Körper → PE → Anlagenerder R<sub>A</sub> → Erdreich → Betriebserder R<sub>B</sub> → Sternpunkt. Weil die Erder einige Ohm bis einige hundert Ohm haben, fließen nur einige Ampere. Ein LS 16 A löst <b>nicht</b> aus, am Körper bleibt eine gefährliche Spannung stehen. Nur ein RCD erkennt den Differenzstrom.</li><li><b>IT</b>: Es gibt keine geerdete Rückleitung. Beim ersten Fehler fließt nur ein kleiner Ableitstrom über die Leitungskapazitäten, und die Berührungsspannung bleibt klein. Der Betrieb darf weiterlaufen, der Fehler wird gemeldet. Erst ein zweiter Fehler an einem anderen Außenleiter erzeugt einen Kurzschluss über die Körper.</li></ul></div>
+<figure class="fig"><div class="sv" data-ref="figschl"></div><figcaption>Bild: Fehlerschleife im TN- und im TT-System im Vergleich (eigene Darstellung)</figcaption></figure></div>
+
+<h3>3 Das Schutzkonzept nach ÖVE/ÖNORM E 8101 <span class="badge b1">★</span><span class="newbadge">ÖVE</span></h3>
+<div class="grid2"><div>
+<p>Jede Schutzmaßnahme gegen elektrischen Schlag besteht aus <b>zwei unabhängigen Schutzvorkehrungen</b>. Versagt eine, schützt noch die andere:</p>
+<ul><li><b>Basisschutz</b> (früher Schutz gegen direktes Berühren): verhindert, dass man aktive Teile im Normalbetrieb berühren kann. Beispiele: Isolierung, Abdeckung, Umhüllung (mindestens IPXXB, oben IPXXD).</li><li><b>Fehlerschutz</b> (früher Schutz bei indirektem Berühren): wirkt, wenn die Basisisolierung versagt hat. Er verhindert, dass am Körper eine gefährliche Berührungsspannung <b>bestehen bleibt</b>. Dazu gehören die <b>sieben Fehlerschutzmaßnahmen</b> (Abschnitt 4).</li><li><b>Zusatzschutz</b>: RCD mit I<sub>Δn</sub> ≤ 30 mA und zusätzlicher Schutzpotentialausgleich. Er greift, wenn Basis- und Fehlerschutz versagen oder jemand unvorsichtig ist, z. B. bei Steckdosen bis 32 A, im Außenbereich und im Bad.</li></ul>
+<p>Grenzwert ist die dauernd zulässige <b>Berührungsspannung U<sub>L</sub> = 50 V AC</b> (120 V DC). In der Tierhaltung und in medizinisch genutzten Räumen gelten 25 V AC.</p></div>
+<figure class="fig"><div class="sv" data-ref="figkonz"></div><figcaption>Bild: Aufbau des Schutzkonzepts – Basisschutz und Fehlerschutz, ergänzt durch Zusatzschutz (eigene Darstellung)</figcaption></figure></div>
+
+<h3>4 Die sieben Fehlerschutzmaßnahmen <span class="badge b1">★</span><span class="newbadge">ÖVE</span></h3>
+<p>Die Elektroschutzverordnung (ESV 2012, § 4) verlangt in jeder Anlage <b>mindestens eine</b> Maßnahme des Fehlerschutzes. In Österreich verwendet man dafür die bewährten Begriffe, die in Schule und LAP gefragt werden:</p>
+<div class="tscroll"><table class="t"><tr><th>Nr.</th><th>Fehlerschutzmaßnahme</th><th>Prinzip</th><th>Bedingung / wichtigste Regel</th><th>Netzsystem</th></tr>
+<tr><td>1</td><td><b>Schutzisolierung</b><br><small>doppelte oder verstärkte Isolierung, Schutzklasse II ⧈</small></td><td>Eine zusätzliche Isolierung verhindert, dass der Körper bei einem Fehler der Basisisolierung Spannung annimmt.</td><td>kein Schutzleiter anschließen; Gerät trägt das Zeichen ⧈</td><td>netzunabhängig</td></tr>
+<tr><td>2</td><td><b>Schutzkleinspannung</b><br><small>SELV, PELV</small></td><td>Die Spannung ist so klein, dass sie nicht gefährlich ist; Erzeugung mit sicherer Trennung.</td><td>≤ 50 V AC / 120 V DC; Sicherheitstransformator, Batterie; <b>nie</b> Spartrafo oder Vorwiderstand</td><td>netzunabhängig</td></tr>
+<tr><td>3</td><td><b>Schutztrennung</b></td><td>Der Sekundärkreis eines Trenntransformators hat keinen Bezug zur Erde; einpoliges Berühren ist ungefährlich.</td><td>≤ 500 V; Sekundärseite und Körper nicht erden; ein Verbrauchsmittel (bei Laien); U · l ≤ 100 000 V·m, l ≤ 500 m</td><td>netzunabhängig</td></tr>
+<tr><td>4</td><td><b>Nullung</b><br><small>automatische Abschaltung im TN-System</small></td><td>Körper am Schutzleiter, der mit dem geerdeten Sternpunkt verbunden ist; Fehler wird zum Kurzschluss, die Überstrom-Schutzeinrichtung schaltet ab.</td><td><b>Z<sub>S</sub> · I<sub>a</sub> ≤ U<sub>0</sub></b>; Abschaltzeit 0,4 s (Endstromkreise ≤ 32 A) bzw. 5 s</td><td>TN</td></tr>
+<tr><td>5</td><td><b>Fehlerstrom-Schutzschaltung</b><br><small>RCD (FI-Schutzschalter)</small></td><td>Der RCD vergleicht hin- und zurückfließenden Strom und schaltet bei einem Differenzstrom ≥ I<sub>Δn</sub> ab.</td><td><b>R<sub>A</sub> · I<sub>Δn</sub> ≤ 50 V</b> (TT); Abschaltzeit 0,2 s bzw. 1 s (TT)</td><td>TT und TN (nicht TN-C)</td></tr>
+<tr><td>6</td><td><b>Isolationsüberwachungssystem</b><br><small>früher Schutzleitungssystem</small></td><td>Ungeerdetes Netz, Körper gemeinsam geerdet; ein Isolationsüberwachungsgerät meldet den 1. Fehler, abgeschaltet wird beim 2. Fehler.</td><td>R<sub>A</sub> · I<sub>d</sub> ≤ 50 V; Meldung optisch und akustisch; 1. Fehler rasch beheben</td><td>IT</td></tr>
+<tr><td>7</td><td><b>Schutzerdung</b><br><small>mit Überstrom-Schutzeinrichtung</small></td><td>Körper an eigenem Erder; der Fehlerstrom über die Erde soll die Überstrom-Schutzeinrichtung auslösen.</td><td>R<sub>A</sub> · I<sub>a</sub> ≤ 50 V → praktisch kaum erfüllbar; laut ESV nur noch für <b>Anlagen vor 2011</b> oder wenn Nullung und RCD nicht anwendbar sind</td><td>TT</td></tr></table></div>
+<p class="ab-intro">Die ESV 2012 führt zusätzlich die <b>Funktionskleinspannung (FELV)</b> an. Sie ist nur in Verbindung mit dem Fehlerschutz des speisenden Stromkreises zulässig: Körper an PE, Basisschutz für die Primärspannung. Bei Baustromverteilern sind nur Nullung, Fehlerstrom-Schutzschaltung, Schutzisolierung, Schutzkleinspannung und Schutztrennung erlaubt.</p>
+
+<h3>5 Einteilung nach dem Netzsystem <span class="badge b1">★</span></h3>
+<div class="grid2"><div>
+<p>Drei Fehlerschutzmaßnahmen funktionieren <b>unabhängig vom Netzsystem</b>. Sie schaffen sich ihre eigenen sicheren Verhältnisse: durch Isolierung, kleine Spannung oder Trennung vom Netz. Sie sind deshalb in jedem Netz anwendbar.</p>
+<p>Die anderen vier <b>brauchen den Schutzleiter</b> und wirken über eine Abschaltung oder Meldung. Welche davon anwendbar ist, hängt von der Erdung des Netzes ab:</p>
+<ul><li><b>TN-System → Nullung</b>, meist kombiniert mit RCD (Zusatzschutz oder als Abschaltorgan bei zu hoher Schleifenimpedanz)</li><li><b>TT-System → Fehlerstrom-Schutzschaltung</b>; Schutzerdung nur in Altanlagen</li><li><b>IT-System → Isolationsüberwachungssystem</b></li></ul>
+<p>Unabhängig von der Maßnahme verlangt die ESV in jeder Anlage einen <b>Hauptpotentialausgleich</b>. Für die Schutzmaßnahmen mit Schutzleiter ist er eine Voraussetzung.</p></div>
+<figure class="fig"><div class="sv" data-ref="figeint"></div><figcaption>Bild: Einteilung der Fehlerschutzmaßnahmen nach dem Netzsystem (eigene Darstellung)</figcaption></figure></div>
+
+<h3>6 Berechnungen <span class="badge b1">★</span></h3>
+<h4>Nullung: Schleifenimpedanz und Abschaltstrom</h4>
+<div class="grid2"><div>
+<div class="formula">Z<sub>S</sub> · I<sub>a</sub> ≤ U<sub>0</sub> &nbsp;⇒&nbsp; Z<sub>S,max</sub> = U<sub>0</sub> / I<sub>a</sub></div>
+<div class="formula">Z<sub>S</sub> ≈ Z<sub>V</sub> + 2 · l / (κ · A) &nbsp;&nbsp;(L und PE gleicher Querschnitt)</div>
+<ul><li>U<sub>0</sub> = 230 V Spannung gegen Erde</li><li>Z<sub>V</sub> = Impedanz vor der Anlage (Netz, Trafo, Zuleitung), am Hausanschluss gemessen oder vom Netzbetreiber</li><li>I<sub>a</sub> = Strom, der die Schutzeinrichtung in der geforderten Zeit sicher auslöst</li><li>κ<sub>Cu</sub> = 56 m/(Ω·mm²) bei 20 °C. Weil die Leiter im Fehlerfall warm sind, soll ein bei Raumtemperatur <b>gemessener</b> Wert höchstens <b>⅔</b> von Z<sub>S,max</sub> betragen.</li></ul></div>
+<div class="tscroll"><table class="t"><tr><th>Schutzeinrichtung</th><th class="num">I<sub>a</sub> (≤ 0,4 s)</th><th class="num">Z<sub>S,max</sub> bei 16 A</th></tr>
+<tr><td>LS Charakteristik B</td><td class="num">5 · I<sub>n</sub></td><td class="num">2,88 Ω</td></tr>
+<tr><td>LS Charakteristik C</td><td class="num">10 · I<sub>n</sub></td><td class="num">1,44 Ω</td></tr>
+<tr><td>LS Charakteristik D</td><td class="num">20 · I<sub>n</sub></td><td class="num">0,72 Ω</td></tr>
+<tr><td>Schmelzsicherung gG 16 A</td><td class="num">≈ 107 A (0,4 s) / 65 A (5 s)</td><td class="num">2,15 Ω / 3,54 Ω</td></tr>
+<tr><td>RCD 30 mA als Abschaltorgan</td><td class="num">I<sub>Δn</sub></td><td class="num">sehr groß, praktisch immer erfüllt</td></tr></table>
+<p class="ab-intro">Werte für gG sind Richtwerte aus der Zeit-Strom-Kennlinie; maßgeblich sind die Herstellerangaben.</p></div></div>
+<h4>TT-System: Erdungswiderstand</h4>
+<div class="grid2"><div>
+<div class="formula">R<sub>A</sub> · I<sub>Δn</sub> ≤ U<sub>L</sub> = 50 V &nbsp;⇒&nbsp; R<sub>A,max</sub> = 50 V / I<sub>Δn</sub></div>
+<p>RCD 30 mA → R<sub>A</sub> ≤ 1667 Ω · RCD 300 mA → 167 Ω · RCD 500 mA → 100 Ω</p>
+<p>Mit Überstrom-Schutzeinrichtung (Schutzerdung) gilt R<sub>A</sub> · I<sub>a</sub> ≤ 50 V. Für LS B16 mit I<sub>a</sub> = 80 A ergibt das R<sub>A</sub> ≤ 0,63 Ω, was mit einem Erder praktisch nicht erreichbar ist. Deshalb ist im TT-System der RCD die eigentliche Fehlerschutzeinrichtung.</p></div>
+<div><div class="formula">Fehlerstrom I<sub>F</sub> = U<sub>0</sub> / (R<sub>A</sub> + R<sub>B</sub> + R<sub>Ltg</sub>) · Berührungsspannung U<sub>B</sub> ≈ I<sub>F</sub> · R<sub>A</sub></div>
+<p>Beispiel: R<sub>A</sub> = 20 Ω, R<sub>B</sub> = 2 Ω → I<sub>F</sub> ≈ 10,5 A, U<sub>B</sub> ≈ 209 V. Der LS 16 A löst nicht aus, es bleibt lebensgefährlich. Nur der RCD rettet.</p></div></div>
+<h4>IT-System und Schutztrennung</h4>
+<div class="fgrid"><div class="formula">IT, 1. Fehler: R<sub>A</sub> · I<sub>d</sub> ≤ 50 V</div><div class="formula">Schutztrennung: U · l ≤ 100 000 V·m, l ≤ 500 m</div><div class="formula">TN, Berührungsspannung: U<sub>B</sub> ≈ U<sub>0</sub> · R<sub>PE</sub> / (R<sub>L</sub> + R<sub>PE</sub> + Z<sub>V</sub>)</div></div>
+
+<h3>7 Übungsbeispiele mit Lösung <span class="badge b1">★</span></h3>
+<div class="tscroll"><table class="t"><tr><th>Aufgabe</th><th>Lösung</th></tr>
+<tr><td><b>A</b> – Steckdosenkreis, LS B16, NYM 3 × 2,5 mm², Länge 35 m, Z<sub>V</sub> = 0,35 Ω. Ist die Nullungsbedingung erfüllt?</td><td>R<sub>Ltg</sub> = 2 · 35 / (56 · 2,5) = 0,50 Ω → Z<sub>S</sub> = 0,85 Ω. Z<sub>S,max</sub> = 230 / 80 = 2,88 Ω, mit ⅔-Regel 1,92 Ω → <b>erfüllt</b>. I<sub>k</sub> = 230 / 0,85 ≈ 270 A.</td></tr>
+<tr><td><b>B</b> – Wie lang darf derselbe Kreis mit LS C16 höchstens sein?</td><td>Z<sub>S,max</sub> = 230/160 = 1,44 Ω; mit ⅔: 0,96 Ω → R<sub>Ltg</sub> ≤ 0,61 Ω → l ≤ 0,61 · 56 · 2,5 / 2 ≈ <b>43 m</b>.</td></tr>
+<tr><td><b>C</b> – TT-System, Erdungswiderstand gemessen 120 Ω. Welcher RCD ist zulässig?</td><td>I<sub>Δn</sub> ≤ 50 V / 120 Ω = 0,42 A → RCD 30 mA (für Steckdosen ohnehin Pflicht) oder 300 mA. 500 mA wäre <b>nicht</b> zulässig.</td></tr>
+<tr><td><b>D</b> – TN-System, L und PE gleicher Querschnitt, Z<sub>V</sub> vernachlässigbar. Welche Berührungsspannung liegt bis zur Abschaltung am Gerät?</td><td>U<sub>B</sub> ≈ 230 V · R<sub>PE</sub> / (R<sub>L</sub> + R<sub>PE</sub>) = 230 V / 2 = <b>115 V</b> → muss in ≤ 0,4 s abgeschaltet werden.</td></tr>
+<tr><td><b>E</b> – Ein Trenntransformator 230 V speist eine Leitung. Wie lang darf sie höchstens sein?</td><td>l ≤ 100 000 V·m / 230 V = 435 m (Grenze 500 m nicht erreicht) → <b>435 m</b>.</td></tr></table></div>
+
+<h3>8 Vorschriften und Prüffristen <span class="badge b1">★</span><span class="newbadge">ÖVE</span></h3>
+<div class="tscroll"><table class="t"><tr><th>Regel</th><th>Inhalt</th></tr>
+<tr><td><b>Elektrotechnikgesetz ETG 1992</b></td><td>Grundsatz der Sicherheit elektrischer Anlagen und Betriebsmittel, Ermächtigung für Verordnungen</td></tr>
+<tr><td><b>Elektrotechnikverordnung ETV 2020</b></td><td>erklärt Normen für verbindlich, vor allem ÖVE/ÖNORM E 8101</td></tr>
+<tr><td><b>ÖVE/ÖNORM E 8101</b></td><td>Errichten von Niederspannungsanlagen: Teil 4-41 Schutz gegen elektrischen Schlag, Teil 5-54 Erdung und Schutzleiter, Teil 6 Prüfungen, Teil 7 Räume besonderer Art</td></tr>
+<tr><td><b>Elektroschutzverordnung ESV 2012</b></td><td>Arbeitnehmerschutz: § 4 Fehlerschutz (Liste der zulässigen Maßnahmen), § 7 Kontrollen, § 8 Erstprüfung, § 9 wiederkehrende Prüfungen</td></tr>
+<tr><td><b>TAEV</b></td><td>Technische Anschlussbedingungen der Netzbetreiber: Netzsystem, Hausanschluss, Zählerplatz</td></tr>
+<tr><td><b>ÖVE/ÖNORM EN 50110-1</b></td><td>Betrieb elektrischer Anlagen, 5 Sicherheitsregeln</td></tr></table></div>
+<div class="grid2"><div>
+<h4>Prüfung nach E 8101 Teil 6 (Erst- und wiederkehrende Prüfung)</h4>
+<ol><li><b>Besichtigen</b>: richtige Auswahl, Beschädigungen, Kennzeichnung, Schutzleiterfarben</li><li><b>Erproben</b>: RCD-Prüftaste, Funktion von Schaltern und Not-Aus</li><li><b>Messen</b>: Durchgängigkeit des Schutzleiters und Potentialausgleichs, Isolationswiderstand (≥ 1 MΩ bei 500 V DC), Schleifenimpedanz Z<sub>S</sub> bzw. Kurzschlussstrom, Erdungswiderstand, RCD-Auslösestrom und -zeit, Drehfeld</li><li><b>Dokumentieren</b>: Prüfbefund, Anlagenbuch</li></ol></div>
+<div><h4>Fristen nach ESV 2012</h4>
+<div class="tscroll"><table class="t"><tr><th>Bereich</th><th class="num">wiederkehrende Prüfung</th></tr>
+<tr><td>Regelfall</td><td class="num">längstens 5 Jahre</td></tr>
+<tr><td>geringe Beanspruchung (Büro, Handel)</td><td class="num">10 Jahre</td></tr>
+<tr><td>explosionsgefährdete Bereiche</td><td class="num">3 Jahre</td></tr>
+<tr><td>Baustellen</td><td class="num">1 Jahr</td></tr>
+<tr><td>RCD-Prüftaste (Kontrolle)</td><td class="num">laut Hersteller, sonst ≤ 6 Monate</td></tr>
+<tr><td>Baustelle: Sichtkontrolle</td><td class="num">wöchentlich</td></tr></table></div>
+<p class="ab-intro">Bei Feuchtigkeit, Temperaturen unter −20 °C oder über 40 °C, ätzenden Stoffen, Witterung oder Staub kann die Behörde 3 Jahre vorschreiben, bei mehreren Einflüssen zusammen 1 Jahr.</p></div></div>
+
+<h3>9 Gefahren <span class="badge b1">★</span></h3>
+<div class="tscroll"><table class="t"><tr><th>Gefahr</th><th>was passiert</th><th>Gegenmaßnahme</th></tr>
+<tr><td><b>PEN-Unterbrechung</b> (TN-C, Hausanschluss)</td><td>Alle genullten Körper hinter der Unterbrechung nehmen über eingeschaltete Verbraucher Außenleiterpotential an; zusätzlich Sternpunktverschiebung bis 400 V an den Geräten</td><td>PEN ≥ 10 mm² Cu, nicht schaltbar, gut verbunden; Nullungsverbindung mit Anlagenerder; PEN bald in N und PE aufteilen</td></tr>
+<tr><td><b>Schutzleiter unterbrochen</b></td><td>Ein Körperschluss bleibt unbemerkt, der Körper führt 230 V, bis ihn jemand berührt</td><td>Durchgängigkeit messen; RCD 30 mA als Zusatzschutz</td></tr>
+<tr><td><b>Vertauschung PE / N oder PE / L</b></td><td>Gehäuse unter Spannung oder RCD löst ständig aus</td><td>Kennfarben beachten, Erstprüfung, Spannungsprüfer zweipolig</td></tr>
+<tr><td><b>Fehlerspannungs-Verschleppung</b> (TN)</td><td>Bis zur Abschaltung liegen ≈ 115 V an <b>allen</b> Körpern am selben PE, auch an fehlerfreien Geräten</td><td>schnelle Abschaltung (0,4 s), Potentialausgleich</td></tr>
+<tr><td><b>Zu hohe Schleifenimpedanz</b></td><td>LS löst nur thermisch (nach Sekunden bis Minuten) aus; Berührungsspannung und Brandgefahr bleiben</td><td>Z<sub>S</sub> messen, größerer Querschnitt, Charakteristik B, RCD</td></tr>
+<tr><td><b>TT: Erder korrodiert</b></td><td>R<sub>A</sub> steigt, Bedingung R<sub>A</sub> · I<sub>Δn</sub> ≤ 50 V nicht mehr erfüllt</td><td>Erdungsmessung bei der wiederkehrenden Prüfung</td></tr>
+<tr><td><b>IT: erster Fehler bleibt stehen</b></td><td>Der zweite Fehler an einem anderen Außenleiter ist ein Kurzschluss über die Körper</td><td>Meldung ernst nehmen, Fehler sofort suchen</td></tr>
+<tr><td><b>RCD blind für Gleichfehlerströme</b></td><td>Frequenzumrichter, Ladestationen und PV erzeugen glatte Gleichfehlerströme; Typ AC/A wird gesättigt und löst nicht aus</td><td>RCD Typ B bzw. Ladestation mit DC-Fehlerstromerkennung</td></tr>
+<tr><td><b>RCD bei Berührung L–N</b></td><td>Kein Differenzstrom → keine Auslösung</td><td>RCD ist nie alleiniger Schutz, Basisschutz erhalten</td></tr>
+<tr><td><b>Kleinspannung aus Spartrafo oder Vorwiderstand</b></td><td>Keine sichere Trennung → bei einem Fehler volle Netzspannung</td><td>nur Sicherheitstransformator (Symbol)</td></tr>
+<tr><td><b>Schutztrennung mit mehreren Geräten</b></td><td>Zwei Fehler an verschiedenen Geräten → Spannung zwischen den Körpern</td><td>nur ein Gerät bzw. ungeerdeter Potentialausgleich zwischen den Körpern</td></tr></table></div>
+
+<div class="deep"><h3>10 Vertiefung: Nullungsbedingungen, PEN und RCD-Typen <span class="badge b2">★★</span><span class="newbadge">ÖVE</span></h3>
+<div class="grid2"><div>
+<h4>Erdschluss eines Außenleiters im TN-System</h4>
+<p>Berührt ein Außenleiter direkt die Erde (abgerissene Freileitung, Erdschluss im Kabel), fließt ein Strom über den Erdübergangswiderstand R<sub>E</sub> und den Betriebserder R<sub>B</sub>. Dadurch hebt sich das Potential von PEN und allen Körpern um den Spannungsfall an R<sub>B</sub> an. Damit diese Spannung 50 V nicht übersteigt, muss gelten:</p>
+<div class="formula">R<sub>B</sub> / R<sub>E</sub> ≤ 50 V / (U<sub>0</sub> − 50 V) ≈ 0,28</div>
+<p>Darum verlangen die Netzbetreiber viele Erdungen im Verteilnetz: Betriebserder, Mastenerdungen und die Anlagenerder (Fundamenterder) der Kundenanlagen. Sie liegen alle parallel und halten R<sub>B</sub> klein.</p>
+<h4>Regeln für den PEN</h4>
+<ul><li>Mindestquerschnitt 10 mm² Cu bzw. 16 mm² Al, nur in fester Verlegung</li><li>darf <b>nicht</b> geschaltet oder abgesichert werden</li><li>Kennzeichnung grün-gelb mit blauen Markierungen an den Enden</li><li>nach der Aufteilung in N und PE dürfen diese nicht wieder verbunden werden</li></ul></div>
+<div><h4>RCD-Typen</h4>
+<div class="tscroll"><table class="t"><tr><th>Typ</th><th>erfasst</th><th>Einsatz</th></tr>
+<tr><td>AC</td><td>nur sinusförmige Wechselfehlerströme</td><td>in Österreich für Neuanlagen nicht mehr üblich</td></tr>
+<tr><td><b>A</b></td><td>Wechsel- und pulsierende Gleichfehlerströme</td><td>Standard in Wohnungen</td></tr>
+<tr><td>F</td><td>wie A + Mischfrequenzen</td><td>einphasige FU (Waschmaschine, Wärmepumpe)</td></tr>
+<tr><td><b>B</b></td><td>zusätzlich glatte Gleichfehlerströme</td><td>Drehstrom-FU, Ladestation ohne DC-Erkennung, PV</td></tr>
+<tr><td>G / S</td><td>kurzzeitverzögert bzw. selektiv</td><td>Anlagen mit Einschaltstößen; Selektivität zu nachgeschalteten RCD</td></tr></table></div>
+<h4>Isolationsüberwachungsgerät (IMD)</h4>
+<p>Das IMD legt eine Messspannung zwischen Netz und Erde und misst den Isolationswiderstand des gesamten IT-Netzes. Unterschreitet er den eingestellten Ansprechwert (z. B. 50 … 100 Ω/V), meldet es optisch und akustisch. Im medizinischen IT-System gelten mindestens 50 kΩ.</p></div></div></div>
+  </div></section>
+  <section class="panel sim" data-panel="sim">
+    <p class="lead noprint">Die Simulatoren laufen direkt im Browser – auch am Handy. Werte verändern, beobachten, Ergebnis mit der Lernunterlage vergleichen. Im 🎤 Präsentationsmodus lassen sie sich live vorführen.</p>
+<div class="sim"><h3><span class="no">S1</span> Körperschluss in fünf Netzsystemen</h3><p class="how">Wähle Netzsystem, Fehlerfall und Schutzeinrichtung. Der Fehlerstromweg wird rot hervorgehoben; berechnet werden Fehlerstrom, Berührungsspannung und Abschaltzeit.</p><div data-ref="snetz"></div></div>
+<div class="sim"><h3><span class="no">S2</span> Nullungsbedingung prüfen</h3><p class="how">Stelle Schutzeinrichtung, Leitung und Vorimpedanz ein. Der Rechner prüft Z<sub>S</sub> · I<sub>a</sub> ≤ U<sub>0</sub> mit ⅔-Regel und zeigt die größte zulässige Leitungslänge.</p><div data-ref="snull"></div></div>
+<div class="sim"><h3><span class="no">S3</span> TT-System: Erder und Fehlerstrom-Schutzschalter</h3><p class="how">Verändere den Anlagenerder und die Schutzeinrichtung. Wann bleibt eine gefährliche Berührungsspannung stehen?</p><div data-ref="stt"></div></div>
+<div class="sim"><h3><span class="no">S4</span> IT-System mit Isolationsüberwachung</h3><p class="how">Setze einen ersten und einen zweiten Isolationsfehler. Beobachte das Isolationsüberwachungsgerät und die Abschaltung.</p><div data-ref="sit"></div></div>
+<div class="sim"><h3><span class="no">S5</span> Welche Fehlerschutzmaßnahme gehört zu welchem Netz?</h3><div data-ref="ssort"></div></div>
+<div class="sim"><h3><span class="no">S6</span> Gefahren erkennen – Fallbeispiele</h3><div data-ref="sgef"></div></div>
+<div class="sim"><h3><span class="no">S7</span> Aufgaben-Generator Netzsysteme und Fehlerschutz</h3><p class="how">Zufällige Aufgaben mit Lösungsweg. Toleranz ±2 %.</p><div data-ref="sgen"></div></div>
+<div class="sim"><h3><span class="no">S8</span> Wissenscheck A – Netzsysteme und Fehlerschleife – 8 Fragen</h3><p class="how">Dieselben Fragen wie auf dem Arbeitsblatt, interaktiv mit sofortiger Rückmeldung.</p><div data-ref="wcq"></div></div>
+<div class="sim"><h3><span class="no">S9</span> Wissenscheck B – Fehlerschutzmaßnahmen, Berechnung und Vorschriften – 8 Fragen</h3><p class="how">Dieselben Fragen wie auf dem Arbeitsblatt, interaktiv mit sofortiger Rückmeldung.</p><div data-ref="wcq2"></div></div>
+  </section>
+  <section class="panel ab" data-panel="ab"><div class="paper"><div class="print-head"><span>Elektrotechnik & Mechatronik – Grundmodul · GM 13 Netzsysteme und ÖVE-Schutzkonzept – die sieben Fehlerschutzmaßnahmen</span><span>Arbeitsblatt</span></div>
+    <h2>Arbeitsblatt: Netzsysteme und ÖVE-Schutzkonzept – die sieben Fehlerschutzmaßnahmen</h2>
+    <div class="ab-head"><div>Name</div><div>Klasse / Lehrjahr</div><div>Datum</div><div>Punkte: ______ / 53</div></div>
+    <p class="ab-intro">Hilfsmittel: Lernunterlage, Taschenrechner, Tabellenbuch. Rechenaufgaben immer mit <b>Formel, eingesetzten Werten und Einheit</b> lösen.</p>
+<div class="task"><h3>1. Kennbuchstaben <span class="badge b1">★</span><span class="pts">5 P</span></h3><p>Erkläre die Buchstaben in TN-C-S, TT und IT. Zeichne das TN-C-S-System mit Trafo, Betriebserder, Hausanschluss (Aufteilung) und einem Verbraucher der Schutzklasse I.</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task"><h3>2. Fehlerschleife <span class="badge b1">★</span><span class="pts">4 P</span></h3><p>Beschreibe den Weg des Fehlerstroms bei einem Körperschluss im TN- und im TT-System. Warum genügt im TN-System meist der LS, im TT-System aber nicht?</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task"><h3>3. Die sieben Fehlerschutzmaßnahmen <span class="badge b1">★</span><span class="pts">7 P</span></h3><p>Nenne die sieben Fehlerschutzmaßnahmen und ordne jede einem Netzsystem zu bzw. kennzeichne sie als netzunabhängig.</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task"><h3>4. Nullungsbedingung <span class="badge b1">★</span><span class="pts">5 P</span></h3><p>Ein Stromkreis (LS C16, Cu 2,5 mm², 28 m) hängt an einem Verteiler mit Z<sub>V</sub> = 0,42 Ω. a) Berechne Z<sub>S</sub>. b) Ist die Nullungsbedingung mit ⅔-Regel erfüllt? c) Was kannst du tun, wenn nicht?</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task"><h3>5. TT-System <span class="badge b1">★</span><span class="pts">4 P</span></h3><p>R<sub>A</sub> = 35 Ω, R<sub>B</sub> = 3 Ω. a) Welcher Fehlerstrom fließt bei Körperschluss, welche Berührungsspannung entsteht? b) Löst ein LS B16 aus? c) Welcher RCD erfüllt die Bedingung?</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task"><h3>6. IT-System <span class="badge b2">★★</span><span class="pts">4 P</span></h3><p>Warum darf ein IT-System nach dem ersten Isolationsfehler weiterbetrieben werden? Was geschieht beim zweiten Fehler an einem anderen Außenleiter? Nenne zwei Einsatzbereiche.</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task"><h3>7. Vorschriften <span class="badge b1">★</span><span class="pts">4 P</span></h3><p>Welche Fehlerschutzmaßnahmen lässt die ESV 2012 für Stromkreise aus Baustromverteilern zu? Wie oft müssen die Anlage einer Baustelle und eine Büroanlage wiederkehrend geprüft werden?</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task"><h3>8. Gefahr PEN-Unterbrechung <span class="badge b2">★★</span><span class="pts">4 P</span></h3><p>In einem Altbau mit TN-C-Verteilung wird der PEN zu einer Unterverteilung unterbrochen. Ein Heizlüfter ist eingeschaltet. Was liegt an den Gehäusen aller genullten Geräte dieser Unterverteilung? Warum hilft hier kein RCD?</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task wcheck"><h3>9. Wissenscheck A – Netzsysteme und Fehlerschleife – 8 Fragen <span class="badge b1">★</span><span class="pts">8 P</span></h3>
+<p class="ab-intro">Kreuze jeweils <b>eine</b> richtige Antwort an. Jede richtige Antwort = 1 Punkt.</p><ol class="wc">
+<li><p><b>Was bedeutet der erste Buchstabe in „TT“?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) N und PE sind getrennt</li><li><span class="wcb">☐</span> b) Das Netz ist isoliert</li><li><span class="wcb">☐</span> c) Der Sternpunkt der Stromquelle ist direkt geerdet</li><li><span class="wcb">☐</span> d) Die Körper sind direkt geerdet</li></ul></li>
+<li><p><b>Was kennzeichnet das TN-C-S-System?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) Körper an eigenem Erder</li><li><span class="wcb">☐</span> b) PEN bis zum Hausanschluss, dann Aufteilung in N und PE</li><li><span class="wcb">☐</span> c) ungeerdeter Sternpunkt</li><li><span class="wcb">☐</span> d) N und PE ab dem Trafo getrennt</li></ul></li>
+<li><p><b>Welches Netzsystem gibt in Österreich der Errichter vor?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) die Gemeinde</li><li><span class="wcb">☐</span> b) der Kunde</li><li><span class="wcb">☐</span> c) keines – der Netzbetreiber legt es fest (TAEV)</li><li><span class="wcb">☐</span> d) der Elektriker wählt frei</li></ul></li>
+<li><p><b>Warum löst im TT-System bei Körperschluss ein LS B16 meist nicht aus?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) weil der LS zu schnell ist</li><li><span class="wcb">☐</span> b) weil die Spannung zu hoch ist</li><li><span class="wcb">☐</span> c) Der Fehlerstrom fließt über die Erder und ist nur wenige Ampere groß</li><li><span class="wcb">☐</span> d) weil der PEN fehlt</li></ul></li>
+<li><p><b>Wie groß ist die Berührungsspannung im TN-System bei Körperschluss ungefähr (L und PE gleich)?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) ≈ 115 V</li><li><span class="wcb">☐</span> b) ≈ 50 V</li><li><span class="wcb">☐</span> c) ≈ 0 V</li><li><span class="wcb">☐</span> d) ≈ 230 V</li></ul></li>
+<li><p><b>Warum darf im TN-C-System kein RCD eingesetzt werden?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) weil die Spannung zu klein ist</li><li><span class="wcb">☐</span> b) das ist erlaubt</li><li><span class="wcb">☐</span> c) weil der RCD zu teuer ist</li><li><span class="wcb">☐</span> d) Der PEN darf nicht durch den RCD geführt werden – der Fehlerstrom käme durch ihn zurück</li></ul></li>
+<li><p><b>Was passiert beim ersten Isolationsfehler im IT-System?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) Kurzschluss</li><li><span class="wcb">☐</span> b) der RCD löst aus</li><li><span class="wcb">☐</span> c) Das IMD meldet, der Betrieb läuft weiter</li><li><span class="wcb">☐</span> d) sofortige Abschaltung</li></ul></li>
+<li><p><b>Welche Gefahr besteht bei PEN-Unterbrechung im TN-C?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) Die Spannung sinkt auf 0 V, keine Gefahr</li><li><span class="wcb">☐</span> b) nur Lichtflackern</li><li><span class="wcb">☐</span> c) Der LS löst sofort aus</li><li><span class="wcb">☐</span> d) Genullte Gehäuse nehmen über Verbraucher Außenleiterpotential an</li></ul></li>
+</ol><p class="wcpts">Erreichte Punkte: ______ / 8 &nbsp;·&nbsp; Bewertung: 8–7 sehr gut · 6 gut · 5 befriedigend · 4 genügend · unter 4 wiederholen</p></div>
+<div class="task wcheck"><h3>10. Wissenscheck B – Fehlerschutzmaßnahmen, Berechnung und Vorschriften – 8 Fragen <span class="badge b1">★</span><span class="pts">8 P</span></h3>
+<p class="ab-intro">Kreuze jeweils <b>eine</b> richtige Antwort an. Jede richtige Antwort = 1 Punkt.</p><ol class="wc">
+<li><p><b>Welche drei Fehlerschutzmaßnahmen sind netzunabhängig?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) Schutzisolierung, Schutzkleinspannung, Schutztrennung</li><li><span class="wcb">☐</span> b) Nullung, Schutzerdung, FI-Schutzschaltung</li><li><span class="wcb">☐</span> c) IMD, RCD, LS</li><li><span class="wcb">☐</span> d) Schutzisolierung, Nullung, Schutztrennung</li></ul></li>
+<li><p><b>Welche Fehlerschutzmaßnahme gehört zum TN-System?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) Schutzerdung</li><li><span class="wcb">☐</span> b) Isolationsüberwachungssystem</li><li><span class="wcb">☐</span> c) Nullung</li><li><span class="wcb">☐</span> d) Schutztrennung</li></ul></li>
+<li><p><b>Wann ist Schutzerdung laut ESV 2012 noch zulässig?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) nur im IT-System</li><li><span class="wcb">☐</span> b) immer</li><li><span class="wcb">☐</span> c) nur in Wohnungen</li><li><span class="wcb">☐</span> d) bei Anlagen vor 2011 oder wenn Nullung und RCD nicht anwendbar sind</li></ul></li>
+<li><p><b>Nullungsbedingung?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) R_A · I_d ≤ 50 V</li><li><span class="wcb">☐</span> b) Z_S · I_a ≤ U_0</li><li><span class="wcb">☐</span> c) U · l ≤ 100 000 V·m</li><li><span class="wcb">☐</span> d) R_A · I_Δn ≤ 50 V</li></ul></li>
+<li><p><b>LS B16: höchste Schleifenimpedanz (ohne ⅔-Regel)?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) 1,44 Ω</li><li><span class="wcb">☐</span> b) 2,88 Ω</li><li><span class="wcb">☐</span> c) 14,4 Ω</li><li><span class="wcb">☐</span> d) 0,72 Ω</li></ul></li>
+<li><p><b>TT mit RCD 30 mA: größter Erdungswiderstand?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) 50 Ω</li><li><span class="wcb">☐</span> b) 167 Ω</li><li><span class="wcb">☐</span> c) 30 Ω</li><li><span class="wcb">☐</span> d) 1667 Ω</li></ul></li>
+<li><p><b>Wie oft ist die Anlage einer Baustelle laut ESV 2012 wiederkehrend zu prüfen?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) monatlich</li><li><span class="wcb">☐</span> b) alle 5 Jahre</li><li><span class="wcb">☐</span> c) alle 10 Jahre</li><li><span class="wcb">☐</span> d) längstens jährlich</li></ul></li>
+<li><p><b>Womit darf SELV niemals erzeugt werden?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) mit einer Batterie</li><li><span class="wcb">☐</span> b) mit einem Spartransformator</li><li><span class="wcb">☐</span> c) mit einem Generator mit sicherer Trennung</li><li><span class="wcb">☐</span> d) mit einem Sicherheitstransformator</li></ul></li>
+</ol><p class="wcpts">Erreichte Punkte: ______ / 8 &nbsp;·&nbsp; Bewertung: 8–7 sehr gut · 6 gut · 5 befriedigend · 4 genügend · unter 4 wiederholen</p></div>
+  </div></section>
+  <section class="panel lo" data-panel="lo"><div class="paper"><div class="print-head"><span>Elektrotechnik & Mechatronik – Grundmodul · GM 13 Netzsysteme und ÖVE-Schutzkonzept – die sieben Fehlerschutzmaßnahmen</span><span>Lösungen</span></div>
+    <h2>Lösungen: Netzsysteme und ÖVE-Schutzkonzept – die sieben Fehlerschutzmaßnahmen</h2>
+<div class="task"><h3>1. Kennbuchstaben (5 P)</h3><div class="ans">1. Buchstabe: Erdung der Quelle (T direkt geerdet, I isoliert); 2. Buchstabe: Körper (T eigener Erder, N mit dem geerdeten Punkt der Quelle verbunden); C/S: PEN kombiniert bzw. N und PE getrennt. TN-C-S: PEN vom Trafo bis zum Hausanschluss, dort Nullungsverbindung mit Anlagenerder, Aufteilung in N (blau) und PE (grün-gelb), Körper am PE. TT: Körper an eigenem Erder R<sub>A</sub>. IT: Quelle ungeerdet, Körper geerdet.</div></div>
+<div class="task"><h3>2. Fehlerschleife (4 P)</h3><div class="ans">TN: L → Körper → PE/PEN → Sternpunkt → Trafo; nur Metall, Z<sub>S</sub> ≈ 1 Ω → hunderte A → LS magnetisch. TT: L → Körper → PE → R<sub>A</sub> → Erde → R<sub>B</sub> → Sternpunkt; Erdwiderstände → nur wenige A → LS (I<sub>a</sub> = 80 A) löst nicht aus, U<sub>B</sub> bleibt stehen → RCD nötig.</div></div>
+<div class="task"><h3>3. Fehlerschutz (7 P)</h3><div class="ans">Netzunabhängig: Schutzisolierung, Schutzkleinspannung, Schutztrennung. TN: Nullung. TT: Fehlerstrom-Schutzschaltung (auch im TN), Schutzerdung (nur Altanlagen). IT: Isolationsüberwachungssystem.</div></div>
+<div class="task"><h3>4. Nullung (5 P)</h3><div class="ans">a) R<sub>Ltg</sub> = 2 · 28 / (56 · 2,5) = 0,40 Ω → Z<sub>S</sub> = 0,82 Ω. b) Z<sub>S,max</sub> = 230 / 160 = 1,44 Ω; ⅔ → 0,96 Ω ≥ 0,82 Ω → <b>erfüllt</b>. c) Falls nicht: LS Charakteristik B, größerer Querschnitt, kürzere Leitung, RCD als Abschaltorgan.</div></div>
+<div class="task"><h3>5. TT (4 P)</h3><div class="ans">a) I<sub>F</sub> = 230 / (35 + 3) ≈ 6,1 A; U<sub>B</sub> = 6,1 · 35 ≈ 212 V. b) Nein – 6 A liegt weit unter 80 A (magnetisch), thermisch erst nach Stunden bzw. gar nicht. c) R<sub>A</sub> · I<sub>Δn</sub> ≤ 50 V → I<sub>Δn</sub> ≤ 1,43 A → RCD 30 mA, 300 mA oder 1 A.</div></div>
+<div class="task"><h3>6. IT (4 P)</h3><div class="ans">Kein geerdeter Rückleiter → beim 1. Fehler fließt nur ein kleiner Ableitstrom, R<sub>A</sub> · I<sub>d</sub> ≤ 50 V → keine gefährliche Berührungsspannung; IMD meldet. 2. Fehler an anderem Außenleiter → Kurzschluss über die Körper (Leiterspannung) → Überstrom-Schutzeinrichtung bzw. RCD muss abschalten. Einsatz: OP-Säle/Intensivstationen, Bergbau, chemische Industrie, Schiffe, Notstrom.</div></div>
+<div class="task"><h3>7. Vorschriften (4 P)</h3><div class="ans">Baustromverteiler: Nullung, Fehlerstrom-Schutzschaltung, Schutzisolierung, Schutzkleinspannung, Schutztrennung. Wiederkehrende Prüfung: Baustelle längstens 1 Jahr, Büro (geringe Beanspruchung) längstens 10 Jahre (Regelfall 5 Jahre).</div></div>
+<div class="task"><h3>8. PEN-Unterbrechung (4 P)</h3><div class="ans">Über den eingeschalteten Heizlüfter (kleiner Widerstand) ist der unterbrochene PEN mit dem Außenleiter verbunden → alle genullten Gehäuse führen nahezu <b>230 V gegen Erde</b>, ohne dass eine Schutzeinrichtung auslöst (kein Überstrom). Ein RCD ist im TN-C-System nicht möglich, weil der PEN nicht durch den RCD geführt werden darf (der Fehlerstrom würde als Betriebsstrom gesehen). Abhilfe: PEN früh in N und PE aufteilen, Mindestquerschnitt, Verbindungen prüfen.</div></div>
+<div class="task wcheck"><h3>9. Wissenscheck A – Netzsysteme und Fehlerschleife – Lösungsblatt (8 P)</h3><div class="tscroll"><table class="t"><tr><th>Nr.</th><th>Lösung</th><th>Begründung</th></tr>
+<tr><td>1</td><td><b>c)</b> Der Sternpunkt der Stromquelle ist direkt geerdet</td><td>–</td></tr>
+<tr><td>2</td><td><b>b)</b> PEN bis zum Hausanschluss, dann Aufteilung in N und PE</td><td>In Österreich der Normalfall.</td></tr>
+<tr><td>3</td><td><b>c)</b> keines – der Netzbetreiber legt es fest (TAEV)</td><td>–</td></tr>
+<tr><td>4</td><td><b>c)</b> Der Fehlerstrom fließt über die Erder und ist nur wenige Ampere groß</td><td>I_F = U_0 / (R_A + R_B).</td></tr>
+<tr><td>5</td><td><b>a)</b> ≈ 115 V</td><td>Halbe Spannung bis zur Abschaltung.</td></tr>
+<tr><td>6</td><td><b>d)</b> Der PEN darf nicht durch den RCD geführt werden – der Fehlerstrom käme durch ihn zurück</td><td>–</td></tr>
+<tr><td>7</td><td><b>c)</b> Das IMD meldet, der Betrieb läuft weiter</td><td>–</td></tr>
+<tr><td>8</td><td><b>d)</b> Genullte Gehäuse nehmen über Verbraucher Außenleiterpotential an</td><td>–</td></tr>
+</table></div></div>
+<div class="task wcheck"><h3>10. Wissenscheck B – Fehlerschutzmaßnahmen, Berechnung und Vorschriften – Lösungsblatt (8 P)</h3><div class="tscroll"><table class="t"><tr><th>Nr.</th><th>Lösung</th><th>Begründung</th></tr>
+<tr><td>1</td><td><b>a)</b> Schutzisolierung, Schutzkleinspannung, Schutztrennung</td><td>–</td></tr>
+<tr><td>2</td><td><b>c)</b> Nullung</td><td>–</td></tr>
+<tr><td>3</td><td><b>d)</b> bei Anlagen vor 2011 oder wenn Nullung und RCD nicht anwendbar sind</td><td>–</td></tr>
+<tr><td>4</td><td><b>b)</b> Z_S · I_a ≤ U_0</td><td>–</td></tr>
+<tr><td>5</td><td><b>b)</b> 2,88 Ω</td><td>230 V / 80 A.</td></tr>
+<tr><td>6</td><td><b>d)</b> 1667 Ω</td><td>50 V / 0,03 A.</td></tr>
+<tr><td>7</td><td><b>d)</b> längstens jährlich</td><td>Sichtkontrolle zusätzlich wöchentlich.</td></tr>
+<tr><td>8</td><td><b>b)</b> mit einem Spartransformator</td><td>Keine sichere Trennung.</td></tr>
+</table></div></div>
+  </div></section>
+</article>
+<script>
+TOPIC_INIT["gm13"] = function(root){
+  var R = refFn(root), RS = refsFn(root);
+// ---------- Hilfen ----------
+var K13 = { L: "#7a4a1e", L2: "#333", N: "#2b6cc4", g: "#2d8a4e", y: "#e2c21b", r: "#d0261c", o: "#d9822b", v: "#7a4ab8" };
+function w13(d, c, sw, x) { return '<path d="' + d + '" fill="none" stroke="' + c + '" stroke-width="' + (sw || 2.4) + '" stroke-linejoin="round" stroke-linecap="round"' + (x || "") + '/>'; }
+function pe13(d, sw) { sw = sw || 3; return w13(d, K13.g, sw) + w13(d, K13.y, sw, ' stroke-dasharray="7 7" stroke-linecap="butt"'); }
+function pen13(d, sw) { sw = sw || 3; return pe13(d, sw) + w13(d, K13.N, 1.2); }
+function gnd13(x, y, lab) { return '<path d="M' + (x - 11) + ' ' + y + ' H' + (x + 11) + ' M' + (x - 7) + ' ' + (y + 5) + ' H' + (x + 7) + ' M' + (x - 3) + ' ' + (y + 10) + ' H' + (x + 3) + '" stroke="currentColor" stroke-width="2"/>' + (lab ? txt(x + 14, y + 4, lab, { fs: 9, b: 1 }) : ""); }
+function dot13(x, y, c) { return '<circle cx="' + x + '" cy="' + y + '" r="3.4" fill="' + (c || "currentColor") + '"/>'; }
+function box13(x, y, w, h, t, sub, f, s, x2) { return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="5" fill="' + (f || "var(--card)") + '" stroke="' + (s || "currentColor") + '" stroke-width="1.8"' + (x2 || "") + '/>' + (t ? txt(x + w / 2, y + (sub ? h / 2 - 2 : h / 2 + 4), t, { a: "middle", fs: 10, b: 1 }) : "") + (sub ? txt(x + w / 2, y + h / 2 + 11, sub, { a: "middle", fs: 8.5 }) : ""); }
+function red13(pts, dash) { return '<polyline points="' + pts.map(function (p) { return p.join(","); }).join(" ") + '" fill="none" stroke="' + K13.r + '" stroke-width="5" opacity=".55" stroke-linejoin="round"' + (dash ? ' stroke-dasharray="6 5"' : "") + '/>'; }
+function xmark13(x, y) { return '<path d="M' + (x - 7) + ' ' + (y - 7) + ' l14 14 M' + (x + 7) + ' ' + (y - 7) + ' l-14 14" stroke="' + K13.r + '" stroke-width="3.2"/>'; }
+
+// ---------- Abbildung: Netzsysteme ----------
+(function () {
+  var h = [svgOpen(700, 380)];
+  function panel(x0, y0, sys, title) {
+    var S = [x0 + 24, y0 + 92], xe = x0 + 212, cb = [x0 + 150, y0 + 122];
+    h.push(txt(x0 + 110, y0 + 14, title, { a: "middle", fs: 12, b: 1 }) + box13(x0 + 8, y0 + 24, 32, 52, "", "") + txt(S[0], y0 + 54, "~", { a: "middle", fs: 14 }));
+    [[30, K13.L, "L1"], [44, K13.L2, "L2"], [58, "#888", "L3"]].forEach(function (l) { h.push(w13("M" + (x0 + 40) + " " + (y0 + l[0]) + " H" + xe, l[1], 2) + txt(xe + 2, y0 + l[0] + 3, l[2], { fs: 7.5 })); });
+    h.push(w13("M" + S[0] + " " + (y0 + 76) + " V" + S[1], "currentColor", 2) + dot13(S[0], S[1]));
+    var yN = y0 + 92, yP = y0 + 106;
+    if (sys === "tnc") h.push(pen13("M" + S[0] + " " + yN + " H" + xe) + txt(xe + 2, yN + 3, "PEN", { fs: 7.5 }));
+    if (sys === "tns") h.push(w13("M" + S[0] + " " + yN + " H" + xe, K13.N, 2) + txt(xe + 2, yN + 3, "N", { fs: 7.5 }) + pe13("M" + S[0] + " " + S[1] + " V" + yP + " H" + xe) + txt(xe + 2, yP + 3, "PE", { fs: 7.5 }));
+    if (sys === "tncs") h.push(pen13("M" + S[0] + " " + yN + " H" + (x0 + 105)) + w13("M" + (x0 + 105) + " " + yN + " H" + xe, K13.N, 2) + pe13("M" + (x0 + 105) + " " + yN + " V" + yP + " H" + xe) + dot13(x0 + 105, yN) + txt(xe + 2, yN + 3, "N", { fs: 7.5 }) + txt(xe + 2, yP + 3, "PE", { fs: 7.5 }) + txt(x0 + 60, yN - 4, "PEN", { a: "middle", fs: 7.5 }) + w13("M" + (x0 + 105) + " " + yP + " V" + (y0 + 150), "currentColor", 1.6) + gnd13(x0 + 105, y0 + 150) + txt(x0 + 94, y0 + 172, "Aufteilung + Erder", { a: "middle", fs: 7.5 }));
+    if (sys === "tt") h.push(w13("M" + S[0] + " " + yN + " H" + xe, K13.N, 2) + txt(xe + 2, yN + 3, "N", { fs: 7.5 }) + pe13("M" + (x0 + 128) + " " + yP + " H" + xe) + w13("M" + (x0 + 128) + " " + yP + " V" + (y0 + 150), "currentColor", 1.6) + gnd13(x0 + 128, y0 + 150) + txt(x0 + 114, y0 + 154, "R_A", { a: "end", fs: 9, b: 1 }) + txt(xe + 2, yP + 3, "PE", { fs: 7.5 }));
+    if (sys === "it") h.push(pe13("M" + (x0 + 128) + " " + yP + " H" + xe) + w13("M" + (x0 + 128) + " " + yP + " V" + (y0 + 150), "currentColor", 1.6) + gnd13(x0 + 128, y0 + 150) + txt(x0 + 114, y0 + 154, "R_A", { a: "end", fs: 9, b: 1 }) + txt(xe + 2, yP + 3, "PE", { fs: 7.5 }) + box13(x0 + 60, y0 + 98, 36, 18, "IMD", "", "var(--warm-soft)") + w13("M" + (x0 + 78) + " " + (y0 + 98) + " V" + (y0 + 30), "currentColor", 1) + w13("M" + (x0 + 96) + " " + (y0 + 107) + " H" + (x0 + 128), "currentColor", 1));
+    if (sys === "it") h.push(txt(S[0], S[1] + 18, "nicht", { a: "middle", fs: 7.5 }) + txt(S[0], S[1] + 27, "geerdet", { a: "middle", fs: 7.5 }));
+    else h.push(w13("M" + S[0] + " " + (sys === "tns" ? yP : S[1]) + " V" + (y0 + 150), "currentColor", 1.6) + gnd13(S[0], y0 + 150, "R_B"));
+    // Verbraucher
+    h.push(box13(cb[0], cb[1], 50, 34, "", "", "var(--soft)") + txt(cb[0] + 25, cb[1] + 21, "Körper", { a: "middle", fs: 8.5 }));
+    [0, 1, 2].forEach(function (i) { var x = cb[0] + 10 + i * 10; h.push(w13("M" + x + " " + (y0 + 30 + i * 14) + " V" + cb[1], [K13.L, K13.L2, "#888"][i], 1.4) + dot13(x, y0 + 30 + i * 14)); });
+    var yc = sys === "tnc" ? yN : yP;
+    if (sys === "tnc") h.push(pen13("M" + (cb[0] + 46) + " " + yc + " V" + cb[1], 2.4)); else h.push(pe13("M" + (cb[0] + 46) + " " + yc + " V" + cb[1], 2.4));
+    h.push(dot13(cb[0] + 46, yc));
+  }
+  panel(5, 5, "tnc", "TN-C"); panel(240, 5, "tns", "TN-S"); panel(475, 5, "tncs", "TN-C-S");
+  panel(120, 195, "tt", "TT"); panel(360, 195, "it", "IT");
+  h.push('</svg>'); R("fignetz").innerHTML = h.join("");
+})();
+
+// ---------- Abbildung: Fehlerschleife TN / TT ----------
+(function () {
+  var h = [svgOpen(640, 270)];
+  function loop(x0, tt) {
+    h.push(txt(x0 + 150, 16, tt ? "TT-System: Rückweg über Erde" : "TN-System: Rückweg über PE", { a: "middle", fs: 11, b: 1, c: tt ? K13.r : K13.g }));
+    h.push(box13(x0 + 10, 35, 36, 60, "", "") + txt(x0 + 28, 70, "~", { a: "middle", fs: 15 }) + w13("M" + (x0 + 46) + " 45 H" + (x0 + 240) + " V120", K13.L, 2.4) + box13(x0 + 90, 34, 40, 22, "LS", "", "var(--card)") + box13(x0 + 210, 120, 70, 50, "", "", "var(--soft)") + txt(x0 + 245, 186, "Gerät (Körper)", { a: "middle", fs: 8.5 }));
+    h.push('<path d="M' + (x0 + 240) + ' 125 l8 12 l-10 4 l12 16" fill="none" stroke="' + K13.r + '" stroke-width="2.5"/>' + w13("M" + (x0 + 28) + " 95 V200", "currentColor", 2) + dot13(x0 + 28, 200));
+    if (!tt) { h.push(pe13("M" + (x0 + 270) + " 170 V200 H" + (x0 + 28))); h.push(w13("M" + (x0 + 28) + " 200 V225", "currentColor", 1.6) + gnd13(x0 + 28, 225, "R_B")); h.push(red13([[x0 + 46, 45], [x0 + 240, 45], [x0 + 240, 150], [x0 + 270, 170], [x0 + 270, 200], [x0 + 28, 200], [x0 + 28, 95]])); h.push(txt(x0 + 150, 252, "Z_S ≈ 1 Ω → I_k ≈ 230 A → LS löst in ms aus", { a: "middle", fs: 10, b: 1 })); }
+    else { h.push(pe13("M" + (x0 + 270) + " 170 V200") + w13("M" + (x0 + 270) + " 200 V215", "currentColor", 1.6) + gnd13(x0 + 270, 215, "R_A") + w13("M" + (x0 + 28) + " 200 V215", "currentColor", 1.6) + gnd13(x0 + 28, 215, "R_B") + w13("M" + (x0 + 28) + " 232 H" + (x0 + 270), "#8b5a2b", 2, ' stroke-dasharray="3 4"') + txt(x0 + 150, 226, "Erdreich", { a: "middle", fs: 8.5, c: "#8b5a2b" }));
+      h.push(red13([[x0 + 46, 45], [x0 + 240, 45], [x0 + 240, 150], [x0 + 270, 170], [x0 + 270, 232], [x0 + 28, 232], [x0 + 28, 95]])); h.push(txt(x0 + 150, 252, "R_A + R_B ≈ 22 Ω → I_F ≈ 10 A → LS löst nicht aus!", { a: "middle", fs: 10, b: 1, c: K13.r })); }
+  }
+  loop(5, false); loop(330, true); h.push('</svg>'); R("figschl").innerHTML = h.join("");
+})();
+
+// ---------- Abbildung: Schutzkonzept ----------
+(function () {
+  var h = [svgOpen(560, 280)];
+  h.push(box13(160, 8, 240, 34, "Schutz gegen elektrischen Schlag", "", "var(--soft)"));
+  [[10, "Basisschutz", "Isolierung, Abdeckung,", "Umhüllung (IPXXB/D)", "var(--ok-soft)", K13.g], [200, "Fehlerschutz", "7 Maßnahmen", "(siehe unten)", "var(--warm-soft)", K13.o], [390, "Zusatzschutz", "RCD ≤ 30 mA, zusätzl.", "Schutzpotentialausgleich", "#e7e3f4", K13.v]].forEach(function (b, i) { h.push(w13("M280 42 V55 H" + (b[0] + 80) + " V70", "currentColor", 1.5) + box13(b[0], 70, 160, 62, "", "", b[4], b[5]) + txt(b[0] + 80, 90, b[1], { a: "middle", fs: 11, b: 1 }) + txt(b[0] + 80, 108, b[2], { a: "middle", fs: 8.5 }) + txt(b[0] + 80, 120, b[3], { a: "middle", fs: 8.5 })); });
+  h.push(txt(90, 152, "+ (immer beide)", { a: "middle", fs: 9, b: 1 }) + txt(280, 152, "+", { a: "middle", fs: 12, b: 1 }) + txt(470, 152, "zusätzlich, wo verlangt", { a: "middle", fs: 9 }));
+  ["1 Schutzisolierung", "2 Schutzkleinspannung", "3 Schutztrennung", "4 Nullung", "5 Fehlerstrom-Schutzschaltung", "6 Isolationsüberwachungssystem", "7 Schutzerdung"].forEach(function (s, i) { var c = i % 2, r = Math.floor(i / 2); h.push(txt(150 + c * 175, 180 + r * 22, s, { fs: 10, b: i === 3 || i === 4 ? 1 : 0 })); });
+  h.push('<rect x="140" y="164" width="350" height="100" rx="6" fill="none" stroke="' + K13.o + '" stroke-dasharray="5 3"/></svg>'); R("figkonz").innerHTML = h.join("");
+})();
+
+// ---------- Abbildung: Einteilung ----------
+(function () {
+  var h = [svgOpen(540, 290)];
+  h.push(box13(170, 6, 200, 30, "Fehlerschutzmaßnahmen", "", "var(--soft)") + w13("M270 36 V48 H100 V60 M270 48 H400 V60", "currentColor", 1.5));
+  h.push(box13(10, 60, 180, 30, "netzunabhängig", "", "var(--ok-soft)", K13.g) + box13(290, 60, 220, 30, "netzabhängig (mit PE)", "", "var(--warm-soft)", K13.o));
+  ["Schutzisolierung", "Schutzkleinspannung", "Schutztrennung"].forEach(function (s, i) { h.push(w13("M30 90 V" + (118 + i * 34) + " H45", "currentColor", 1.2) + box13(45, 104 + i * 34, 145, 26, s, "")); });
+  [["TN", 230, ["Nullung", "(+ RCD)"]], ["TT", 330, ["FI-Schutzschaltung", "Schutzerdung (alt)"]], ["IT", 430, ["Isolationsüber-", "wachungssystem"]]].forEach(function (g) { h.push(w13("M400 90 V100 H" + (g[1] + 40) + " V110", "currentColor", 1.2) + box13(g[1], 110, 80, 26, g[0] + "-System", "", "var(--card)", K13.o) + w13("M" + (g[1] + 40) + " 136 V150", "currentColor", 1.2) + box13(g[1] - 8, 150, 96, 46, "", "", "var(--soft)") + txt(g[1] + 40, 168, g[2][0], { a: "middle", fs: 8.5, b: 1 }) + txt(g[1] + 40, 184, g[2][1], { a: "middle", fs: 8.5, b: g[0] === "IT" ? 1 : 0 })); });
+  h.push(txt(380, 220, "RCD ist im TN-S/TN-C-S zusätzlich möglich,", { a: "middle", fs: 8.5, c: "var(--muted)" }) + txt(380, 233, "im TN-C nicht (PEN darf nicht durch den RCD).", { a: "middle", fs: 8.5, c: "var(--muted)" }) + txt(100, 222, "schaffen eigene sichere", { a: "middle", fs: 8.5, c: "var(--muted)" }) + txt(100, 235, "Verhältnisse – in jedem Netz", { a: "middle", fs: 8.5, c: "var(--muted)" }) + txt(270, 272, "In jeder Anlage zusätzlich: Hauptpotentialausgleich (ESV § 4)", { a: "middle", fs: 9.5, b: 1 }) + '</svg>');
+  R("figeint").innerHTML = h.join("");
+})();
+
+// ---------- S1 Körperschluss in fünf Netzen ----------
+function lsTime13(I, In, kM) { var k = I / In; if (k >= kM) return 0.01; if (k < 1.13) return Infinity; return Math.min(3600, 60 / (k * k - 1.1)); }
+SIM.calc(R("snetz"), {
+  in: [{ k: "s", l: "Netzsystem", opts: [["tnc", "TN-C"], ["tns", "TN-S"], ["tncs", "TN-C-S"], ["tt", "TT"], ["it", "IT"]], v: "tncs" }, { k: "f", l: "Fehlerfall", opts: [["ks", "Körperschluss L–Gehäuse"], ["pe", "Körperschluss, Schutzleiter unterbrochen"], ["pen", "PEN unterbrochen (Heizlüfter ein)"], ["ks2", "IT: zweiter Fehler an L2 (anderes Gerät)"]], v: "ks" }, { k: "d", l: "Schutzeinrichtung", opts: [["ls", "LS B16"], ["rcd", "RCD 30 mA + LS B16"]], v: "ls" }, { k: "l", l: "Leitungslänge (2,5 mm² Cu)", min: 5, max: 120, step: 5, v: 30, u: "m" }, { k: "ra", l: "Anlagenerder R_A", min: 1, max: 200, step: 1, v: 20, u: "Ω" }, { k: "p", l: "Person", opts: [[1, "berührt das Gehäuse"], [0, "berührt nicht"]], v: 1 }],
+  f: function (v) {
+    var s = v.s, f = v.f, tn = s.slice(0, 2) === "tn", RL = v.l / (56 * 2.5), ZV = 0.3, RB = 2, RK = 1000, warn = [], Ik = 0, UB = 0, Idiff = 0, tLS = Infinity, tR = Infinity, path = [], X = [], valid = true, info = "";
+    if (f === "pen" && !(s === "tnc" || s === "tncs")) { valid = false; info = "Einen PEN gibt es nur im TN-C- und TN-C-S-System."; }
+    if (f === "ks2" && s !== "it") { valid = false; info = "Der „zweite Fehler“ ist nur im IT-System ein eigener Fall – in den anderen Netzen schaltet schon der erste Fehler ab."; }
+    if (v.d === "rcd" && s === "tnc") warn.push("Im TN-C-System ist ein RCD <b>nicht möglich</b>: Der PEN führt Betriebs- und Fehlerstrom gemeinsam, der Fehlerstrom käme über den PEN zurück durch den RCD. Gerechnet wird ohne RCD.");
+    var rcd = v.d === "rcd" && s !== "tnc";
+    // Pfade (Koordinaten siehe Zeichnung)
+    var S = [45, 125], Ltr = [[70, 50], [410, 50], [410, 178], [452, 198]], peDrop = s === "tnc" ? [[462, 165], [462, 125]] : [[462, 165], [462, 145]];
+    if (valid && f === "ks") {
+      if (tn) { var Zs = ZV + 2 * RL; Ik = 230 / Zs; UB = Ik * RL; Idiff = Ik; tLS = lsTime13(Ik, 16, 5); var ret = s === "tnc" ? [[45, 125]] : s === "tns" ? [[45, 145], [45, 125]] : [[250, 145], [250, 125], [45, 125]]; path = Ltr.concat(peDrop, s === "tncs" ? [[250, 145]] : [], ret, [[45, 100]]); }
+      if (s === "tt") { Ik = 230 / (v.ra + RB + 2 * RL + ZV); UB = Ik * v.ra; Idiff = Ik; tLS = lsTime13(Ik, 16, 5); path = Ltr.concat(peDrop, [[340, 145], [340, 255], [45, 255], [45, 125], [45, 100]]); }
+      if (s === "it") { Ik = 0.02; UB = Ik * v.ra; Idiff = Ik; path = Ltr.concat(peDrop, [[360, 145], [360, 255], [45, 255]]); info = "Erster Fehler im IT-System: Es fließt nur ein kapazitiver Ableitstrom (hier 20 mA). Das Isolationsüberwachungsgerät meldet, der Betrieb läuft weiter."; }
+    }
+    if (valid && f === "ks2") { var Z2 = 4 * RL + 0.1; Ik = 400 / Z2; UB = Ik * RL; Idiff = 0; tLS = lsTime13(Ik, 16, 5); path = Ltr.concat([[462, 165], [462, 145], [330, 145], [330, 165], [300, 192], [300, 70], [70, 70]]); info = "Zweiter Fehler an einem anderen Außenleiter: Kurzschluss über beide Körper und den gemeinsamen Schutzleiter mit Leiterspannung 400 V."; }
+    if (valid && f === "pe") { X.push([462, 155]); UB = s === "it" ? 20 : 230; Ik = 0; Idiff = 0; info = "Der Schutzleiter ist unterbrochen: Das Gehäuse führt " + (s === "it" ? "gegen Erde nur wenig Spannung (kein Rückweg im IT-Netz)" : "volle 230 V") + ", aber es fließt kein Fehlerstrom, solange niemand berührt."; path = Ltr.slice(); }
+    if (valid && f === "pen") { var xb = s === "tnc" ? 300 : 150; X.push([xb, 125]); var RLoad = 26; if (s === "tnc") { UB = 230 * 0.97; path = [[70, 50], [430, 50], [430, 165], [430, 125], [462, 125], [462, 165]]; info = "PEN zwischen Trafo und Gerät unterbrochen: Über den eingeschalteten Heizlüfter liegt der PEN – und damit jedes genullte Gehäuse – an Außenleiterpotential. Keine Schutzeinrichtung bemerkt das."; } else { var RA = Math.min(v.ra, 200); UB = 230 * RA / (RLoad + RA + RB); path = [[70, 50], [430, 50], [430, 165], [430, 125], [250, 125], [250, 145], [250, 255], [45, 255], [45, 125]]; info = "PEN vor der Aufteilung unterbrochen: Der Strom des Heizlüfters fließt über die Nullungsverbindung und den Anlagenerder R_A zur Erde. Die Gehäuse nehmen U = 230 V · R_A/(R_Last + R_A + R_B) an – je kleiner R_A, desto kleiner die Spannung. Darum braucht jede genullte Anlage einen guten Anlagenerder (Fundamenterder)."; } }
+    // Person
+    var IP = 0; if (valid && v.p && UB > 0) { IP = UB / (RK + (s === "it" && f !== "ks2" ? 50000 : 0)); if (f === "pen") Idiff = 0; if (f === "pe") Idiff = s === "it" ? 0 : IP; }
+    if (f === "pe" && valid && v.p && s !== "it") path = Ltr.concat([[462, 190], [482, 190], [500, 200], [500, 240], [500, 255], [45, 255], [45, 125]]);
+    if (rcd && Idiff >= 0.03) tR = 0.03;
+    var t = Math.min(tLS, tR), tmax = tn ? 0.4 : s === "tt" ? 0.2 : 0.4, danger = UB > 50 && t > tmax;
+    if (s === "it" && f === "ks") danger = UB > 50;
+    // Zeichnung
+    var h = [svgOpen(560, 290)];
+    h.push(box13(20, 30, 50, 70, "Trafo", "", "var(--card)") + w13("M45 100 V125", "currentColor", 2) + dot13(45, 125));
+    h.push(w13("M70 50 H500", K13.L, 2.4) + txt(504, 54, "L1", { fs: 9, b: 1 }));
+    if (s === "it") h.push(w13("M70 70 H500", K13.L2, 2.4) + txt(504, 74, "L2", { fs: 9, b: 1 }));
+    if (s === "tnc") h.push(pen13("M45 125 H500") + txt(504, 129, "PEN", { fs: 9, b: 1 }));
+    if (s === "tns") h.push(w13("M45 125 H500", K13.N, 2.4) + pe13("M45 125 V145 H500") + txt(504, 129, "N", { fs: 9, b: 1 }) + txt(504, 149, "PE", { fs: 9, b: 1 }));
+    if (s === "tncs") h.push(pen13("M45 125 H250") + w13("M250 125 H500", K13.N, 2.4) + pe13("M250 125 V145 H500") + dot13(250, 125) + txt(150, 119, "PEN", { a: "middle", fs: 9, b: 1 }) + txt(504, 129, "N", { fs: 9, b: 1 }) + txt(504, 149, "PE", { fs: 9, b: 1 }) + w13("M250 145 V240", "currentColor", 1.6) + gnd13(250, 240, "R_A") + txt(250, 112, "Hausanschluss", { a: "middle", fs: 8 }));
+    if (s === "tt") h.push(w13("M45 125 H500", K13.N, 2.4) + pe13("M340 145 H500") + txt(504, 129, "N", { fs: 9, b: 1 }) + txt(504, 149, "PE", { fs: 9, b: 1 }) + w13("M340 145 V240", "currentColor", 1.6) + gnd13(340, 240, "R_A"));
+    if (s === "it") h.push(pe13("M330 145 H500") + txt(504, 149, "PE", { fs: 9, b: 1 }) + w13("M360 145 V240", "currentColor", 1.6) + gnd13(360, 240, "R_A") + dot13(360, 145) + box13(180, 150, 46, 22, "IMD", "", (f === "ks" || f === "ks2" || f === "pe") && valid ? "#ffd54f" : "var(--warm-soft)") + w13("M203 150 V125 H45", "currentColor", 1) + w13("M226 161 H360", "currentColor", 1, ' stroke-dasharray="3 3"') + txt(45, 145, "nicht geerdet", { a: "middle", fs: 8 }));
+    else h.push(w13("M45 125 V240", "currentColor", 1.6) + gnd13(45, 240, "R_B"));
+    if (s !== "it" || true) h.push(w13("M45 255 H" + (s === "it" ? 360 : 500), "#8b5a2b", 1.6, ' stroke-dasharray="3 4"') + txt(160, 268, "Erdreich", { fs: 8.5, c: "#8b5a2b" }));
+    // Schutzeinrichtung
+    h.push(rcd ? '<rect x="104" y="36" width="64" height="' + (s === "it" ? 44 : 100) + '" rx="5" fill="none" stroke="' + K13.v + '" stroke-width="1.8" stroke-dasharray="5 3"/>' + txt(136, 31, "RCD 30 mA", { a: "middle", fs: 8.5, b: 1, c: K13.v }) : "");
+    h.push(box13(116, 40, 40, 20, "LS", "", t <= 0.4 && tLS === t && isFinite(t) ? "var(--bad-soft)" : "var(--card)"));
+    // Verbraucher
+    h.push(box13(400, 165, 70, 60, "", "", "var(--soft)") + txt(435, 238, "Gerät SK I", { a: "middle", fs: 8.5 }) + w13("M410 50 V165", K13.L, 2) + dot13(410, 50));
+    if (s !== "it") { h.push(w13("M430 " + (s === "tnc" ? 125 : 125) + " V165", K13.N, 2) + dot13(430, 125)); }
+    h.push((s === "tnc" ? pen13("M462 125 V165", 2.6) : pe13("M462 145 V165", 2.6)) + dot13(462, s === "tnc" ? 125 : 145));
+    if (f === "ks" || f === "pe" || f === "ks2") h.push('<path d="M410 175 l14 10 l-8 4 l18 12" fill="none" stroke="' + K13.r + '" stroke-width="2.6"/>');
+    if (f === "pen") h.push(txt(435, 200, "Heizlüfter", { a: "middle", fs: 8.5 }));
+    if (s === "it" && f === "ks2") h.push(box13(280, 165, 60, 55, "", "", "var(--soft)") + w13("M300 70 V165", K13.L2, 2) + dot13(300, 70) + pe13("M330 145 V165", 2.6) + dot13(330, 145) + '<path d="M300 175 l10 8 l-6 4 l14 10" fill="none" stroke="' + K13.r + '" stroke-width="2.6"/>' + txt(310, 234, "Gerät 2", { a: "middle", fs: 8.5 }));
+    // Person
+    if (v.p) h.push('<circle cx="505" cy="172" r="8" fill="none" stroke="currentColor" stroke-width="2"/>' + w13("M505 180 V215 M505 215 L495 248 M505 215 L515 248 M505 190 L472 196", "currentColor", 2.2) + (IP > 0.03 && danger ? txt(520, 200, "⚡", { fs: 16, c: K13.r }) : ""));
+    if (valid && path.length) h.push(red13(path));
+    X.forEach(function (p) { h.push(xmark13(p[0], p[1])); });
+    h.push('</svg>');
+    var tTxt = !isFinite(t) ? "keine Abschaltung" : t <= 0.05 ? (tR === t ? "≈ 30 ms (RCD)" : "< 10 ms (LS magn.)") : (t < 60 ? fmt(t, 1) + " s (LS therm.)" : fmt(t / 60, 0) + " min (LS therm.)");
+    var note = (warn.length ? warn.map(function (w) { return '<div class="fb bad">' + w + '</div>'; }).join("") : "") + (valid ? '<div class="fb ' + (danger ? "bad" : "ok") + '">' + (info ? info + " " : "") + (danger ? "<b>Gefährlich:</b> U_B = " + fmt(UB, 0) + " V liegt länger als zulässig an (" + tTxt + ")." + (s === "tt" && !rcd ? " Im TT-System braucht es einen RCD." : "") + (f === "pe" && !rcd ? " Nur ein RCD hätte die Person geschützt." : "") + (f === "pen" ? " Ein RCD erkennt keinen Differenzstrom." : "") : (UB > 50 ? "Abschaltung rechtzeitig (" + tTxt + " ≤ " + fmt(tmax, 1) + " s)." : "Keine gefährliche Berührungsspannung (U_B ≤ 50 V).")) + '</div>' : '<div class="fb bad">' + info + '</div>');
+    return { svg: h.join(""), out: valid ? [["Fehlerstrom", Ik >= 1 ? fmt(Ik, Ik < 100 ? 1 : 0) + " A" : Ik > 0 ? fmt(Ik * 1000, 0) + " mA" : "–"], ["Berührungsspannung U_B", fmt(UB, 0) + " V"], ["Körperstrom (R_K ≈ 1 kΩ)", v.p ? fmt(IP * 1000, 0) + " mA" : "–"], ["Abschaltung", tTxt]] : null, note: note };
+  }
+});
+
+// ---------- S2 Nullungsbedingung ----------
+var IA13 = { B: [5, "LS B"], C: [10, "LS C"], D: [20, "LS D"], gG: [0, "gG-Sicherung"] };
+function iaG(In, t5) { var tab = { 10: [47, 82], 16: [65, 107], 20: [85, 145], 25: [110, 180], 32: [150, 265], 40: [190, 330], 50: [250, 450], 63: [320, 580] }; return tab[In][t5 ? 0 : 1]; }
+SIM.calc(R("snull"), {
+  in: [{ k: "c", l: "Schutzeinrichtung", opts: [["B", "LS Charakteristik B"], ["C", "LS Charakteristik C"], ["D", "LS Charakteristik D"], ["gG", "Schmelzsicherung gG"]], v: "B" }, { k: "In", l: "Bemessungsstrom", opts: [[10, "10 A"], [16, "16 A"], [20, "20 A"], [25, "25 A"], [32, "32 A"], [40, "40 A"], [63, "63 A"]], v: 16 }, { k: "t", l: "geforderte Abschaltzeit", opts: [[0, "0,4 s (Endstromkreis ≤ 32 A)"], [1, "5 s (Verteiler / > 32 A)"]], v: 0 }, { k: "A", l: "Querschnitt Cu", opts: [[1.5, "1,5 mm²"], [2.5, "2,5 mm²"], [4, "4 mm²"], [6, "6 mm²"], [10, "10 mm²"], [16, "16 mm²"]], v: 2.5 }, { k: "l", l: "Leitungslänge", min: 5, max: 200, step: 1, v: 35, u: "m" }, { k: "zv", l: "Vorimpedanz Z_V", min: 0.05, max: 1.5, step: 0.05, v: 0.35, u: "Ω" }],
+  f: function (v) {
+    var Ia = v.c === "gG" ? iaG(+v.In, v.t) : IA13[v.c][0] * v.In, Zmax = 230 / Ia, Z23 = Zmax * 2 / 3, RL = 2 * v.l / (56 * v.A), Zs = v.zv + RL, ok = Zs <= Z23, okh = Zs <= Zmax, lmax = Math.max(0, (Z23 - v.zv) * 56 * v.A / 2), Ik = 230 / Zs;
+    var W = 540, h = [svgOpen(W, 170)], mx = Math.max(Zmax * 1.15, Zs * 1.1), sc = 420 / mx, x0 = 90;
+    h.push(txt(10, 40, "Z_S", { fs: 11, b: 1 }) + '<rect x="' + x0 + '" y="26" width="' + v.zv * sc + '" height="22" fill="#8a96a3"/><rect x="' + (x0 + v.zv * sc) + '" y="26" width="' + RL * sc + '" height="22" fill="' + (ok ? K13.g : okh ? K13.o : K13.r) + '"/>' + (v.zv * sc > 40 ? txt(x0 + 4, 41, "Z_V", { fs: 9, b: 1, c: "#fff" }) : "") + (RL * sc > 90 ? txt(x0 + v.zv * sc + 4, 41, "Leitung " + fmt(RL, 2) + " Ω", { fs: 9, b: 1, c: "#fff" }) : ""));
+    h.push('<line x1="' + (x0 + Zmax * sc) + '" y1="14" x2="' + (x0 + Zmax * sc) + '" y2="64" stroke="' + K13.r + '" stroke-width="3"/>' + txt(x0 + Zmax * sc + 4, 74, "Z_S,max " + fmt(Zmax, 2) + " Ω", { fs: 9, b: 1, c: K13.r }) + '<line x1="' + (x0 + Z23 * sc) + '" y1="14" x2="' + (x0 + Z23 * sc) + '" y2="64" stroke="' + K13.o + '" stroke-width="2" stroke-dasharray="4 3"/>' + txt(x0 + Z23 * sc - 4, 12, "⅔ · Z_S,max", { a: "end", fs: 9, b: 1, c: K13.o }));
+    var st = mx > 6 ? 2 : mx > 3 ? 1 : 0.5; for (var z = 0; z <= mx + 1e-9; z += st) h.push('<line x1="' + (x0 + z * sc) + '" y1="90" x2="' + (x0 + z * sc) + '" y2="96" stroke="currentColor"/>' + txt(x0 + z * sc, 108, fmtAuto(z) + " Ω", { a: "middle", fs: 8 }));
+    h.push('<line x1="' + x0 + '" y1="93" x2="' + (x0 + mx * sc) + '" y2="93" stroke="currentColor"/>' + txt(10, 140, "größte Länge mit ⅔-Regel: " + fmt(lmax, 0) + " m (" + fmtAuto(v.A) + " mm², " + IA13[v.c][1] + " " + v.In + " A)", { fs: 10, b: 1 }) + txt(10, 158, "I_a = " + (v.c === "gG" ? "aus Kennlinie (Richtwert)" : IA13[v.c][0] + " · I_n") + " = " + fmt(Ia, 0) + " A", { fs: 9.5 }) + '</svg>');
+    return { svg: h.join(""), out: [["Z_S", fmt(Zs, 2) + " Ω"], ["Z_S,max = U_0 / I_a", fmt(Zmax, 2) + " Ω"], ["Kurzschlussstrom I_k", fmt(Ik, 0) + " A"], ["Ergebnis", ok ? "erfüllt" : okh ? "knapp (nur kalt)" : "nicht erfüllt"]], calc: "Z_S = Z_V + 2·l/(κ·A) = " + fmt(v.zv, 2) + " + 2·" + v.l + "/(56·" + fmtAuto(v.A) + ") = " + fmt(Zs, 2) + " Ω;  Z_S,max = 230 V / " + fmt(Ia, 0) + " A = " + fmt(Zmax, 2) + " Ω", note: '<div class="fb ' + (ok ? "ok" : "bad") + '">' + (ok ? "Nullungsbedingung erfüllt – die Schutzeinrichtung schaltet einen Körperschluss rechtzeitig ab." : okh ? "Nur im kalten Zustand erfüllt – im Fehlerfall erwärmte Leiter erhöhen Z_S. Abhilfe wie unten." : "Nicht erfüllt! Abhilfe: Charakteristik B statt C/D, größerer Querschnitt, kürzere Leitung oder RCD als Abschaltorgan.") + '</div>' };
+  }
+});
+
+// ---------- S3 TT ----------
+SIM.calc(R("stt"), {
+  in: [{ k: "ra", l: "Anlagenerder R_A", min: 0.5, max: 2000, step: 0.5, v: 40, u: "Ω", fmt: function (x) { return fmtAuto(x); } }, { k: "rb", l: "Betriebserder R_B", min: 0.5, max: 10, step: 0.5, v: 2, u: "Ω" }, { k: "d", l: "Schutzeinrichtung", opts: [["ls", "nur LS B16 (Schutzerdung)"], ["30", "RCD 30 mA"], ["300", "RCD 300 mA"], ["500", "RCD 500 mA"]], v: "ls" }],
+  f: function (v) {
+    var IF = 230 / (v.ra + v.rb + 0.3), UB = IF * v.ra, Idn = v.d === "ls" ? 80 : +v.d / 1000, ramax = 50 / Idn, okB = v.ra <= ramax, trips = v.d === "ls" ? IF >= 80 : IF >= Idn, t = v.d === "ls" ? lsTime13(IF, 16, 5) : (IF >= 5 * Idn ? 0.04 : IF >= Idn ? 0.2 : Infinity);
+    var h = [svgOpen(540, 150)], lg = function (r) { return 90 + Math.log10(r / 0.3) / Math.log10(4000 / 0.3) * 420; };
+    [0.5, 1, 10, 100, 1000].forEach(function (r) { h.push('<line x1="' + lg(r) + '" y1="70" x2="' + lg(r) + '" y2="76" stroke="currentColor"/>' + txt(lg(r), 88, fmtAuto(r) + " Ω", { a: "middle", fs: 8 })); });
+    h.push('<line x1="' + lg(0.3) + '" y1="73" x2="' + lg(4000) + '" y2="73" stroke="currentColor"/>' + txt(10, 77, "R_A (log.)", { fs: 9 }));
+    h.push('<rect x="' + lg(0.3) + '" y="40" width="' + (Math.min(lg(ramax), lg(4000)) - lg(0.3)) + '" height="18" fill="' + K13.g + '" opacity=".35"/>' + txt(lg(0.3) + 4, 53, "zulässig: R_A ≤ " + fmt(ramax, ramax < 10 ? 2 : 0) + " Ω", { fs: 9, b: 1 }) + '<circle cx="' + lg(v.ra) + '" cy="49" r="7" fill="' + (okB ? K13.g : K13.r) + '"/>' + txt(lg(v.ra), 30, "R_A", { a: "middle", fs: 9, b: 1 }));
+    h.push(txt(10, 118, "Fehlerstrom I_F = " + fmt(IF, IF < 10 ? 2 : 1) + " A  ·  Berührungsspannung U_B = " + fmt(UB, 0) + " V", { fs: 10, b: 1 }) + txt(10, 138, "Bedingung: R_A · " + (v.d === "ls" ? "I_a" : "I_Δn") + " ≤ 50 V  →  " + fmt(v.ra, v.ra < 10 ? 1 : 0) + " Ω · " + (v.d === "ls" ? "80 A" : fmtAuto(Idn) + " A") + " = " + fmt(v.ra * Idn, 1) + " V", { fs: 9.5 }) + '</svg>');
+    var good = okB && trips && t <= 0.2;
+    return { svg: h.join(""), out: [["Fehlerstrom", fmt(IF, 2) + " A"], ["U_B am Gerät", fmt(UB, 0) + " V"], ["Abschaltung", !isFinite(t) ? "keine" : t <= 0.05 ? "≈ 40 ms" : t <= 0.2 ? "≤ 0,2 s" : fmt(t, 0) + " s"], ["Bedingung", okB ? "erfüllt" : "nicht erfüllt"]], note: '<div class="fb ' + (good || UB <= 50 ? "ok" : "bad") + '">' + (v.d === "ls" ? (IF < 80 ? "Der LS B16 braucht 80 A zum schnellen Auslösen – über die Erde fließen nur " + fmt(IF, 1) + " A. Es bleiben " + fmt(UB, 0) + " V am Gehäuse stehen. Schutzerdung ist deshalb kaum erfüllbar – im TT-System gehört ein RCD dazu." : "Nur mit extrem kleinem Erdungswiderstand löst der LS aus – in der Praxis kaum erreichbar.") : okB ? "Der RCD erkennt den Differenzstrom und schaltet ab. Auch bei Erhöhung von R_A bleibt bis " + fmt(ramax, 0) + " Ω die Spannung bis zur Auslösung unter 50 V." : "R_A ist zu groß: Bei einem Fehlerstrom knapp unter I_Δn kann eine Spannung über 50 V dauernd anstehen. Erder verbessern oder RCD mit kleinerem I_Δn.") + '</div>' };
+  }
+});
+
+// ---------- S4 IT ----------
+SIM.calc(R("sit"), {
+  in: [{ k: "r1", l: "Isolationswiderstand L1 gegen PE", opts: [[1e9, "einwandfrei (> 10 MΩ)"], [200e3, "200 kΩ (leicht feucht)"], [20e3, "20 kΩ (beginnender Fehler)"], [1, "satter Erdschluss"]], v: 1e9 }, { k: "r2", l: "Isolationswiderstand L2 gegen PE (anderes Gerät)", opts: [[1e9, "einwandfrei"], [20e3, "20 kΩ"], [1, "satter Erdschluss"]], v: 1e9 }, { k: "an", l: "Ansprechwert IMD", opts: [[50e3, "50 kΩ"], [100e3, "100 kΩ"], [23e3, "23 kΩ (100 Ω/V)"]], v: 50e3 }, { k: "ra", l: "gemeinsamer Erder R_A", min: 1, max: 100, step: 1, v: 10, u: "Ω" }],
+  f: function (v) {
+    var Ri = 1 / (1 / v.r1 + 1 / v.r2 + 1 / 5e6), alarm = Ri < v.an, f1 = v.r1 < 1e6, f2 = v.r2 < 1e6, both = v.r1 <= 1 && v.r2 <= 1, Id = 0.02 + (Ri < 1e6 ? 230 / Math.max(Ri, 1) * 0 : 0), UB = (f1 || f2) ? Math.min(Id, 0.05) * v.ra : 0, Ik = both ? 400 / (0.1 + 4 * 30 / (56 * 2.5)) : 0;
+    var h = [svgOpen(540, 200)];
+    h.push(box13(20, 30, 50, 80, "Trafo", "", "var(--card)") + w13("M70 45 H500", K13.L, 2.4) + w13("M70 65 H500", K13.L2, 2.4) + w13("M70 85 H500", "#888", 2.4) + txt(504, 49, "L1", { fs: 9 }) + txt(504, 69, "L2", { fs: 9 }) + txt(504, 89, "L3", { fs: 9 }) + pe13("M130 130 H500") + txt(504, 134, "PE", { fs: 9 }) + w13("M300 130 V170", "currentColor", 1.6) + gnd13(300, 170, "R_A"));
+    h.push(box13(100, 140, 56, 26, "IMD", "", alarm ? "#ffd54f" : "var(--ok-soft)") + w13("M128 140 V130", "currentColor", 1.4) + w13("M110 140 V45", "currentColor", 1) + dot13(110, 45) + txt(128, 182, alarm ? "ALARM (optisch + akustisch)" : "Isolation in Ordnung", { a: "middle", fs: 9, b: 1, c: alarm ? K13.r : K13.g }));
+    [[380, 45, v.r1, "Gerät 1"], [450, 65, v.r2, "Gerät 2"]].forEach(function (g) { h.push(box13(g[0] - 20, 140, 50, 40, "", "", "var(--soft)") + txt(g[0] + 5, 194, g[3], { a: "middle", fs: 8.5 }) + w13("M" + g[0] + " " + g[1] + " V140", g[1] === 45 ? K13.L : K13.L2, 1.8) + dot13(g[0], g[1]) + pe13("M" + (g[0] + 22) + " 130 V140", 2.4) + dot13(g[0] + 22, 130)); if (g[2] < 1e6) h.push('<path d="M' + g[0] + ' 150 l8 8 l-6 3 l12 10" fill="none" stroke="' + K13.r + '" stroke-width="2.4"/>' + txt(g[0] + 30, 160, g[2] <= 1 ? "satt" : fmtAuto(g[2] / 1000) + " kΩ", { fs: 8.5, b: 1, c: K13.r })); });
+    if (both) h.push(red13([[70, 45], [380, 45], [380, 160], [402, 130], [472, 130], [450, 160], [450, 65], [70, 65]]));
+    h.push('</svg>');
+    var msg = both ? "<b>Zweiter Fehler!</b> Kurzschluss zwischen L1 und L2 über beide Gehäuse und den Schutzleiter: I_k ≈ " + fmt(Ik, 0) + " A → die Überstrom-Schutzeinrichtungen müssen wie im TN-System abschalten." : (f1 || f2) ? (alarm ? "Erster Fehler erkannt: Das IMD meldet, der Betrieb läuft weiter. U_B = R_A · I_d ≈ " + fmt(UB, 1) + " V ≤ 50 V. Fehler jetzt suchen und beheben, bevor ein zweiter auftritt!" : "Isolationswiderstand noch über dem Ansprechwert – keine Meldung. Höherer Ansprechwert = frühere Warnung.") : "Keine Isolationsfehler. Das IMD misst laufend den Isolationswiderstand des ganzen Netzes.";
+    return { svg: h.join(""), out: [["Isolationswiderstand Netz", Ri > 1e6 ? fmt(Ri / 1e6, 1) + " MΩ" : Ri > 1000 ? fmt(Ri / 1000, 0) + " kΩ" : "≈ 0 Ω"], ["IMD", alarm ? "Alarm" : "OK"], ["Abschaltung", both ? "ja (2. Fehler)" : "nein – Betrieb läuft"]], note: '<div class="fb ' + (both ? "bad" : alarm ? "bad" : "ok") + '">' + msg + '</div>' };
+  }
+});
+
+// ---------- S5 Zuordnung, S6 Gefahren, S7 Generator ----------
+SIM.sort(R("ssort"), [["u", "netzunabhängig"], ["tn", "TN-System"], ["tt", "TT-System"], ["it", "IT-System"]], [["Schutzisolierung", "u"], ["Schutzkleinspannung (SELV)", "u"], ["Schutztrennung", "u"], ["Nullung", "tn"], ["Z_S · I_a ≤ U_0", "tn"], ["PEN-Leiter", "tn"], ["Fehlerstrom-Schutzschaltung als eigentlicher Fehlerschutz", "tt"], ["R_A · I_Δn ≤ 50 V", "tt"], ["Schutzerdung (Altanlagen)", "tt"], ["Isolationsüberwachungssystem", "it"], ["Abschaltung erst beim zweiten Fehler", "it"], ["früher: Schutzleitungssystem", "it"]]);
+SIM.quiz(R("sgef"), [
+  ["In einer Altbau-Unterverteilung (TN-C) löst sich die PEN-Klemme. Was ist die größte Gefahr?", ["Alle genullten Gehäuse können Außenleiterpotential annehmen", "Der LS löst ständig aus", "Die Lampen werden heller, sonst nichts", "Der RCD löst aus"], 0, "Über eingeschaltete Verbraucher liegt der PEN an L. Kein Überstrom, kein Differenzstrom (und im TN-C kein RCD)."],
+  ["Bei der Prüfung misst du am Ende eines Steckdosenkreises (LS C16) Z_S = 1,8 Ω. Bewertung?", ["Nullungsbedingung nicht erfüllt – Abschaltung zu langsam", "In Ordnung – Z_S liegt unter 2 Ω", "Messfehler, Z_S kann nie so groß sein", "Nur bei Schutzklasse II relevant"], 0, "Z_S,max = 230/160 = 1,44 Ω. (Ein RCD als Abschaltorgan wäre eine zulässige Abhilfe, muss aber bewusst geplant sein.)"],
+  ["Im TT-Netz eines Bauernhofs wird ein Gerät ohne RCD nur über einen LS B16 betrieben (R_A = 25 Ω). Was passiert bei Körperschluss?", ["Am Gehäuse bleiben ≈ 210 V stehen, der LS löst nicht aus", "Der LS löst in 10 ms aus", "Es fließen 1000 A", "Nichts, im TT-System gibt es keine Fehlerspannung"], 0, "I_F ≈ 230/27 ≈ 8,5 A < 80 A."],
+  ["Ein Mitarbeiter versorgt eine 24-V-Handleuchte über einen Spartransformator 230/24 V. Warum ist das gefährlich?", ["Keine sichere Trennung – bei einem Wicklungsschluss liegt 230 V an der Leuchte", "24 V sind immer gefährlich", "Der Spartrafo erzeugt Gleichspannung", "Es ist ungefährlich"], 0, "SELV/PELV nur mit Sicherheitstransformator."],
+  ["Eine Wallbox ohne DC-Fehlerstromerkennung hängt an einem RCD Typ A. Was ist das Risiko?", ["Glatte Gleichfehlerströme können den RCD blind machen", "Der RCD löst bei jedem Laden aus", "Kein Risiko", "Der LS wird überlastet"], 0, "Typ B oder Ladestation mit 6-mA-DC-Erkennung."],
+  ["Das Isolationsüberwachungsgerät in einer Prozessanlage (IT) meldet seit Wochen einen Fehler, niemand reagiert. Was droht?", ["Ein zweiter Fehler an einem anderen Außenleiter ergibt einen Kurzschluss über die Körper", "Nichts – IT-Netze schalten nie ab", "Das IMD schaltet die Anlage ab", "Die Spannung steigt auf 690 V"], 0, ""],
+  ["Bei einer Berührung zwischen Außenleiter und Neutralleiter (beide Hände) – schützt der RCD?", ["Nein, es fließt kein Differenzstrom", "Ja, immer in 30 ms", "Nur Typ B", "Nur im TT-System"], 0, "Der Körper wirkt wie ein normaler Verbraucher."],
+  ["Am Schutzleiter eines Geräts liegt bei einem Körperschluss im TN-System kurzzeitig welche Spannung gegen Erde (L und PE gleicher Querschnitt)?", ["etwa 115 V – an allen Körpern am selben PE", "0 V", "400 V", "50 V"], 0, "Spannungsteiler L / PE → U_0 / 2."]
+]);
+SIM.gen(R("sgen"), {
+  Z: ["Z_S,max für Nullung", function () { var c = pick(["B", "C"]), In = pick([10, 13, 16, 20, 25]), Ia = (c === "B" ? 5 : 10) * In; return { t: "LS " + c + In + ": Wie groß darf die Schleifenimpedanz höchstens sein (U_0 = 230 V, ohne ⅔-Regel) in Ω?", u: "Ω", a: 230 / Ia, s: "I_a = " + (c === "B" ? 5 : 10) + " · " + In + " = " + Ia + " A; Z_S,max = 230 / " + Ia + " = " + fmt(230 / Ia, 2) + " Ω" }; }],
+  S: ["Schleifenimpedanz berechnen", function () { var l = pick([15, 20, 25, 30, 40, 50]), A = pick([1.5, 2.5, 4]), zv = pick([0.2, 0.3, 0.4, 0.5]); var Zs = zv + 2 * l / (56 * A); return { t: "Z_V = " + fmtAuto(zv) + " Ω, Leitung Cu " + fmtAuto(A) + " mm², " + l + " m (L und PE gleicher Querschnitt). Z_S in Ω?", u: "Ω", a: Zs, s: "Z_S = " + fmtAuto(zv) + " + 2·" + l + "/(56·" + fmtAuto(A) + ") = " + fmt(Zs, 3) + " Ω" }; }],
+  R: ["Höchster Erdungswiderstand TT", function () { var I = pick([0.01, 0.03, 0.1, 0.3, 0.5, 1]); return { t: "TT-System mit RCD I_Δn = " + fmtAuto(I * 1000) + " mA. Größter zulässiger Erdungswiderstand R_A in Ω?", u: "Ω", a: 50 / I, s: "R_A ≤ 50 V / " + fmtAuto(I) + " A = " + fmt(50 / I, 0) + " Ω" }; }],
+  F: ["Fehlerstrom und U_B im TT-System", function () { var ra = pick([10, 20, 35, 50, 80]), rb = pick([1, 2, 3]); var I = 230 / (ra + rb); return { t: "TT: R_A = " + ra + " Ω, R_B = " + rb + " Ω, Körperschluss. Berührungsspannung U_B in V (Leitung vernachlässigt)?", u: "V", a: I * ra, s: "I_F = 230/(" + ra + "+" + rb + ") = " + fmt(I, 2) + " A; U_B = I_F · R_A = " + fmt(I * ra, 0) + " V" }; }],
+  T: ["Schutztrennung: maximale Leitungslänge", function () { var U = pick([230, 400]); return { t: "Schutztrennung mit " + U + " V. Größte zulässige Leitungslänge in m (U · l ≤ 100 000 V·m, max. 500 m)?", u: "m", a: Math.min(500, 100000 / U), s: "l = 100 000 / " + U + " = " + fmt(100000 / U, 0) + " m" + (100000 / U > 500 ? " → begrenzt auf 500 m" : "") }; }],
+  L: ["Größte Länge für Nullung (⅔-Regel)", function () { var c = pick(["B", "C"]), In = pick([10, 13, 16]), A = pick([1.5, 2.5]), zv = pick([0.2, 0.3, 0.4]); var Z = 230 / ((c === "B" ? 5 : 10) * In) * 2 / 3, l = (Z - zv) * 56 * A / 2; return { t: "LS " + c + In + ", Cu " + fmtAuto(A) + " mm², Z_V = " + fmtAuto(zv) + " Ω. Größte Leitungslänge mit ⅔-Regel in m?", u: "m", a: l, s: "⅔ · Z_S,max = " + fmt(Z, 3) + " Ω; l = (" + fmt(Z, 3) + " − " + fmtAuto(zv) + ") · 56 · " + fmtAuto(A) + " / 2 = " + fmt(l, 1) + " m" }; }]
+});
+
+SIM.quiz(R("wcq"), [["Was bedeutet der erste Buchstabe in „TT“?", ["N und PE sind getrennt", "Das Netz ist isoliert", "Der Sternpunkt der Stromquelle ist direkt geerdet", "Die Körper sind direkt geerdet"], 2, ""], ["Was kennzeichnet das TN-C-S-System?", ["Körper an eigenem Erder", "PEN bis zum Hausanschluss, dann Aufteilung in N und PE", "ungeerdeter Sternpunkt", "N und PE ab dem Trafo getrennt"], 1, "In Österreich der Normalfall."], ["Welches Netzsystem gibt in Österreich der Errichter vor?", ["die Gemeinde", "der Kunde", "keines – der Netzbetreiber legt es fest (TAEV)", "der Elektriker wählt frei"], 2, ""], ["Warum löst im TT-System bei Körperschluss ein LS B16 meist nicht aus?", ["weil der LS zu schnell ist", "weil die Spannung zu hoch ist", "Der Fehlerstrom fließt über die Erder und ist nur wenige Ampere groß", "weil der PEN fehlt"], 2, "I_F = U_0 / (R_A + R_B)."], ["Wie groß ist die Berührungsspannung im TN-System bei Körperschluss ungefähr (L und PE gleich)?", ["≈ 115 V", "≈ 50 V", "≈ 0 V", "≈ 230 V"], 0, "Halbe Spannung bis zur Abschaltung."], ["Warum darf im TN-C-System kein RCD eingesetzt werden?", ["weil die Spannung zu klein ist", "das ist erlaubt", "weil der RCD zu teuer ist", "Der PEN darf nicht durch den RCD geführt werden – der Fehlerstrom käme durch ihn zurück"], 3, ""], ["Was passiert beim ersten Isolationsfehler im IT-System?", ["Kurzschluss", "der RCD löst aus", "Das IMD meldet, der Betrieb läuft weiter", "sofortige Abschaltung"], 2, ""], ["Welche Gefahr besteht bei PEN-Unterbrechung im TN-C?", ["Die Spannung sinkt auf 0 V, keine Gefahr", "nur Lichtflackern", "Der LS löst sofort aus", "Genullte Gehäuse nehmen über Verbraucher Außenleiterpotential an"], 3, ""]]);
+SIM.quiz(R("wcq2"), [["Welche drei Fehlerschutzmaßnahmen sind netzunabhängig?", ["Schutzisolierung, Schutzkleinspannung, Schutztrennung", "Nullung, Schutzerdung, FI-Schutzschaltung", "IMD, RCD, LS", "Schutzisolierung, Nullung, Schutztrennung"], 0, ""], ["Welche Fehlerschutzmaßnahme gehört zum TN-System?", ["Schutzerdung", "Isolationsüberwachungssystem", "Nullung", "Schutztrennung"], 2, ""], ["Wann ist Schutzerdung laut ESV 2012 noch zulässig?", ["nur im IT-System", "immer", "nur in Wohnungen", "bei Anlagen vor 2011 oder wenn Nullung und RCD nicht anwendbar sind"], 3, ""], ["Nullungsbedingung?", ["R_A · I_d ≤ 50 V", "Z_S · I_a ≤ U_0", "U · l ≤ 100 000 V·m", "R_A · I_Δn ≤ 50 V"], 1, ""], ["LS B16: höchste Schleifenimpedanz (ohne ⅔-Regel)?", ["1,44 Ω", "2,88 Ω", "14,4 Ω", "0,72 Ω"], 1, "230 V / 80 A."], ["TT mit RCD 30 mA: größter Erdungswiderstand?", ["50 Ω", "167 Ω", "30 Ω", "1667 Ω"], 3, "50 V / 0,03 A."], ["Wie oft ist die Anlage einer Baustelle laut ESV 2012 wiederkehrend zu prüfen?", ["monatlich", "alle 5 Jahre", "alle 10 Jahre", "längstens jährlich"], 3, "Sichtkontrolle zusätzlich wöchentlich."], ["Womit darf SELV niemals erzeugt werden?", ["mit einer Batterie", "mit einem Spartransformator", "mit einem Generator mit sicherer Trennung", "mit einem Sicherheitstransformator"], 1, "Keine sichere Trennung."]]);
+(function(){if(document.getElementById("wcstyle"))return;var s=document.createElement("style");s.id="wcstyle";s.textContent=".wc>li{margin:0 0 10px;break-inside:avoid}.wc p{margin:0 0 4px}.wco{list-style:none;padding-left:6px;margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 18px}@media (max-width:560px){.wco{grid-template-columns:1fr}}.wcb{font-size:1.15em}.wcpts{margin-top:10px;font-weight:600}";document.head.appendChild(s);})();
+
+};
+</script>
+<p class="foot">Fachliche Lernunterlage, kein rechtsverbindlicher Ausbildungs- oder Prüfungsplan. Erweitert nach „Fachkunde Elektrotechnik“ (Europa-Lehrmittel, 27. Aufl.); das Buch verweist auf deutsche DIN-VDE-Normen – in Österreich gelten sinngemäß ÖVE/ÖNORM E 8101 und die ESV. Für die österreichische Lehrlingsausbildung mit dem geltenden Berufsbild und den Prüfungsvorgaben abgleichen. Normen und Rechtsstand vor Verwendung prüfen (Stand: November 2026).</p>
+</main>
+</body>
+</html>

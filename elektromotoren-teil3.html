@@ -1,0 +1,1810 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Elektromotoren im Vergleich – Teil 3</title>
+<style>
+  :root{
+    --ink:#1d2433; --muted:#5b6475; --line:#d5dae3; --bg:#f5f7fa; --paper:#ffffff;
+    --accent:#0b6bcb; --accent-soft:#e6f0fb;
+    --dc:#c2410c; --ac1:#7c3aed; --ac3:#0e7490;
+    --warn:#b45309; --warn-soft:#fdf3e4; --ok:#15803d; --ok-soft:#e7f5ec; --bad:#b42318; --bad-soft:#fdecea;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Segoe UI",system-ui,-apple-system,Arial,sans-serif}
+  .wrap{max-width:1100px;margin:0 auto;padding:20px 16px 80px}
+  header.top{background:linear-gradient(135deg,#082f49,#0e7490 55%,#7c3aed);color:#fff;border-radius:14px;padding:26px 24px;margin-bottom:14px}
+  header.top h1{margin:0 0 4px;font-size:1.8rem}
+  header.top p{margin:0;opacity:.92}
+  nav{position:sticky;top:0;z-index:10;background:var(--bg);padding:8px 0;margin-bottom:10px;display:flex;gap:8px;flex-wrap:wrap}
+  nav a{text-decoration:none;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:6px 13px;font-weight:600;font-size:.92rem}
+  nav a:hover{border-color:var(--accent);color:var(--accent)}
+  nav a .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+  section.topic,.motor{scroll-margin-top:62px}
+  section.topic{margin-bottom:30px}
+  .topic-head{display:flex;align-items:center;gap:12px;margin:8px 0 12px}
+  .badge{min-width:44px;height:44px;padding:0 8px;border-radius:12px;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.05rem;flex-shrink:0}
+  .topic-head h2{margin:0;font-size:1.5rem}
+  .group-head{border-radius:14px;padding:16px 20px;color:#fff;margin:34px 0 16px}
+  .group-head h2{margin:0 0 4px;font-size:1.55rem}
+  .group-head p{margin:0;opacity:.93}
+  .motor{margin-bottom:30px}
+  .motor-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 10px}
+  .motor-head h3{margin:0;font-size:1.35rem}
+  .vt{display:inline-block;border-radius:6px;padding:2px 9px;font-size:.8rem;font-weight:700;color:#fff;white-space:nowrap}
+  .vt.dc{background:var(--dc)} .vt.ac1{background:var(--ac1)} .vt.ac3{background:var(--ac3)}
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:14px}
+  .card h3{margin:0 0 10px;font-size:1.1rem}
+  .card h4{margin:14px 0 6px}
+  .card h4:first-child{margin-top:0}
+  .formula{font-family:"Cambria Math","Times New Roman",serif;font-size:1.15rem;background:#f1f3f7;border-radius:8px;padding:6px 12px;display:inline-block;margin:4px 6px 4px 0}
+  .merke{background:var(--warn-soft);border-left:4px solid var(--warn);border-radius:6px;padding:10px 14px;margin-top:10px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .three{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .pc{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+  .pro{background:var(--ok-soft);border-radius:8px;padding:10px 14px}
+  .con{background:var(--bad-soft);border-radius:8px;padding:10px 14px}
+  .pro b{color:var(--ok)} .con b{color:var(--bad)}
+  .pro ul,.con ul{margin:4px 0 0;padding-left:18px}
+  ul,ol{padding-left:22px}
+  li{margin:3px 0}
+  .sim{display:grid;grid-template-columns:300px 1fr;gap:20px;align-items:start}
+  .controls label{display:block;font-weight:600;font-size:.93rem;margin-top:12px}
+  .controls label output{float:right;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
+  input[type=range]{width:100%;accent-color:var(--accent)}
+  select{width:100%;font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line);margin-top:4px;background:#fff}
+  .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  button{font:inherit;font-size:.9rem;padding:7px 12px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
+  button.ghost{background:#fff;color:var(--accent)}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  .seg{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+  .seg button{background:#fff;color:var(--accent);font-size:.85rem;padding:6px 10px}
+  .seg button.on{background:var(--accent);color:#fff}
+  .chk{display:flex !important;gap:8px;align-items:center;font-weight:500 !important}
+  .readout{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:12px}
+  .ro{border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:#fbfcfe}
+  .ro small{display:block;color:var(--muted);font-size:.8rem}
+  .ro b{font-size:1.2rem;font-variant-numeric:tabular-nums}
+  svg.dia{width:100%;height:auto;background:#fbfcfe;border:1px solid var(--line);border-radius:10px;display:block}
+  canvas.plot{width:100%;height:320px;display:block;background:#fff;border:1px solid var(--line);border-radius:10px}
+  .hint{color:var(--muted);font-size:.9rem;margin:8px 0 0}
+  .try{margin:6px 0 0;padding-left:20px;font-size:.95rem}
+  .status{border-radius:10px;padding:11px 14px;margin-top:12px;font-weight:500}
+  .status.ok{background:var(--ok-soft);border-left:5px solid var(--ok)}
+  .status.warn{background:var(--warn-soft);border-left:5px solid var(--warn)}
+  .status.danger{background:var(--bad-soft);border-left:5px solid var(--bad)}
+  table.t{width:100%;border-collapse:collapse;font-size:.92rem;margin-top:8px}
+  table.t th,table.t td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+  table.t th{background:var(--accent-soft)}
+  table.t th,table.t td{hyphens:auto;-webkit-hyphens:auto;overflow-wrap:anywhere}
+  .tscroll table.t th,.tscroll table.t td{overflow-wrap:normal}
+  table.t tr.cur td{background:#fde68a}
+  table.mini td,table.mini th{padding:3px 7px;text-align:center}
+  .tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tscroll svg{min-width:760px}
+  table.cmp{min-width:1320px}
+  table.cmp td:first-child,table.cmp th:first-child{min-width:170px}
+  table.cmp td:first-child{font-weight:700}
+  .dots{white-space:nowrap}
+  .dots i{display:inline-block;width:11px;height:11px;border-radius:50%;background:#e2e6ed;margin-right:3px}
+  .dots i.f{background:var(--accent)}
+  .vcard{border-radius:12px;padding:16px;color:#fff}
+  .vcard h3{margin:0 0 6px}
+  .vcard ul{margin:6px 0 0;padding-left:18px}
+  .crit{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  .crit label{display:flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:5px 12px;background:#fff;font-weight:500;font-size:.92rem;cursor:pointer}
+  .rec{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fff;margin-top:10px}
+  .rec .bar{height:10px;border-radius:6px;background:#e2e6ed;overflow:hidden;margin:6px 0}
+  .rec .bar div{height:100%;background:var(--accent)}
+  .rec h4{margin:0;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .rec .rank{background:var(--ink);color:#fff;border-radius:50%;width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+  .legend{font-size:.85rem;color:var(--muted);margin-top:6px}
+  .sim>*,.two>*,.three>*,.pc>*{min-width:0}
+  .controls .seg button{flex:1 1 auto}
+  @media (max-width:880px){.sim,.two,.three,.pc{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>Elektromotoren im Vergleich – Teil 3</h1>
+  <p>Gleichstrom · Wechselstrom · Drehstrom – Aufbau, Schaubilder, Simulationen und Kennlinien aller gängigen Motoren</p>
+</header>
+
+<nav>
+  <a href="#uebersicht"><span class="dot" style="background:#1d2433"></span>Übersicht</a>
+  <a href="#grundlagen"><span class="dot" style="background:#0b6bcb"></span>Grundprinzip</a>
+  <a href="#g-dc"><span class="dot" style="background:var(--dc)"></span>Gleichstrom</a>
+  <a href="#g-ac1"><span class="dot" style="background:var(--ac1)"></span>Wechselstrom 1~</a>
+  <a href="#g-ac3"><span class="dot" style="background:var(--ac3)"></span>Drehstrom 3~</a>
+  <a href="#kennlinien"><span class="dot" style="background:#15803d"></span>Kennlinien-Vergleich</a>
+  <a href="#tabelle"><span class="dot" style="background:#b45309"></span>Vergleichstabelle</a>
+  <a href="#auswahl"><span class="dot" style="background:#b42318"></span>Auswahlhilfe</a>
+</nav>
+
+<!-- =============================== ÜBERSICHT =============================== -->
+<section class="topic" id="uebersicht">
+  <div class="topic-head"><div class="badge" style="background:#1d2433">∑</div><h2>Übersicht: Motoren nach Spannungsart</h2></div>
+  <div class="card">
+    <h3>Schaubild: Einteilung der Elektromotoren</h3>
+    <div class="tscroll"><svg class="dia" viewBox="0 0 1000 410" id="tree"></svg></div>
+    <p class="hint">Klicke auf einen Motor, um direkt zu seinem Abschnitt zu springen.</p>
+  </div>
+
+  <div class="three">
+    <div class="vcard" style="background:var(--dc)">
+      <h3>Gleichstrom (DC) =</h3>
+      <ul>
+        <li>Quelle: Batterie, Akku, Netzteil, Gleichrichter</li>
+        <li>Die Drehbewegung entsteht durch <b>Umpolen des Stroms</b>: mechanisch (Kommutator) oder elektronisch</li>
+        <li>Drehzahl einfach über die <b>Spannung</b> einstellbar</li>
+        <li>Typisch: Kfz, Akkugeräte, Robotik, Kleinantriebe</li>
+      </ul>
+    </div>
+    <div class="vcard" style="background:var(--ac1)">
+      <h3>Wechselstrom 1~ (230 V)</h3>
+      <ul>
+        <li>Quelle: Haushaltsnetz L + N</li>
+        <li>Eine Wicklung erzeugt nur ein <b>Wechselfeld</b>, kein Drehfeld</li>
+        <li>Hilfsmittel: Kondensator + Hilfswicklung, Kurzschlussring (Spaltpol) oder Kommutator (Universalmotor)</li>
+        <li>Leistung meist bis ca. 2–3 kW</li>
+      </ul>
+    </div>
+    <div class="vcard" style="background:var(--ac3)">
+      <h3>Drehstrom 3~ (400 V)</h3>
+      <ul>
+        <li>Quelle: Drehstromnetz L1, L2, L3 oder Frequenzumrichter</li>
+        <li>Drei um 120° versetzte Ströme erzeugen <b>von selbst ein Drehfeld</b></li>
+        <li>Einfach, robust, wartungsarm, große Leistungen</li>
+        <li>Standardantrieb in der Industrie; Drehzahl über die Frequenz (FU)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <h3>Vergleich der Spannungsarten auf einen Blick</h3>
+    <div class="tscroll">
+    <table class="t" style="min-width:720px">
+      <tr><th>Merkmal</th><th>Gleichstrom DC</th><th>Wechselstrom 1~</th><th>Drehstrom 3~</th></tr>
+      <tr><td><b>Wie entsteht die Drehung?</b></td><td>Kommutator oder Elektronik polt den Strom im Läufer bzw. Ständer um</td><td>Hilfsphase (Kondensator), Spaltpol oder Kommutator</td><td>Drehfeld entsteht direkt aus dem Drehstrom</td></tr>
+      <tr><td><b>Drehzahl einstellen</b></td><td>sehr einfach: Spannung / PWM</td><td>eingeschränkt: Phasenanschnitt (nur Universalmotor)</td><td>Frequenzumrichter, Polumschaltung</td></tr>
+      <tr><td><b>Drehrichtung umkehren</b></td><td>Anker umpolen bzw. Elektronik</td><td>Hilfswicklung umpolen; Spaltpol: nicht möglich</td><td>zwei Außenleiter tauschen</td></tr>
+      <tr><td><b>Leistungsbereich</b></td><td>mW bis einige 100 kW</td><td>W bis ca. 3 kW</td><td>100 W bis MW</td></tr>
+      <tr><td><b>Wartung</b></td><td>Bürsten verschleißen; BLDC/Schritt: wartungsarm</td><td>Universal: Bürsten; sonst wartungsarm</td><td>Käfigläufer: praktisch wartungsfrei</td></tr>
+      <tr><td><b>Motoren</b></td><td>PM-DC, Nebenschluss, Reihenschluss, BLDC, Schrittmotor</td><td>Universal-, Kondensator-, Spaltpolmotor</td><td>Asynchron (Käfig/Schleifring), Synchron, Servo</td></tr>
+    </table>
+    </div>
+  </div>
+</section>
+
+<!-- =============================== GRUNDPRINZIP =============================== -->
+<section class="topic" id="grundlagen">
+  <div class="topic-head"><div class="badge" style="background:#0b6bcb">F</div><h2>Grundprinzip aller Motoren</h2></div>
+  <div class="card">
+    <div class="two">
+      <div>
+        <h4>Kraft auf einen stromdurchflossenen Leiter</h4>
+        <p>Fließt Strom durch einen Leiter im Magnetfeld, wirkt auf ihn eine <b>Kraft</b> (Lorentzkraft). Ist der Leiter auf einem drehbaren Läufer befestigt, entsteht ein <b>Drehmoment</b>.</p>
+        <span class="formula">F = B · I · l</span><span class="formula">M = F · r</span>
+        <p><b>Motorregel (Linke-Hand-Regel):</b> Die Feldlinien (von N nach S) treten in die Handfläche ein, die Finger zeigen in die technische Stromrichtung, und der Daumen zeigt die Kraftrichtung.</p>
+        <h4>Leistung und Wirkungsgrad</h4>
+        <span class="formula">P = 2π · M · n / 60</span><span class="formula">η = P<sub>ab</sub> / P<sub>zu</sub></span>
+        <p class="hint">M in Nm, n in min⁻¹ → P in W</p>
+      </div>
+      <div>
+        <svg class="dia" viewBox="0 0 340 230">
+          <rect x="10" y="40" width="60" height="140" rx="6" fill="#dc2626"/><text x="40" y="118" text-anchor="middle" fill="#fff" font-size="26" font-weight="800">N</text>
+          <rect x="270" y="40" width="60" height="140" rx="6" fill="#2563eb"/><text x="300" y="118" text-anchor="middle" fill="#fff" font-size="26" font-weight="800">S</text>
+          <g stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4">
+            <line x1="72" y1="70" x2="268" y2="70"/><line x1="72" y1="110" x2="128" y2="110"/><line x1="212" y1="110" x2="268" y2="110"/><line x1="72" y1="150" x2="268" y2="150"/>
+          </g>
+          <polygon points="268,70 258,65 258,75" fill="#94a3b8"/><polygon points="268,150 258,145 258,155" fill="#94a3b8"/>
+          <circle cx="170" cy="110" r="30" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4 3"/>
+          <circle cx="170" cy="110" r="16" fill="#fff" stroke="#1d2433" stroke-width="2.5"/><circle cx="170" cy="110" r="5" fill="#1d2433"/>
+          <line x1="170" y1="90" x2="170" y2="28" stroke="#15803d" stroke-width="5"/><polygon points="170,16 160,32 180,32" fill="#15803d"/>
+          <text x="182" y="34" font-size="15" font-weight="700" fill="#15803d">F</text>
+          <text x="96" y="62" font-size="12" fill="#5b6475">Feld B</text>
+          <text x="196" y="132" font-size="12" fill="#1d2433">Strom I ⊙</text>
+          <text x="170" y="216" text-anchor="middle" font-size="12" fill="#5b6475">⊙ Strom kommt aus der Zeichenebene heraus</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Drei Wege zur dauernden Drehbewegung</h3>
+    <div class="three">
+      <div><h4>1. Mechanische Kommutierung</h4><p>Ein <b>Kommutator</b> mit Kohlebürsten polt den Strom im Läufer immer im richtigen Moment um.<br><i>DC-Motor, Universalmotor</i></p></div>
+      <div><h4>2. Elektronische Kommutierung</h4><p>Eine <b>Elektronik</b> schaltet die Ständerspulen nacheinander ein. Der Magnet-Läufer folgt.<br><i>BLDC-/EC-Motor, Schrittmotor</i></p></div>
+      <div><h4>3. Drehfeld</h4><p>Mehrphasige Ströme erzeugen ein <b>umlaufendes Magnetfeld</b> im Ständer. Der Läufer wird mitgezogen.<br><i>Asynchron-, Synchron-, Kondensator-, Servomotor</i></p></div>
+    </div>
+    <h4>Kennlinie: Drehmoment einer Leiterschleife über dem Drehwinkel</h4>
+    <canvas class="plot" id="gPlot" style="height:280px"></canvas>
+    <p class="hint">Ohne Kommutator wechselt das Moment nach einer halben Umdrehung das Vorzeichen, und die Schleife pendelt nur. Mit Kommutator bleibt es positiv, schwankt aber stark. Mit mehreren Spulen (Trommelanker) wird das Moment fast gleichmäßig.</p>
+  </div>
+</section>
+
+<!-- =============================== GLEICHSTROM =============================== -->
+<div class="group-head" id="g-dc" style="background:var(--dc)">
+  <h2>Gleichstrommotoren (DC)</h2>
+  <p>Versorgung aus Batterie, Akku, Netzteil oder Gleichrichter – Drehzahl über die Spannung steuerbar</p>
+</div>
+
+<!-- ---------- DC-Motor mit Bürsten ---------- -->
+<div class="motor" id="m-dc">
+  <div class="motor-head"><span class="vt dc">DC</span><h3>Gleichstrommotor mit Kommutator (permanenterregt, fremderregt, Reihenschluss)</h3></div>
+  <div class="card">
+    <div class="two">
+      <div>
+        <h4>Aufbau</h4>
+        <ul>
+          <li><b>Ständer</b> mit Joch und Polen: Permanentmagnete <i>oder</i> Erregerwicklung</li>
+          <li><b>Anker</b> (Läufer): geblechtes Eisen mit Ankerwicklung in Nuten</li>
+          <li><b>Kommutator</b> (Stromwender): Kupferlamellen auf der Welle</li>
+          <li><b>Kohlebürsten</b>: führen den Strom zum Kommutator</li>
+        </ul>
+        <h4>Funktionsprinzip</h4>
+        <ol>
+          <li>Strom fließt über Bürsten und Kommutator in die Ankerwicklung.</li>
+          <li>Im Magnetfeld wirkt auf die Leiter eine Kraft → Drehmoment.</li>
+          <li>Der Kommutator polt den Strom genau dann um, wenn der Leiter in die neutrale Zone kommt. So bleibt die Drehrichtung erhalten.</li>
+          <li>Der drehende Anker erzeugt eine <b>Gegenspannung U<sub>i</sub></b> und begrenzt so den Strom.</li>
+        </ol>
+        <span class="formula">U = U<sub>i</sub> + I<sub>A</sub>·R<sub>A</sub></span><span class="formula">U<sub>i</sub> ~ Φ·n</span><span class="formula">M ~ Φ·I<sub>A</sub></span>
+      </div>
+      <div>
+        <h4>Schaltungsarten</h4>
+        <table class="t">
+          <tr><th>Schaltung</th><th>Erregung</th><th>Verhalten</th></tr>
+          <tr><td>Permanenterregt</td><td>Dauermagnete</td><td>Nebenschlussverhalten</td></tr>
+          <tr><td>Fremderregt</td><td>eigene Spannung (F1–F2)</td><td>Nebenschlussverhalten, Feldschwächung möglich</td></tr>
+          <tr><td>Nebenschluss</td><td>parallel zum Anker (E1–E2)</td><td>Nebenschlussverhalten</td></tr>
+          <tr><td>Reihenschluss</td><td>in Reihe zum Anker (D1–D2)</td><td>Reihenschlussverhalten, Durchgehgefahr</td></tr>
+          <tr><td>Doppelschluss</td><td>Nebenschluss + Reihenschluss</td><td>dazwischen</td></tr>
+        </table>
+        <p class="hint">Ankeranschlüsse: A1–A2 (EN 60034-8)</p>
+        <div class="pc">
+          <div class="pro"><b>Vorteile</b><ul><li>Drehzahl einfach über die Spannung</li><li>hohes Anlaufmoment</li><li>direkt an Batterie</li></ul></div>
+          <div class="con"><b>Nachteile</b><ul><li>Verschleiß von Bürsten und Kommutator</li><li>Bürstenfeuer, Funkstörungen</li><li>Wartung nötig</li></ul></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Simulator: Gleichstrommotor 24 V</h3>
+    <div class="sim">
+      <div class="controls">
+        <label>Erregungsart</label>
+        <div class="seg" id="dcType"><button data-v="pm" class="on">Permanenterregt</button><button data-v="fe">Fremderregt</button><button data-v="rs">Reihenschluss</button></div>
+        <label>Ankerspannung U <output id="dcUo"></output></label>
+        <input type="range" id="dcU" min="0" max="24" step="0.5" value="24">
+        <label>Erregung Φ (Feldschwächung) <output id="dcPhio"></output></label>
+        <input type="range" id="dcPhi" min="50" max="100" step="1" value="100">
+        <label>Lastmoment M<sub>L</sub> <output id="dcLo"></output></label>
+        <input type="range" id="dcL" min="0" max="3" step="0.02" value="0.5">
+        <label class="chk"><input type="checkbox" id="dcRev"> Spannung umpolen</label>
+        <div class="readout">
+          <div class="ro"><small>Drehzahl n</small><b id="dcN"></b></div>
+          <div class="ro"><small>Ankerstrom I<sub>A</sub></small><b id="dcI"></b></div>
+          <div class="ro"><small>Leistung P<sub>ab</sub></small><b id="dcP"></b></div>
+          <div class="ro"><small>Wirkungsgrad η</small><b id="dcEta"></b></div>
+        </div>
+      </div>
+      <div>
+        <svg class="dia" viewBox="0 0 480 300" id="dcSvg"></svg>
+        <div class="status ok" id="dcMsg"></div>
+      </div>
+    </div>
+    <h4>Kennlinie: Drehzahl über dem Lastmoment n = f(M)</h4>
+    <canvas class="plot" id="dcPlot"></canvas>
+    <ol class="try">
+      <li>Erhöhe die Last beim permanenterregten Motor. Wie stark sinkt die Drehzahl?</li>
+      <li>Fremderregt: Stelle die Erregung auf 60 %. Was passiert mit Leerlaufdrehzahl und Strom?</li>
+      <li>Reihenschluss: Senke die Last auf fast 0. Warum ist das gefährlich?</li>
+      <li>Polst du beim Reihenschlussmotor die Spannung um, dreht er dann andersherum?</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ---------- BLDC ---------- -->
+<div class="motor" id="m-bldc">
+  <div class="motor-head"><span class="vt dc">DC</span><h3>BLDC- / EC-Motor (bürstenloser Gleichstrommotor)</h3></div>
+  <div class="card">
+    <div class="two">
+      <div>
+        <h4>Aufbau</h4>
+        <ul>
+          <li><b>Ständer</b> mit drei Wicklungen U, V, W (wie beim Drehstrommotor)</li>
+          <li><b>Läufer</b> mit Permanentmagneten (Innen- oder Außenläufer)</li>
+          <li><b>Hallsensoren</b> erfassen die Läuferlage (oder sensorlos über die Gegenspannung)</li>
+          <li><b>Elektronik</b> mit 6 Transistoren (B6-Brücke) ersetzt den Kommutator</li>
+        </ul>
+        <h4>Funktionsprinzip</h4>
+        <p>Die Elektronik schaltet je nach Läuferlage immer <b>zwei der drei Wicklungen</b> ein (Blockkommutierung, 6 Schritte). Das Ständerfeld springt dabei immer etwa 90° vor den Läufer und zieht ihn mit. Die Drehzahl wird über die <b>PWM</b> (Tastgrad) eingestellt.</p>
+      </div>
+      <div>
+        <div class="pc" style="margin-top:0">
+          <div class="pro"><b>Vorteile</b><ul><li>keine Bürsten → wartungsarm, lange Lebensdauer</li><li>hoher Wirkungsgrad (80–95 %)</li><li>leise, kompakt, gut regelbar</li></ul></div>
+          <div class="con"><b>Nachteile</b><ul><li>Elektronik nötig</li><li>teurer als ein Bürstenmotor</li><li>Drehmomentwelligkeit bei Blockkommutierung</li></ul></div>
+        </div>
+        <div class="merke"><b>Einsatz:</b> PC-Lüfter, Drohnen, Akkuwerkzeuge, E-Bikes, Pumpen, Festplatten. „EC-Motor“ (electronically commutated) ist ein anderer Name für denselben Motor.</div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Simulator: Elektronische Kommutierung</h3>
+    <div class="sim">
+      <div class="controls">
+        <label>PWM-Tastgrad <output id="bldcDo"></output></label>
+        <input type="range" id="bldcD" min="0" max="100" step="1" value="70">
+        <label>Lastmoment M<sub>L</sub> <output id="bldcLo"></output></label>
+        <input type="range" id="bldcL" min="0" max="1.5" step="0.01" value="0.2">
+        <label class="chk"><input type="checkbox" id="bldcRev"> Kommutierungsfolge umkehren</label>
+        <div class="readout">
+          <div class="ro"><small>Drehzahl n</small><b id="bldcN"></b></div>
+          <div class="ro"><small>Mittl. Spannung</small><b id="bldcU"></b></div>
+          <div class="ro"><small>Hall H1 H2 H3</small><b id="bldcH"></b></div>
+        </div>
+        <table class="t mini" id="bldcTab"></table>
+      </div>
+      <div>
+        <svg class="dia" viewBox="0 0 480 300" id="bldcSvg"></svg>
+        <p class="legend">Zähne: <b style="color:#dc2626">rot = Strom +</b> · <b style="color:#2563eb">blau = Strom −</b> · grau = offen · <b style="color:#f59e0b">Pfeil = Ständerfeld</b> · Hallsensor gelb = Signal 1</p>
+      </div>
+    </div>
+    <h4>Kennlinie: n = f(M) bei verschiedenen Tastgraden</h4>
+    <canvas class="plot" id="bldcPlot"></canvas>
+    <ol class="try">
+      <li>Beobachte die Tabelle: Wie viele Wicklungen sind gleichzeitig eingeschaltet?</li>
+      <li>Halbiere den Tastgrad. Wie verändert sich die Drehzahl?</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ---------- Schrittmotor ---------- -->
+<div class="motor" id="m-step">
+  <div class="motor-head"><span class="vt dc">DC</span><h3>Schrittmotor</h3></div>
+  <div class="card">
+    <div class="two">
+      <div>
+        <h4>Aufbau</h4>
+        <ul>
+          <li><b>Ständer</b> mit zwei Phasen (Spulen A und B)</li>
+          <li><b>Läufer</b>: Permanentmagnet (PM) oder Hybrid-Läufer mit gezahnten Polscheiben – typisch 200 Schritte pro Umdrehung (1,8°)</li>
+          <li><b>Schrittmotortreiber</b>: bekommt Takt- und Richtungssignal (z. B. von SPS oder Mikrocontroller)</li>
+        </ul>
+        <h4>Funktionsprinzip</h4>
+        <p>Jeder Taktimpuls schaltet die Spulen eine Stufe weiter, und der Läufer dreht um genau einen <b>Schrittwinkel</b>. Der Motor wird <b>gesteuert</b> (ohne Rückmeldung). Bei Überlast verliert er Schritte – das merkt die Steuerung nicht!</p>
+        <span class="formula">α = 360° / z</span><span class="formula">n = 60 · f / z</span>
+        <p class="hint">z = Schritte pro Umdrehung, f = Schrittfrequenz in Hz</p>
+      </div>
+      <div>
+        <h4>Betriebsarten</h4>
+        <table class="t">
+          <tr><th>Betriebsart</th><th>Besonderheit</th></tr>
+          <tr><td>Vollschritt, 1 Phase</td><td>immer nur eine Spule an, kleineres Moment</td></tr>
+          <tr><td>Vollschritt, 2 Phasen</td><td>beide Spulen an, volles Moment</td></tr>
+          <tr><td>Halbschritt</td><td>abwechselnd 1 und 2 Phasen, doppelte Auflösung</td></tr>
+          <tr><td>Mikroschritt</td><td>sinusförmige Ströme, sehr fein und ruhig</td></tr>
+        </table>
+        <div class="pc">
+          <div class="pro"><b>Vorteile</b><ul><li>genaues Positionieren ohne Geber</li><li>hohes Haltemoment</li><li>einfach, günstig</li></ul></div>
+          <div class="con"><b>Nachteile</b><ul><li>Schrittverlust bei Überlast</li><li>Moment sinkt bei hoher Drehzahl</li><li>Strom auch im Stillstand → Wärme</li></ul></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Simulator: Schrittmotor mit Treiber</h3>
+    <div class="sim">
+      <div class="controls">
+        <label>Betriebsart</label>
+        <div class="seg" id="stMode"><button data-v="w">Vollschritt 1 Ph.</button><button data-v="f2" class="on">Vollschritt 2 Ph.</button><button data-v="h">Halbschritt</button></div>
+        <label>Richtung</label>
+        <div class="seg" id="stDir"><button data-v="1" class="on">Rechts ↻</button><button data-v="-1">Links ↺</button></div>
+        <label>Schrittfrequenz f <output id="stFo"></output></label>
+        <input type="range" id="stF" min="0" max="2000" step="10" value="300">
+        <label>Lastmoment M<sub>L</sub> <output id="stLo"></output></label>
+        <input type="range" id="stL" min="0" max="0.6" step="0.01" value="0.1">
+        <div class="btns"><button id="stRun">▶ Start</button><button class="ghost" id="stOne">Einzelschritt</button><button class="ghost" id="stZero">Zähler 0</button></div>
+        <div class="readout">
+          <div class="ro"><small>Schrittwinkel α</small><b id="stA"></b></div>
+          <div class="ro"><small>Drehzahl n</small><b id="stN"></b></div>
+          <div class="ro"><small>Schritte</small><b id="stCnt"></b></div>
+          <div class="ro"><small>Winkel</small><b id="stPos"></b></div>
+        </div>
+      </div>
+      <div>
+        <svg class="dia" viewBox="0 0 480 300" id="stSvg"></svg>
+        <table class="t mini" id="stTab"></table>
+        <div class="status ok" id="stMsg"></div>
+      </div>
+    </div>
+    <h4>Kennlinie: Grenzmoment über der Schrittfrequenz M = f(f)</h4>
+    <canvas class="plot" id="stPlot"></canvas>
+    <p class="hint">Unterhalb der <b>Start-Stopp-Grenzkennlinie</b> kann der Motor direkt mit dieser Frequenz starten. Zwischen den Kurven läuft er nur mit einer <b>Frequenzrampe</b> an. Oberhalb der <b>Betriebsgrenzkennlinie</b> verliert er Schritte.</p>
+  </div>
+</div>
+
+<!-- =============================== WECHSELSTROM =============================== -->
+<div class="group-head" id="g-ac1" style="background:var(--ac1)">
+  <h2>Wechselstrommotoren (1~, 230 V)</h2>
+  <p>Am Haushaltsnetz – das Problem: Eine Wicklung allein erzeugt nur ein pulsierendes Wechselfeld</p>
+</div>
+
+<!-- ---------- Universalmotor ---------- -->
+<div class="motor" id="m-uni">
+  <div class="motor-head"><span class="vt ac1">1~</span><span class="vt dc">DC</span><h3>Universalmotor (Allstrommotor)</h3></div>
+  <div class="card">
+    <div class="two">
+      <div>
+        <h4>Aufbau</h4>
+        <ul>
+          <li>Wie ein <b>Reihenschlussmotor</b>: Erregerwicklung in Reihe mit dem Anker</li>
+          <li>Kommutator und Kohlebürsten</li>
+          <li>Ständer vollständig <b>geblecht</b> (gegen Wirbelströme bei Wechselstrom)</li>
+          <li>Entstörkondensator gegen Funkstörungen</li>
+        </ul>
+        <h4>Funktionsprinzip</h4>
+        <p>Bei Wechselstrom ändern <b>Ankerstrom und Feld gleichzeitig</b> ihre Richtung. Das Drehmoment M ~ Φ · I ist deshalb immer positiv. Der Motor läuft an Gleich- und Wechselspannung.</p>
+        <p><b>Drehzahl:</b> Phasenanschnittsteuerung mit Triac (Drehzahlsteller in Bohrmaschine, Staubsauger).</p>
+      </div>
+      <div>
+        <div class="pc" style="margin-top:0">
+          <div class="pro"><b>Vorteile</b><ul><li>sehr hohe Drehzahl (bis ca. 35 000 min⁻¹)</li><li>viel Leistung bei wenig Gewicht</li><li>großes Anlaufmoment, günstig</li></ul></div>
+          <div class="con"><b>Nachteile</b><ul><li>laut, Bürstenverschleiß</li><li>Funkstörungen</li><li>Drehzahl stark lastabhängig</li><li>kurze Lebensdauer</li></ul></div>
+        </div>
+        <div class="merke"><b>Einsatz:</b> Bohrmaschine, Winkelschleifer, Staubsauger, Küchenmaschine, Föhn (Kleinstmotoren).</div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Simulator: Universalmotor mit Phasenanschnitt</h3>
+    <div class="sim">
+      <div class="controls">
+        <label>Versorgung</label>
+        <div class="seg" id="uSup"><button data-v="ac" class="on">230 V Wechselspannung</button><button data-v="dc">230 V Gleichspannung</button></div>
+        <label>Zündwinkel α (Triac) <output id="uAo"></output></label>
+        <input type="range" id="uA" min="0" max="170" step="1" value="45">
+        <label>Lastmoment M<sub>L</sub> <output id="uLo"></output></label>
+        <input type="range" id="uL" min="0" max="1.5" step="0.01" value="0.3">
+        <div class="readout">
+          <div class="ro"><small>Motorspannung (eff.)</small><b id="uU"></b></div>
+          <div class="ro"><small>Drehzahl n</small><b id="uN"></b></div>
+          <div class="ro"><small>Strom I</small><b id="uI"></b></div>
+          <div class="ro"><small>Leistung P<sub>ab</sub></small><b id="uP"></b></div>
+        </div>
+      </div>
+      <div>
+        <svg class="dia" viewBox="0 0 480 220" id="uSvg"></svg>
+        <div class="status ok" id="uMsg"></div>
+      </div>
+    </div>
+    <div class="two" style="margin-top:14px">
+      <div><h4>Liniendiagramm: Spannung, Strom/Feld und Drehmoment</h4><canvas class="plot" id="uWave" style="height:290px"></canvas>
+        <p class="hint">Strom und Feld sind in Phase. Ihr Produkt (Drehmoment) ist immer ≥ 0. Je größer α, desto später zündet der Triac und desto kleiner wird die Spannung.</p></div>
+      <div><h4>Kennlinie: n = f(M) – Reihenschlussverhalten</h4><canvas class="plot" id="uPlot" style="height:290px"></canvas>
+        <p class="hint">Gestrichelt: volle Spannung (α = 0°). Bei kleiner Last steigt die Drehzahl stark an.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ---------- Kondensatormotor ---------- -->
+<div class="motor" id="m-kond">
+  <div class="motor-head"><span class="vt ac1">1~</span><h3>Kondensatormotor (Einphasen-Asynchronmotor)</h3></div>
+  <div class="card">
+    <div class="two">
+      <div>
+        <h4>Aufbau</h4>
+        <ul>
+          <li><b>Hauptwicklung</b> U1–U2 und <b>Hilfswicklung</b> Z1–Z2, räumlich um 90° versetzt</li>
+          <li><b>Betriebskondensator C<sub>B</sub></b> in Reihe mit der Hilfswicklung</li>
+          <li>Optional: <b>Anlaufkondensator C<sub>A</sub></b>, wird nach dem Hochlauf durch Fliehkraftschalter oder Relais abgeschaltet</li>
+          <li><b>Käfigläufer</b> wie beim Drehstrommotor</li>
+        </ul>
+        <h4>Funktionsprinzip</h4>
+        <p>Eine Wicklung allein erzeugt nur ein <b>Wechselfeld</b> → kein Anlaufmoment, der Motor brummt nur. Der Kondensator verschiebt den Strom in der Hilfswicklung zeitlich. Zusammen mit der räumlichen Versetzung entsteht ein <b>elliptisches Drehfeld</b>.</p>
+      </div>
+      <div>
+        <div class="merke" style="margin-top:0"><b>Drehrichtung ändern:</b> Hilfswicklung umpolen (Z1 und Z2 tauschen).</div>
+        <div class="merke"><b>Steinmetzschaltung:</b> Ein Drehstrommotor kann mit Kondensator am 230-V-Netz laufen (Richtwert ca. 70 µF pro kW). Er gibt dann nur noch ca. 70–80 % seiner Leistung ab.</div>
+        <div class="pc">
+          <div class="pro"><b>Vorteile</b><ul><li>robust, wartungsarm</li><li>läuft am Haushaltsnetz</li></ul></div>
+          <div class="con"><b>Nachteile</b><ul><li>geringes Anlaufmoment (nur mit C<sub>B</sub>)</li><li>Leistung bis ca. 2–3 kW</li><li>Drehzahl kaum steuerbar</li></ul></div>
+        </div>
+        <p class="hint"><b>Einsatz:</b> Pumpen, Kompressoren, Ventilatoren, Garagentore, Rasenmäher, Waschmaschinen</p>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Simulator: Kondensatormotor 230 V, 4-polig</h3>
+    <div class="sim">
+      <div class="controls">
+        <label>Kondensator</label>
+        <div class="seg" id="kC"><button data-v="none">ohne</button><button data-v="run" class="on">Betriebskond. C<sub>B</sub></button><button data-v="start">C<sub>B</sub> + Anlaufkond. C<sub>A</sub></button></div>
+        <label>Lastmoment M<sub>L</sub> <output id="kLo"></output></label>
+        <input type="range" id="kL" min="0" max="6" step="0.05" value="1.5">
+        <label class="chk"><input type="checkbox" id="kRev"> Hilfswicklung umgepolt (Z1 ↔ Z2)</label>
+        <div class="btns"><button id="kOn">Aus- und wieder einschalten</button><button class="ghost" id="kPush">Von Hand anwerfen</button></div>
+        <div class="readout">
+          <div class="ro"><small>Drehzahl n</small><b id="kN"></b></div>
+          <div class="ro"><small>Schlupf s</small><b id="kS"></b></div>
+          <div class="ro"><small>Phasenverschiebung</small><b id="kPh"></b></div>
+          <div class="ro"><small>Anlaufmoment</small><b id="kMA"></b></div>
+        </div>
+      </div>
+      <div>
+        <svg class="dia" viewBox="0 0 500 300" id="kSvg"></svg>
+        <div class="status ok" id="kMsg"></div>
+      </div>
+    </div>
+    <h4>Kennlinie: M = f(n)</h4>
+    <canvas class="plot" id="kPlot"></canvas>
+    <ol class="try">
+      <li>Wähle „ohne“ Kondensator. Warum läuft der Motor nicht an? Wirf ihn von Hand an.</li>
+      <li>Vergleiche das Anlaufmoment mit C<sub>B</sub> und mit C<sub>B</sub> + C<sub>A</sub>.</li>
+      <li>Beobachte die Feldform im Schaubild (Wechselfeld, Ellipse, Kreis).</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ---------- Spaltpolmotor ---------- -->
+<div class="motor" id="m-spalt">
+  <div class="motor-head"><span class="vt ac1">1~</span><h3>Spaltpolmotor</h3></div>
+  <div class="card">
+    <div class="two">
+      <div>
+        <h4>Aufbau</h4>
+        <ul>
+          <li>Ständer mit ausgeprägten Polen und <b>einer Spule</b></li>
+          <li>Ein Teil jedes Pols ist von einem <b>Kurzschlussring aus Kupfer</b> umschlossen (Spaltpol)</li>
+          <li>Käfigläufer</li>
+        </ul>
+        <h4>Funktionsprinzip</h4>
+        <p>Im Kurzschlussring wird ein Strom induziert. Er bremst die Feldänderung im Spaltpol, so dass das Feld dort <b>später</b> kommt. Das Magnetfeld „wandert“ vom Hauptpol zum Spaltpol (<b>Wanderfeld</b>), und der Läufer dreht in diese Richtung.</p>
+        <div class="pc">
+          <div class="pro"><b>Vorteile</b><ul><li>sehr einfach und billig</li><li>wartungsfrei, kein Kondensator</li></ul></div>
+          <div class="con"><b>Nachteile</b><ul><li>Wirkungsgrad nur ca. 10–30 %</li><li>kleines Anlaufmoment</li><li>bis ca. 100 W</li><li>Drehrichtung fest</li></ul></div>
+        </div>
+        <p class="hint"><b>Einsatz:</b> Laugenpumpen, Kleinlüfter, Heizlüfter, Dunstabzug</p>
+      </div>
+      <div>
+        <svg class="dia" viewBox="0 0 480 280" id="spSvg"></svg>
+        <p class="legend">Rote Balken = Stärke des Magnetfelds. Das Feld im Spaltpol (mit Ring) folgt verzögert → das Feld wandert im Uhrzeigersinn.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =============================== DREHSTROM =============================== -->
+<div class="group-head" id="g-ac3" style="background:var(--ac3)">
+  <h2>Drehstrommotoren (3~, 400 V)</h2>
+  <p>Drei um 120° versetzte Ströme erzeugen ein Drehfeld – die Basis der Industrieantriebe</p>
+</div>
+
+<!-- ---------- Asynchron ---------- -->
+<div class="motor" id="m-asm">
+  <div class="motor-head"><span class="vt ac3">3~</span><h3>Asynchronmotor – Käfigläufer und Schleifringläufer</h3></div>
+  <div class="card">
+    <div class="two">
+      <div>
+        <h4>Aufbau</h4>
+        <ul>
+          <li><b>Ständer</b> mit Drehstromwicklung U1–U2, V1–V2, W1–W2</li>
+          <li><b>Käfigläufer:</b> Alu- oder Kupferstäbe, an den Enden mit Kurzschlussringen verbunden – keine Bürsten</li>
+          <li><b>Schleifringläufer:</b> Drehstromwicklung im Läufer, über drei Schleifringe und Bürsten an Anlasswiderstände angeschlossen</li>
+        </ul>
+        <h4>Funktionsprinzip</h4>
+        <p>Das Drehfeld induziert im Läufer eine Spannung → Läuferstrom → Drehmoment. Der Läufer ist immer etwas langsamer als das Drehfeld (<b>Schlupf</b>), sonst würde nichts induziert.</p>
+        <span class="formula">n<sub>s</sub> = f · 60 / p</span><span class="formula">s = (n<sub>s</sub> − n) / n<sub>s</sub></span>
+      </div>
+      <div>
+        <h4>Schleifringläufer: Wozu die Widerstände?</h4>
+        <p>Mehr Widerstand im Läuferkreis verschiebt das <b>Kippmoment zu kleineren Drehzahlen</b>. So bekommt man ein <b>hohes Anlaufmoment bei kleinerem Anlaufstrom</b> – wichtig für Krane, Mühlen und Brecher. Nach dem Hochlauf werden die Widerstände stufenweise kurzgeschlossen. Heute ersetzt meist ein Käfigläufer mit FU diese Lösung.</p>
+        <div class="pc">
+          <div class="pro"><b>Vorteile (Käfig)</b><ul><li>robust, wartungsfrei, günstig</li><li>Wirkungsgrad 80–96 %</li><li>Standardmotor der Industrie</li></ul></div>
+          <div class="con"><b>Nachteile</b><ul><li>hoher Anlaufstrom (5–8 · I<sub>N</sub>)</li><li>Drehzahl nur mit FU stufenlos</li><li>Schleifringe: Wartung</li></ul></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Simulator: Asynchronmotor 4-polig, 50 Hz, M<sub>N</sub> = 10 Nm</h3>
+    <div class="sim">
+      <div class="controls">
+        <label>Läuferart</label>
+        <div class="seg" id="aType"><button data-v="k" class="on">Käfigläufer</button><button data-v="s">Schleifringläufer</button></div>
+        <label>Anlasswiderstand (Stufe) <output id="aRo"></output></label>
+        <input type="range" id="aR" min="0" max="6" step="1" value="0">
+        <label>Lastmoment M<sub>L</sub> <output id="aLo"></output></label>
+        <input type="range" id="aL" min="0" max="30" step="0.5" value="10">
+        <label class="chk"><input type="checkbox" id="aRev"> Zwei Außenleiter getauscht</label>
+        <div class="readout">
+          <div class="ro"><small>Drehzahl n</small><b id="aN"></b></div>
+          <div class="ro"><small>Schlupf s</small><b id="aS"></b></div>
+          <div class="ro"><small>Anlaufmoment</small><b id="aMA"></b></div>
+          <div class="ro"><small>Anlaufstrom</small><b id="aIA"></b></div>
+        </div>
+      </div>
+      <div>
+        <svg class="dia" viewBox="0 0 500 300" id="aSvg"></svg>
+        <div class="status ok" id="aMsg"></div>
+      </div>
+    </div>
+    <h4>Kennlinie: M = f(n)</h4>
+    <canvas class="plot" id="aPlot"></canvas>
+    <ol class="try">
+      <li>Schleifringläufer, Stufe 0: Läuft der Motor mit 10 Nm Last an?</li>
+      <li>Erhöhe die Stufe schrittweise. Bei welcher Stufe ist das Anlaufmoment am größten? Was passiert danach?</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ---------- Synchron ---------- -->
+<div class="motor" id="m-sm">
+  <div class="motor-head"><span class="vt ac3">3~</span><h3>Synchronmotor</h3></div>
+  <div class="card">
+    <div class="two">
+      <div>
+        <h4>Aufbau</h4>
+        <ul>
+          <li><b>Ständer</b> wie beim Asynchronmotor (Drehstromwicklung)</li>
+          <li><b>Läufer (Polrad)</b> mit Permanentmagneten (PMSM) oder mit Erregerwicklung, die über Schleifringe Gleichstrom bekommt</li>
+          <li>Oft ein <b>Dämpferkäfig</b> im Polrad (für Anlauf und gegen Pendeln)</li>
+        </ul>
+        <h4>Funktionsprinzip</h4>
+        <p>Das Polrad ist ein Magnet und wird vom Drehfeld <b>exakt synchron</b> mitgenommen: n = n<sub>s</sub>. Unter Last bleibt es um den <b>Polradwinkel ϑ</b> zurück. Ab ϑ = 90° (Kippmoment) fällt der Motor <b>außer Tritt</b> und bleibt stehen.</p>
+        <span class="formula">n = n<sub>s</sub> = f · 60 / p</span><span class="formula">M = M<sub>K</sub> · sin ϑ</span>
+      </div>
+      <div>
+        <div class="merke" style="margin-top:0"><b>Anlauf:</b> Am starren Netz läuft ein Synchronmotor nicht selbst an. Lösungen: Frequenzumrichter (fährt die Frequenz langsam hoch) oder asynchroner Anlauf über den Dämpferkäfig.</div>
+        <div class="pc">
+          <div class="pro"><b>Vorteile</b><ul><li>Drehzahl exakt konstant</li><li>sehr hoher Wirkungsgrad (90–97 %)</li><li>Blindleistung einstellbar (elektrisch erregt)</li></ul></div>
+          <div class="con"><b>Nachteile</b><ul><li>kein Selbstanlauf am Netz</li><li>fällt bei Überlast außer Tritt</li><li>teurer (Magnete, FU)</li></ul></div>
+        </div>
+        <p class="hint"><b>Einsatz:</b> E-Autos (PMSM), Servoantriebe, Generatoren im Kraftwerk, große Verdichter, Uhren</p>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Simulator: Synchronmotor am Frequenzumrichter</h3>
+    <div class="sim">
+      <div class="controls">
+        <label>Frequenz f <output id="smFo"></output></label>
+        <input type="range" id="smF" min="5" max="100" step="1" value="50">
+        <label>Polpaarzahl p</label>
+        <select id="smP"><option value="1">p = 1 (2-polig)</option><option value="2" selected>p = 2 (4-polig)</option><option value="3">p = 3 (6-polig)</option><option value="4">p = 4 (8-polig)</option></select>
+        <label>Erregung (elektrisch erregt) <output id="smEo"></output></label>
+        <input type="range" id="smE" min="50" max="150" step="1" value="100">
+        <label>Lastmoment M<sub>L</sub> <output id="smLo"></output></label>
+        <input type="range" id="smL" min="0" max="40" step="0.5" value="10">
+        <div class="btns"><button id="smSync">Neu hochfahren (FU-Rampe)</button></div>
+        <div class="readout">
+          <div class="ro"><small>Drehfeld n<sub>s</sub></small><b id="smNs"></b></div>
+          <div class="ro"><small>Läufer n</small><b id="smN"></b></div>
+          <div class="ro"><small>Polradwinkel ϑ</small><b id="smTh"></b></div>
+          <div class="ro"><small>Kippmoment M<sub>K</sub></small><b id="smMk"></b></div>
+        </div>
+      </div>
+      <div>
+        <svg class="dia" viewBox="0 0 480 300" id="smSvg"></svg>
+        <div class="status ok" id="smMsg"></div>
+      </div>
+    </div>
+    <div class="two" style="margin-top:14px">
+      <div><h4>Kennlinie: M = f(ϑ)</h4><canvas class="plot" id="smPlot1" style="height:280px"></canvas></div>
+      <div><h4>Kennlinie: n = f(M)</h4><canvas class="plot" id="smPlot2" style="height:280px"></canvas></div>
+    </div>
+    <ol class="try">
+      <li>Erhöhe die Last. Bleibt die Drehzahl gleich? Was ändert sich?</li>
+      <li>Bei welcher Last fällt der Motor außer Tritt? Erhöhe dann die Erregung und fahre neu hoch.</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ---------- Servo ---------- -->
+<div class="motor" id="m-servo">
+  <div class="motor-head"><span class="vt ac3">3~</span><h3>Servomotor (Synchron-Servomotor mit Geber)</h3></div>
+  <div class="card">
+    <div class="two">
+      <div>
+        <h4>Aufbau</h4>
+        <ul>
+          <li><b>Permanenterregter Synchronmotor</b>, schlank gebaut (kleines Trägheitsmoment → hohe Dynamik)</li>
+          <li><b>Geber</b> (Encoder oder Resolver): misst Lage und Drehzahl</li>
+          <li><b>Servoregler</b> (Umrichter) mit Kaskadenregelung: Lageregler → Drehzahlregler → Stromregler</li>
+          <li>Optional: Haltebremse, Getriebe</li>
+        </ul>
+        <h4>Funktionsprinzip</h4>
+        <p>Der Regler vergleicht ständig den <b>Sollwert</b> mit dem <b>Istwert</b> vom Geber und stellt das Motormoment so ein, dass die Regelabweichung verschwindet (<b>geregelt</b>, closed loop).</p>
+      </div>
+      <div>
+        <h4>Schrittmotor oder Servomotor?</h4>
+        <table class="t">
+          <tr><th></th><th>Schrittmotor</th><th>Servomotor</th></tr>
+          <tr><td>Prinzip</td><td>gesteuert (open loop)</td><td>geregelt (closed loop)</td></tr>
+          <tr><td>Rückmeldung</td><td>keine</td><td>Geber</td></tr>
+          <tr><td>Überlast</td><td>Schrittverlust unbemerkt</td><td>wird erkannt und ausgeregelt</td></tr>
+          <tr><td>Hohe Drehzahl</td><td>Moment bricht ein</td><td>Moment bleibt hoch</td></tr>
+          <tr><td>Kosten</td><td>gering</td><td>hoch</td></tr>
+        </table>
+        <p class="hint"><b>Einsatz:</b> Industrieroboter, CNC-Maschinen, Verpackungs- und Handlingsysteme</p>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Simulator: Lageregelung eines Servoantriebs</h3>
+    <div class="sim">
+      <div class="controls">
+        <label>Sollposition <output id="svTo"></output></label>
+        <input type="range" id="svT" min="0" max="360" step="1" value="90">
+        <div class="seg" id="svJump"><button data-t="0">0°</button><button data-t="90">90°</button><button data-t="180">180°</button><button data-t="270">270°</button></div>
+        <label>Verstärkung K<sub>P</sub> <output id="svKpo"></output></label>
+        <input type="range" id="svKp" min="0.2" max="10" step="0.1" value="2">
+        <label>Dämpfung (D-Anteil) <output id="svKdo"></output></label>
+        <input type="range" id="svKd" min="0" max="0.3" step="0.005" value="0.04">
+        <label>Störmoment (Last) <output id="svLo"></output></label>
+        <input type="range" id="svL" min="0" max="1.5" step="0.05" value="0">
+        <label class="chk"><input type="checkbox" id="svI"> I-Anteil einschalten</label>
+        <div class="readout">
+          <div class="ro"><small>Istposition</small><b id="svPos"></b></div>
+          <div class="ro"><small>Regelabweichung</small><b id="svE"></b></div>
+          <div class="ro"><small>Überschwingen</small><b id="svOS"></b></div>
+          <div class="ro"><small>Motormoment</small><b id="svM"></b></div>
+        </div>
+      </div>
+      <div>
+        <svg class="dia" viewBox="0 0 500 300" id="svSvg"></svg>
+        <div class="status ok" id="svMsg"></div>
+      </div>
+    </div>
+    <h4>Liniendiagramm: Soll- und Istposition (letzte 4 Sekunden)</h4>
+    <canvas class="plot" id="svPlot"></canvas>
+    <ol class="try">
+      <li>Springe von 0° auf 180°. Wie stark schwingt der Antrieb über? Erhöhe die Dämpfung.</li>
+      <li>Schalte ein Störmoment von 0,5 Nm zu. Warum bleibt eine Regelabweichung? Schalte den I-Anteil ein.</li>
+    </ol>
+  </div>
+</div>
+
+<!-- =============================== KENNLINIEN-VERGLEICH =============================== -->
+<section class="topic" id="kennlinien">
+  <div class="topic-head"><div class="badge" style="background:#15803d">n(M)</div><h2>Kennlinien-Vergleich: Drehzahlverhalten</h2></div>
+  <div class="card">
+    <p style="margin-top:0">Alle Kennlinien sind auf den Nennpunkt bezogen (M / M<sub>N</sub> = 1, n / n<sub>N</sub> = 1). So lässt sich vergleichen, wie stark die Drehzahl bei Laständerung schwankt.</p>
+    <div class="crit" id="cmpSel"></div>
+    <canvas class="plot" id="cmpPlot" style="height:380px;margin-top:12px"></canvas>
+    <div class="three" style="margin-top:12px">
+      <div><h4>Synchronverhalten</h4><p>Drehzahl bleibt <b>konstant</b>, bis das Kippmoment erreicht ist. <i>Synchron-, Schritt-, Servomotor</i></p></div>
+      <div><h4>Nebenschlussverhalten</h4><p>Drehzahl sinkt bei Last <b>nur wenig</b>. <i>PM-DC, Nebenschluss, BLDC, Asynchronmotor (im Betriebsbereich)</i></p></div>
+      <div><h4>Reihenschlussverhalten</h4><p>Drehzahl <b>stark lastabhängig</b>, Leerlauf gefährlich, sehr hohes Anlaufmoment. <i>Reihenschluss-, Universalmotor</i></p></div>
+    </div>
+  </div>
+</section>
+
+<!-- =============================== TABELLE =============================== -->
+<section class="topic" id="tabelle">
+  <div class="topic-head"><div class="badge" style="background:#b45309">⊞</div><h2>Vergleichstabelle nach Spannungsart</h2></div>
+  <div class="card">
+    <label style="font-weight:600">Filter nach Spannungsart</label>
+    <div class="seg" id="tabF"><button data-v="all" class="on">Alle</button><button data-v="dc">Gleichstrom DC</button><button data-v="ac1">Wechselstrom 1~</button><button data-v="ac3">Drehstrom 3~</button></div>
+    <h4>Steckbrief</h4>
+    <div class="tscroll"><table class="t cmp" id="tabS"></table></div>
+    <h4>Bewertung (● = schlecht … ●●●●● = sehr gut)</h4>
+    <div class="tscroll"><table class="t cmp" id="tabB" style="min-width:760px"></table></div>
+    <p class="hint">Die Bewertungen sind Richtwerte für typische Ausführungen. Asynchronmotor: Drehzahlstellbarkeit am Netz mittel, mit Frequenzumrichter sehr gut.</p>
+  </div>
+</section>
+
+<!-- =============================== AUSWAHL =============================== -->
+<section class="topic" id="auswahl">
+  <div class="topic-head"><div class="badge" style="background:#b42318">?</div><h2>Auswahlhilfe: Welcher Motor passt?</h2></div>
+  <div class="card">
+    <div class="two">
+      <div>
+        <label style="font-weight:600">Welche Energiequelle steht zur Verfügung?</label>
+        <select id="awSrc">
+          <option value="any">egal</option>
+          <option value="dc">Batterie / Gleichspannung</option>
+          <option value="ac1" selected>Steckdose 230 V (1~)</option>
+          <option value="ac3">Drehstrom 400 V (3~)</option>
+        </select>
+        <label class="chk" style="margin-top:10px"><input type="checkbox" id="awElec" checked> Leistungselektronik erlaubt (Netzteil, Umrichter, Treiber)</label>
+      </div>
+      <div>
+        <label style="font-weight:600">Was ist wichtig?</label>
+        <div class="crit" id="awCrit">
+          <label><input type="checkbox" data-k="konst"> Drehzahl konstant trotz Last</label>
+          <label><input type="checkbox" data-k="stell" checked> Drehzahl stufenlos verstellbar</label>
+          <label><input type="checkbox" data-k="pos"> genau positionieren</label>
+          <label><input type="checkbox" data-k="anl"> hohes Anlaufmoment</label>
+          <label><input type="checkbox" data-k="wart" checked> wartungsfrei</label>
+          <label><input type="checkbox" data-k="speed"> sehr hohe Drehzahl</label>
+          <label><input type="checkbox" data-k="preis"> möglichst günstig</label>
+          <label><input type="checkbox" data-k="eta"> hoher Wirkungsgrad</label>
+        </div>
+      </div>
+    </div>
+    <div id="awOut"></div>
+    <p class="hint">Die Auswahlhilfe ist eine Lernhilfe. In der Praxis entscheiden auch Leistung, Bauform, Schutzart, Umgebung und Normen.</p>
+  </div>
+</section>
+
+</div>
+
+<script>
+/* ======================= Hilfsfunktionen ======================= */
+const $ = id => document.getElementById(id);
+const nf = (v, d = 2) => Number(v).toLocaleString('de-AT', {minimumFractionDigits: 0, maximumFractionDigits: d});
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const rad = d => d * Math.PI / 180;
+const redraws = [];
+window.addEventListener('resize', () => redraws.forEach(f => f()));
+const vis = n => clamp(n * 0.06, -900, 900);   // Zeitlupe 1:100 → Grad pro Sekunde
+const anims = [];
+let lastT = performance.now();
+function loop(t){ const dt = Math.min(0.05, (t - lastT) / 1000); lastT = t; anims.forEach(f => f(dt, t / 1000)); requestAnimationFrame(loop); }
+
+function segment(id, cb){
+  const box = $(id);
+  box.querySelectorAll('button').forEach(b => b.onclick = () => {
+    box.querySelectorAll('button').forEach(x => x.classList.remove('on'));
+    b.classList.add('on'); cb(b.dataset.v);
+  });
+}
+const segVal = id => $(id).querySelector('button.on').dataset.v;
+function niceMax(v){
+  if (!(v > 0)) return 1;
+  const e = Math.pow(10, Math.floor(Math.log10(v))), m = v / e;
+  return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10) * e;
+}
+const fmtN = n => nf(n, 0) + ' min⁻¹';
+const fmtP = p => p >= 1000 ? nf(p / 1000, 2) + ' kW' : nf(p, 1) + ' W';
+
+/* Diagramm */
+function plot(cv, o){
+  const dpr = window.devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight;
+  if (!w) return;
+  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+  const c = cv.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, w, h);
+  const L = 64, Rm = 16, T = 16, B = 46, pw = w - L - Rm, ph = h - T - B, x0 = o.xmin || 0, y0 = o.ymin || 0;
+  const X = x => L + (x - x0) / (o.xmax - x0) * pw, Y = y => T + ph - (y - y0) / (o.ymax - y0) * ph;
+  const xf = o.xfmt || (v => nf(v, 1)), yf = o.yfmt || (v => nf(v, 2));
+  c.font = '12px "Segoe UI", system-ui, sans-serif'; c.lineWidth = 1;
+  for (let i = 0; i <= 5; i++){
+    const v = x0 + (o.xmax - x0) * i / 5, px = X(v);
+    c.strokeStyle = '#e8ebf1'; c.beginPath(); c.moveTo(px, T); c.lineTo(px, T + ph); c.stroke();
+    c.fillStyle = '#5b6475'; c.textAlign = 'center'; c.fillText(xf(v), px, T + ph + 16);
+    const vy = y0 + (o.ymax - y0) * i / 5, py = Y(vy);
+    c.beginPath(); c.moveTo(L, py); c.lineTo(L + pw, py); c.stroke();
+    c.textAlign = 'right'; c.fillText(yf(vy), L - 6, py + 4);
+  }
+  c.strokeStyle = '#1d2433'; c.lineWidth = 1.5;
+  const ya = y0 < 0 && o.ymax > 0 ? Y(0) : T + ph;
+  c.beginPath(); c.moveTo(L, T); c.lineTo(L, T + ph); c.moveTo(L, ya); c.lineTo(L + pw, ya); c.stroke();
+  c.fillStyle = '#1d2433'; c.font = '600 13px "Segoe UI", system-ui, sans-serif';
+  c.textAlign = 'center'; c.fillText(o.xlabel, L + pw / 2, h - 8);
+  c.save(); c.translate(15, T + ph / 2); c.rotate(-Math.PI / 2); c.fillText(o.ylabel, 0, 0); c.restore();
+  c.save(); c.beginPath(); c.rect(L, T, pw, ph); c.clip();
+  const cy = py => Math.max(T - 60, Math.min(T + ph + 60, py));
+  (o.curves || []).forEach(cu => {
+    c.strokeStyle = cu.color; c.lineWidth = cu.width || 2.5; c.setLineDash(cu.dash || []); c.globalAlpha = cu.alpha || 1;
+    c.beginPath(); let st = false;
+    if (cu.data){
+      cu.data.forEach(p => { const px = X(p[0]), py = cy(Y(p[1])); st ? c.lineTo(px, py) : c.moveTo(px, py); st = true; });
+    } else {
+      const N = o.samples || 400;
+      for (let i = 0; i <= N; i++){
+        const x = x0 + (o.xmax - x0) * i / N, y = cu.f(x);
+        if (!isFinite(y)) { st = false; continue; }
+        const px = X(x), py = cy(Y(y));
+        st ? c.lineTo(px, py) : c.moveTo(px, py); st = true;
+      }
+    }
+    c.stroke(); c.setLineDash([]); c.globalAlpha = 1;
+  });
+  (o.labels || []).forEach(lb => {
+    c.fillStyle = lb.color || '#1d2433'; c.font = '600 12px "Segoe UI", system-ui, sans-serif'; c.textAlign = lb.align || 'left';
+    if (!lb.nodot){ c.beginPath(); c.arc(X(lb.x), Y(lb.y), 4, 0, Math.PI * 2); c.fill(); }
+    c.fillText(lb.text, X(lb.x) + (lb.nodot ? 0 : 7), Y(lb.y) - (lb.nodot ? 0 : 7));
+  });
+  if (o.marker){
+    const mx = X(o.marker.x), my = Y(o.marker.y);
+    c.strokeStyle = '#1d2433'; c.lineWidth = 1; c.setLineDash([4, 4]);
+    c.beginPath(); c.moveTo(mx, ya); c.lineTo(mx, my); c.lineTo(L, my); c.stroke(); c.setLineDash([]);
+    c.fillStyle = o.marker.color || '#1d2433'; c.strokeStyle = '#fff'; c.lineWidth = 2;
+    c.beginPath(); c.arc(mx, my, 7, 0, Math.PI * 2); c.fill(); c.stroke();
+  }
+  c.restore();
+  const leg = (o.curves || []).filter(cu => cu.label);
+  if (leg.length){
+    c.font = '12px "Segoe UI", system-ui, sans-serif'; c.textAlign = 'left';
+    const lw = Math.max(...leg.map(cu => c.measureText(cu.label).width)) + 40;
+    const lx = o.legendLeft ? L + 10 : L + pw - lw - 8, ly = T + 8;
+    c.fillStyle = 'rgba(255,255,255,.93)'; c.strokeStyle = '#d5dae3'; c.lineWidth = 1;
+    c.fillRect(lx, ly, lw, leg.length * 18 + 8); c.strokeRect(lx, ly, lw, leg.length * 18 + 8);
+    leg.forEach((cu, i) => {
+      const yy = ly + 16 + i * 18;
+      c.strokeStyle = cu.color; c.lineWidth = 3; c.setLineDash(cu.dash || []); c.globalAlpha = Math.max(cu.alpha || 1, .6);
+      c.beginPath(); c.moveTo(lx + 8, yy - 4); c.lineTo(lx + 28, yy - 4); c.stroke(); c.setLineDash([]); c.globalAlpha = 1;
+      c.fillStyle = '#1d2433'; c.fillText(cu.label, lx + 34, yy);
+    });
+  }
+}
+
+/* SVG-Bausteine: Winkel 0° = oben, im Uhrzeigersinn */
+const P = (cx, cy, r, a) => [cx + r * Math.sin(rad(a)), cy - r * Math.cos(rad(a))];
+function sector(cx, cy, r1, r2, a1, a2){
+  const [x1, y1] = P(cx, cy, r2, a1), [x2, y2] = P(cx, cy, r2, a2), [x3, y3] = P(cx, cy, r1, a2), [x4, y4] = P(cx, cy, r1, a1);
+  const lg = (a2 - a1) > 180 ? 1 : 0;
+  return `M${x1} ${y1} A${r2} ${r2} 0 ${lg} 1 ${x2} ${y2} L${x3} ${y3} A${r1} ${r1} 0 ${lg} 0 ${x4} ${y4} Z`;
+}
+function arrow(x1, y1, x2, y2, col, w = 3){
+  const a = Math.atan2(y2 - y1, x2 - x1), hl = 8 + w * 1.5;
+  const p1 = [x2 - hl * Math.cos(a - 0.45), y2 - hl * Math.sin(a - 0.45)], p2 = [x2 - hl * Math.cos(a + 0.45), y2 - hl * Math.sin(a + 0.45)];
+  return `<line x1="${x1}" y1="${y1}" x2="${x2 - hl * 0.6 * Math.cos(a)}" y2="${y2 - hl * 0.6 * Math.sin(a)}" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/><polygon points="${x2},${y2} ${p1} ${p2}" fill="${col}"/>`;
+}
+const lab = (x1, y1, x2, y2, t, col = '#1d2433') =>
+  `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#94a3b8" stroke-width="1"/><circle cx="${x1}" cy="${y1}" r="2.5" fill="#64748b"/><text x="${x2 + 4}" y="${y2 + 4}" font-size="12" fill="${col}">${t}</text>`;
+const ring = (cx, cy, ro, ri) =>
+  `<circle cx="${cx}" cy="${cy}" r="${ro}" fill="#e5e7eb" stroke="#6b7280" stroke-width="2"/><circle cx="${cx}" cy="${cy}" r="${ri}" fill="#fbfcfe" stroke="#6b7280" stroke-width="2"/>`;
+function cage(cx, cy, r){
+  let s = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#cbd5e1" stroke="#475569" stroke-width="2"/>`;
+  for (let i = 0; i < 12; i++){ const [x1, y1] = P(cx, cy, r * .42, i * 30), [x2, y2] = P(cx, cy, r * .86, i * 30); s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#b45309" stroke-width="5" stroke-linecap="round"/>`; }
+  const [mx, my] = P(cx, cy, r * .64, 15);
+  return s + `<circle cx="${cx}" cy="${cy}" r="${r * .16}" fill="#475569"/><circle cx="${mx}" cy="${my}" r="6" fill="#0e7490"/>`;
+}
+const pmDisc = (cx, cy, r) =>
+  `<path d="M${cx - r} ${cy} A${r} ${r} 0 0 1 ${cx + r} ${cy} Z" fill="#dc2626"/><path d="M${cx + r} ${cy} A${r} ${r} 0 0 1 ${cx - r} ${cy} Z" fill="#2563eb"/>` +
+  `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#1d2433" stroke-width="2"/><text x="${cx}" y="${cy - r * .45}" text-anchor="middle" fill="#fff" font-weight="800" font-size="18">N</text>` +
+  `<text x="${cx}" y="${cy + r * .45 + 12}" text-anchor="middle" fill="#fff" font-weight="800" font-size="18">S</text><circle cx="${cx}" cy="${cy}" r="7" fill="#1d2433"/>`;
+function phaseCoils(cx, cy, r1, r2){
+  const C = [['#8b4513', 'U'], ['#1d2433', 'V'], ['#6b7280', 'W']];
+  let s = '';
+  C.forEach((c, i) => {
+    [0, 180].forEach((o, j) => {
+      const a = i * 120 + o;
+      s += `<path d="${sector(cx, cy, r1, r2, a - 14, a + 14)}" fill="${c[0]}" opacity="${j ? .45 : .9}"/>`;
+      const [tx, ty] = P(cx, cy, r1 - 10, a);
+      s += `<text x="${tx}" y="${ty + 4}" text-anchor="middle" font-size="11" font-weight="700" fill="${c[0]}">${c[1]}${j ? '2' : '1'}</text>`;
+    });
+  });
+  return s;
+}
+const fieldArrow = (cx, cy, len, col = '#dc2626') => arrow(cx, cy, cx, cy - len, col, 5);
+
+/* ======================= Stammbaum ======================= */
+(() => {
+  const G = [
+    {t: 'Gleichstrom (DC)', s: 'Batterie · Akku · Netzteil', c: '#c2410c', x: 170, l: [
+      ['Permanenterregter DC-Motor', 'Kommutator + Bürsten', 'm-dc'],
+      ['Fremderregt / Nebenschluss', 'Kommutator + Bürsten', 'm-dc'],
+      ['Reihenschlussmotor', 'Kommutator + Bürsten', 'm-dc'],
+      ['BLDC- / EC-Motor', 'elektronisch kommutiert', 'm-bldc'],
+      ['Schrittmotor', 'elektronisch, Taktimpulse', 'm-step']]},
+    {t: 'Wechselstrom 1~ (230 V)', s: 'Haushaltsnetz', c: '#7c3aed', x: 500, l: [
+      ['Universalmotor', 'Kommutator · läuft auch an DC', 'm-uni'],
+      ['Kondensatormotor', 'Drehfeld durch Kondensator', 'm-kond'],
+      ['Spaltpolmotor', 'Wanderfeld durch Kurzschlussring', 'm-spalt']]},
+    {t: 'Drehstrom 3~ (400 V)', s: 'Industrienetz · Frequenzumrichter', c: '#0e7490', x: 830, l: [
+      ['Asynchron – Käfigläufer', 'Drehfeld · Schlupf', 'm-asm'],
+      ['Asynchron – Schleifringläufer', 'Drehfeld · Schleifringe', 'm-asm'],
+      ['Synchronmotor', 'Drehfeld · exakt synchron', 'm-sm'],
+      ['Servomotor (PMSM)', 'Drehfeld · geregelt mit Geber', 'm-servo']]}
+  ];
+  let s = `<rect x="390" y="8" width="220" height="44" rx="10" fill="#1d2433"/><text x="500" y="36" text-anchor="middle" fill="#fff" font-size="17" font-weight="700">Elektromotoren</text>`;
+  s += `<line x1="500" y1="52" x2="500" y2="70" stroke="#94a3b8" stroke-width="2"/><line x1="170" y1="70" x2="830" y2="70" stroke="#94a3b8" stroke-width="2"/>`;
+  G.forEach(g => {
+    s += `<line x1="${g.x}" y1="70" x2="${g.x}" y2="84" stroke="#94a3b8" stroke-width="2"/>`;
+    s += `<rect x="${g.x - 135}" y="84" width="270" height="54" rx="10" fill="${g.c}"/><text x="${g.x}" y="107" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">${g.t}</text><text x="${g.x}" y="126" text-anchor="middle" fill="#fff" font-size="12" opacity=".9">${g.s}</text>`;
+    const sx = g.x - 118, yy = 160;
+    s += `<line x1="${sx}" y1="138" x2="${sx}" y2="${yy + (g.l.length - 1) * 50 + 20}" stroke="${g.c}" stroke-width="2"/>`;
+    g.l.forEach((l, i) => {
+      const y = yy + i * 50;
+      s += `<line x1="${sx}" y1="${y + 20}" x2="${sx + 14}" y2="${y + 20}" stroke="${g.c}" stroke-width="2"/>` +
+           `<a href="#${l[2]}"><rect x="${sx + 14}" y="${y}" width="236" height="40" rx="8" fill="#fff" stroke="${g.c}" stroke-width="1.5"/>` +
+           `<text x="${sx + 24}" y="${y + 17}" font-size="12.5" font-weight="700" fill="#1d2433">${l[0]}</text><text x="${sx + 24}" y="${y + 33}" font-size="11" fill="#5b6475">${l[1]}</text></a>`;
+    });
+  });
+  $('tree').innerHTML = s;
+})();
+
+/* ======================= Grundprinzip ======================= */
+(() => {
+  const draw = () => plot($('gPlot'), {
+    xmax: 360, ymin: -1.2, ymax: 2.2, xlabel: 'Drehwinkel in °', ylabel: 'Drehmoment (bezogen)', xfmt: v => nf(v, 0), yfmt: v => nf(v, 1),
+    curves: [
+      {f: a => Math.sin(rad(a)), color: '#b42318', width: 2, dash: [6, 4], label: '1 Schleife ohne Kommutator'},
+      {f: a => Math.abs(Math.sin(rad(a))), color: '#c2410c', label: '1 Schleife mit Kommutator'},
+      {f: a => [0, 60, 120].reduce((s, o) => s + Math.abs(Math.sin(rad(a + o))), 0), color: '#15803d', label: 'Trommelanker (3 Spulen)'}
+    ]
+  });
+  redraws.push(draw); draw();
+})();
+
+/* ======================= Gleichstrom-Motormodelle ======================= */
+function shuntOp(U, M, phi, p){
+  if (U <= 0) return {n: 0, I: 0, phi, stall: true};
+  const I = M / (p.kt * phi), n = (U - I * p.R) / (p.ke * phi);
+  return n <= 0 ? {n: 0, I: U / p.R, phi, stall: true} : {n, I, phi, stall: false};
+}
+function seriesOp(U, M, p){
+  if (U <= 0) return {n: 0, I: 0, phi: 0, stall: true};
+  const Mof = I => p.kt * p.Fm * I * I / (I + p.Is), Ist = U / p.R;
+  if (Mof(Ist) <= M) return {n: 0, I: Ist, phi: p.Fm * Ist / (Ist + p.Is), stall: true};
+  let lo = 0, hi = Ist;
+  for (let k = 0; k < 60; k++){ const m = (lo + hi) / 2; if (Mof(m) < M) lo = m; else hi = m; }
+  const I = hi, phi = p.Fm * I / (I + p.Is);
+  return {n: (U - I * p.R) / (p.ke * phi), I, phi, stall: false};
+}
+const condSym = (x, y, sym) => `<circle cx="${x}" cy="${y}" r="10" fill="#fff" stroke="#1d2433" stroke-width="2"/>` +
+  (sym === 'dot' ? `<circle cx="${x}" cy="${y}" r="3.5" fill="#1d2433"/>` : sym === 'x' ? `<line x1="${x - 6}" y1="${y - 6}" x2="${x + 6}" y2="${y + 6}" stroke="#1d2433" stroke-width="2"/><line x1="${x + 6}" y1="${y - 6}" x2="${x - 6}" y2="${y + 6}" stroke="#1d2433" stroke-width="2"/>` : '');
+
+/* ======================= DC-Motor ======================= */
+(() => {
+  const CX = 150, CY = 148, p = {ke: 0.008, R: 0.5, Rs: 0.6, Is: 10, Fm: 2, Mr: 0.02};
+  p.kt = p.ke * 60 / (2 * Math.PI);
+  const op = (type, U, phi, ML) => type === 'rs'
+    ? seriesOp(U, ML + p.Mr, {ke: p.ke, kt: p.kt, R: p.Rs, Is: p.Is, Fm: p.Fm})
+    : shuntOp(U, ML + p.Mr, type === 'fe' ? phi : 1, p);
+  let st = {n: 0, I: 0, phi: 1}, ang = 0, dir = 1, fs = 1, cs = 1;
+
+  function stat(type){
+    let s = ring(CX, CY, 128, 104);
+    const leftN = fs > 0, nC = '#dc2626', sC = '#2563eb';
+    s += `<path d="${sector(CX, CY, 84, 104, 232, 308)}" fill="${leftN ? nC : sC}"/><path d="${sector(CX, CY, 84, 104, 52, 128)}" fill="${leftN ? sC : nC}"/>`;
+    s += `<text x="${CX - 94}" y="${CY + 6}" text-anchor="middle" fill="#fff" font-weight="800" font-size="16">${leftN ? 'N' : 'S'}</text><text x="${CX + 94}" y="${CY + 6}" text-anchor="middle" fill="#fff" font-weight="800" font-size="16">${leftN ? 'S' : 'N'}</text>`;
+    if (type !== 'pm'){
+      for (let a = 236; a <= 304; a += 8){ const [x1, y1] = P(CX, CY, 106, a), [x2, y2] = P(CX, CY, 124, a); s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#b45309" stroke-width="4"/>`; }
+      for (let a = 56; a <= 124; a += 8){ const [x1, y1] = P(CX, CY, 106, a), [x2, y2] = P(CX, CY, 124, a); s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#b45309" stroke-width="4"/>`; }
+    }
+    s += `<g id="dcRot"><circle cx="${CX}" cy="${CY}" r="70" fill="#cbd5e1" stroke="#475569" stroke-width="2"/>` +
+         `<line x1="${CX}" y1="${CY - 56}" x2="${CX}" y2="${CY - 15}" stroke="#b45309" stroke-width="3"/><line x1="${CX}" y1="${CY + 56}" x2="${CX}" y2="${CY + 15}" stroke="#b45309" stroke-width="3"/>` +
+         `<path d="M${CX - 15} ${CY} A15 15 0 0 1 ${CX + 15} ${CY} Z" fill="#d97706"/><path d="M${CX + 15} ${CY} A15 15 0 0 1 ${CX - 15} ${CY} Z" fill="#92400e"/>` +
+         `<line x1="${CX - 15}" y1="${CY}" x2="${CX + 15}" y2="${CY}" stroke="#fff" stroke-width="2"/></g>`;
+    s += `<g id="dcFL" opacity=".55">`;
+    [-42, 0, 42].forEach(dy => {
+      const y = CY + dy, x1 = CX - 80, x2 = CX + 80;
+      s += `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="#475569" stroke-width="1.5" stroke-dasharray="6 4"/>`;
+      s += leftN ? `<polygon points="${x2},${y} ${x2 - 9},${y - 5} ${x2 - 9},${y + 5}" fill="#475569"/>` : `<polygon points="${x1},${y} ${x1 + 9},${y - 5} ${x1 + 9},${y + 5}" fill="#475569"/>`;
+    });
+    s += `</g><g id="dcCond"></g>`;
+    s += `<rect x="${CX - 27}" y="${CY - 7}" width="11" height="14" fill="#374151"/><rect x="${CX + 16}" y="${CY - 7}" width="11" height="14" fill="#374151"/>`;
+    s += `<text x="${CX - 34}" y="${CY - 10}" font-size="15" font-weight="800" fill="${cs > 0 ? '#dc2626' : '#2563eb'}">${cs > 0 ? '+' : '−'}</text><text x="${CX + 28}" y="${CY - 10}" font-size="15" font-weight="800" fill="${cs > 0 ? '#2563eb' : '#dc2626'}">${cs > 0 ? '−' : '+'}</text>`;
+    s += lab(...P(CX, CY, 118, 35), 300, 30, 'Ständer (Joch)');
+    s += lab(CX + 94, CY - 22, 300, 78, type === 'pm' ? 'Pol mit Permanentmagnet' : 'Pol mit Erregerwicklung');
+    s += lab(CX + 70, CY - 42, 300, 112, 'Magnetfeld (gestrichelt)');
+    s += lab(CX + 8, CY + 6, 300, 150, 'Kommutator (Stromwender)');
+    s += lab(CX + 26, CY + 7, 300, 176, 'Kohlebürsten');
+    s += lab(CX + 40, CY + 50, 300, 210, 'Anker (Läufer) mit Wicklung');
+    s += `<text x="8" y="16" font-size="11" fill="#5b6475">Zeitlupe 1 : 100</text><text x="8" y="292" font-size="12" fill="#5b6475">⊙ Strom kommt heraus · ⊗ Strom geht hinein</text>`;
+    $('dcSvg').innerHTML = s;
+  }
+  function upd(){
+    const type = segVal('dcType'), U = +$('dcU').value, phi = +$('dcPhi').value / 100, ML = +$('dcL').value, rev = $('dcRev').checked;
+    $('dcPhi').disabled = type !== 'fe';
+    $('dcUo').textContent = nf(U, 1) + ' V'; $('dcPhio').textContent = (type === 'fe' ? nf(phi * 100, 0) : '100') + ' %'; $('dcLo').textContent = nf(ML, 2) + ' Nm';
+    st = op(type, U, phi, ML);
+    cs = rev ? -1 : 1; fs = (type === 'rs' && rev) ? -1 : 1; dir = cs * fs;
+    stat(type);
+    $('dcFL').setAttribute('opacity', (type === 'rs' ? clamp(st.phi / 2, .15, 1) : type === 'fe' ? phi : 1) * .55);
+    const Pab = ML * 2 * Math.PI * st.n / 60, Pzu = U * st.I;
+    $('dcN').textContent = fmtN(st.n) + (st.n > 0 && dir < 0 ? ' ↺' : st.n > 0 ? ' ↻' : '');
+    $('dcI').textContent = nf(st.I, 1) + ' A';
+    $('dcP').textContent = fmtP(Pab);
+    $('dcEta').textContent = Pzu > 0 ? nf(Pab / Pzu * 100, 0) + ' %' : '—';
+    let cls = 'ok', msg;
+    if (st.stall && U > 0) { cls = 'danger'; msg = `<b>Motor blockiert:</b> Das Lastmoment ist größer als das Anlaufmoment. Es fließt der volle Anlaufstrom (${nf(st.I, 0)} A) → Überhitzungsgefahr!`; }
+    else if (U === 0) { cls = 'warn'; msg = 'Keine Spannung – der Motor steht.'; }
+    else if (type === 'rs' && st.n > 6000) { cls = 'danger'; msg = '<b>Durchgehgefahr!</b> Bei kleiner Last steigt die Drehzahl des Reihenschlussmotors sehr stark an. Ihn nie ohne Last betreiben (kein Riemenantrieb)!'; }
+    else if (type === 'rs') msg = 'Reihenschlussverhalten: großes Anlaufmoment, die Drehzahl hängt stark von der Last ab.';
+    else if (type === 'fe' && phi < 1) { cls = 'warn'; msg = 'Feldschwächung: Weniger Erregung → höhere Drehzahl, aber mehr Strom für das gleiche Moment.'; }
+    else msg = 'Nebenschlussverhalten: Die Drehzahl sinkt bei Last nur wenig. Drehzahl über die Ankerspannung einstellbar.';
+    if (rev && U > 0) msg += type === 'rs'
+      ? '<br><b>Spannung umgepolt:</b> Feld UND Ankerstrom kehren sich um → die Drehrichtung bleibt gleich! Zum Umkehren nur Anker oder nur Feld umpolen.'
+      : '<br><b>Spannung umgepolt:</b> Der Ankerstrom kehrt sich um → die Drehrichtung kehrt sich um.';
+    $('dcMsg').className = 'status ' + cls; $('dcMsg').innerHTML = msg;
+    draw();
+  }
+  function draw(){
+    const type = segVal('dcType'), U = +$('dcU').value, phi = +$('dcPhi').value / 100, ML = +$('dcL').value;
+    const f = (u, ph) => x => op(type, u, ph, x).n;
+    const n0 = op(type, Math.max(U, 24), type === 'fe' ? phi : 1, 0).n;
+    const ymax = type === 'rs' ? 12000 : niceMax(n0 * 1.08);
+    const curves = [{f: f(U, phi), color: '#c2410c', width: 3.5, label: 'U = ' + nf(U, 1) + ' V' + (type === 'fe' ? ', Φ = ' + nf(phi * 100, 0) + ' %' : '')}];
+    if (U !== 24) curves.push({f: f(24, phi), color: '#c2410c', width: 1.8, dash: [6, 5], alpha: .5, label: 'U = 24 V'});
+    if (type === 'fe' && phi < 1) curves.push({f: f(U, 1), color: '#1d2433', width: 1.8, dash: [6, 5], alpha: .5, label: 'Φ = 100 %'});
+    plot($('dcPlot'), {xmax: 3, ymax, xlabel: 'Lastmoment M in Nm', ylabel: 'Drehzahl n in min⁻¹', yfmt: v => nf(v, 0), curves,
+      marker: {x: ML, y: Math.min(st.n, ymax), color: '#c2410c'}});
+  }
+  anims.push(dt => {
+    ang = (ang + dir * vis(st.n) * dt) % 360;
+    const r = $('dcRot'); if (!r) return;
+    r.setAttribute('transform', `rotate(${ang} ${CX} ${CY})`);
+    let s = '';
+    [ang, ang + 180].forEach(a => {
+      const [x, y] = P(CX, CY, 56, a), sn = Math.sin(rad(a));
+      let sym = '';
+      if (st.I > 0.01 && Math.abs(sn) > 0.08) sym = (sn < 0) === (cs > 0) ? 'dot' : 'x';
+      s += condSym(x, y, sym);
+    });
+    $('dcCond').innerHTML = s;
+  });
+  segment('dcType', upd);
+  ['dcU', 'dcPhi', 'dcL', 'dcRev'].forEach(id => $(id).addEventListener('input', upd));
+  redraws.push(draw); upd();
+})();
+
+/* ======================= BLDC ======================= */
+(() => {
+  const CX = 150, CY = 148, p = {ke: 0.008, R: 0.4, Mr: 0.01}; p.kt = p.ke * 60 / (2 * Math.PI);
+  const PH = [0, 120, 240];
+  const STEPS = [[1, -1, 0], [1, 0, -1], [0, 1, -1], [-1, 1, 0], [-1, 0, 1], [0, -1, 1]];
+  const fAng = s => { let x = 0, y = 0; s.forEach((v, i) => { x += v * Math.sin(rad(PH[i])); y += v * Math.cos(rad(PH[i])); }); return (Math.atan2(x, y) * 180 / Math.PI + 360) % 360; };
+  const FA = STEPS.map(fAng);
+  let st = {n: 0}, rot = 0, dir = 1, cur = -1;
+  let s = ring(CX, CY, 128, 104);
+  for (let k = 0; k < 6; k++){
+    const a = k * 60;
+    s += `<path id="bt${k}" d="${sector(CX, CY, 82, 104, a - 16, a + 16)}" fill="#9ca3af"/>`;
+    const names = {0: 'U', 120: 'V', 240: 'W', 180: 'U′', 300: 'V′', 60: 'W′'};
+    const [tx, ty] = P(CX, CY, 116, a); s += `<text x="${tx}" y="${ty + 4}" text-anchor="middle" font-size="12" font-weight="700">${names[a]}</text>`;
+  }
+  s += `<g id="bldcRot">${pmDisc(CX, CY, 64)}</g>`;
+  PH.forEach((a, i) => { const [x, y] = P(CX, CY, 74, a); s += `<rect id="bh${i}" x="${x - 6}" y="${y - 6}" width="12" height="12" rx="2" fill="#fff" stroke="#1d2433" stroke-width="1.5"/>`; });
+  s += `<g id="bldcF" opacity=".9">${fieldArrow(CX, CY, 62, '#f59e0b')}</g>`;
+  s += lab(...P(CX, CY, 116, 40), 300, 34, 'Ständerwicklung U, V, W');
+  s += lab(CX + 70, CY - 34, 300, 90, 'Ständerfeld (springt um 60°)', '#b45309');
+  s += lab(...P(CX, CY, 74, 120), 300, 182, 'Hallsensoren H1–H3');
+  s += lab(CX + 30, CY + 40, 300, 226, 'Permanentmagnet-Läufer');
+  s += `<rect x="300" y="248" width="170" height="40" rx="6" fill="#fff" stroke="#c2410c"/><text x="385" y="264" text-anchor="middle" font-size="11" font-weight="700" fill="#c2410c">Elektronik (B6-Brücke)</text><text x="385" y="280" text-anchor="middle" font-size="11" fill="#5b6475">ersetzt den Kommutator</text>`;
+  s += `<text x="8" y="16" font-size="11" fill="#5b6475">Zeitlupe 1 : 100</text>`;
+  $('bldcSvg').innerHTML = s;
+  const sy = v => v > 0 ? '<b style="color:#dc2626">+</b>' : v < 0 ? '<b style="color:#2563eb">−</b>' : '<span style="color:#9ca3af">0</span>';
+  function table(k){
+    $('bldcTab').innerHTML = '<tr><th>Schritt</th><th>U</th><th>V</th><th>W</th><th>Feld</th></tr>' +
+      STEPS.map((S, i) => `<tr class="${i === k ? 'cur' : ''}"><td>${i + 1}</td><td>${sy(S[0])}</td><td>${sy(S[1])}</td><td>${sy(S[2])}</td><td>${nf(FA[i], 0)}°</td></tr>`).join('');
+  }
+  function commutate(){
+    const target = (rot + 90 * dir + 360) % 360;
+    let best = 0, bd = 999;
+    FA.forEach((a, i) => { const d = Math.abs(((a - target + 540) % 360) - 180); if (d < bd){ bd = d; best = i; } });
+    if (best !== cur){
+      cur = best; table(cur);
+      STEPS[cur].forEach((v, i) => {
+        const c = v > 0 ? '#dc2626' : v < 0 ? '#2563eb' : '#9ca3af', ci = v > 0 ? '#2563eb' : v < 0 ? '#dc2626' : '#9ca3af';
+        $('bt' + (i * 2 % 6)).setAttribute('fill', c);
+        $('bt' + ((i * 2 + 3) % 6)).setAttribute('fill', ci);
+      });
+      $('bldcF').setAttribute('transform', `rotate(${FA[cur]} ${CX} ${CY})`);
+    }
+    const hb = PH.map((a, i) => { const h = Math.cos(rad(rot - a)) > 0 ? 1 : 0; $('bh' + i).setAttribute('fill', h ? '#fde047' : '#fff'); return h; });
+    $('bldcH').textContent = hb.join(' ');
+  }
+  function upd(){
+    const d = +$('bldcD').value / 100, ML = +$('bldcL').value; dir = $('bldcRev').checked ? -1 : 1;
+    $('bldcDo').textContent = nf(d * 100, 0) + ' %'; $('bldcLo').textContent = nf(ML, 2) + ' Nm';
+    st = shuntOp(24 * d, ML + p.Mr, 1, p);
+    $('bldcN').textContent = fmtN(st.n); $('bldcU').textContent = nf(24 * d, 1) + ' V';
+    cur = -1; commutate(); draw();
+  }
+  function draw(){
+    const d = +$('bldcD').value / 100, ML = +$('bldcL').value;
+    const curves = [0.25, 0.5, 0.75, 1].map(k => ({f: x => shuntOp(24 * k, x + p.Mr, 1, p).n, color: '#c2410c', width: 1.5, alpha: .35, dash: [5, 4]}));
+    curves.push({f: x => shuntOp(24 * d, x + p.Mr, 1, p).n, color: '#c2410c', width: 3.5, label: 'Tastgrad ' + nf(d * 100, 0) + ' %'});
+    curves[0].label = '25 / 50 / 75 / 100 %';
+    plot($('bldcPlot'), {xmax: 1.5, ymax: 3300, xlabel: 'Lastmoment M in Nm', ylabel: 'Drehzahl n in min⁻¹', yfmt: v => nf(v, 0), curves,
+      marker: {x: ML, y: st.n, color: '#c2410c'}});
+  }
+  anims.push(dt => {
+    rot = (rot + dir * vis(st.n) * dt + 360) % 360;
+    $('bldcRot').setAttribute('transform', `rotate(${rot} ${CX} ${CY})`);
+    commutate();
+  });
+  ['bldcD', 'bldcL', 'bldcRev'].forEach(id => $(id).addEventListener('input', upd));
+  redraws.push(draw); upd();
+})();
+
+/* ======================= Schrittmotor ======================= */
+(() => {
+  const CX = 150, CY = 148;
+  const SEQ = {
+    w: [[1, 0], [0, 1], [-1, 0], [0, -1]],
+    f2: [[1, 1], [-1, 1], [-1, -1], [1, -1]],
+    h: [[1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]]
+  };
+  const HF = {w: 0.71, f2: 1, h: 0.85}, MH0 = 0.5;
+  const seqAng = (a, b) => (Math.atan2(b, a) * 180 / Math.PI + 360) % 360;
+  let idx = 0, visA = 45, running = false, acc = 0, steps = 0, stState = 'ok';
+  let s = ring(CX, CY, 128, 104);
+  [0, 90, 180, 270].forEach((a, i) => {
+    s += `<path id="sp${i}" d="${sector(CX, CY, 66, 104, a - 22, a + 22)}" fill="#9ca3af"/>`;
+    for (let k = -1; k <= 1; k += 2){ const [x1, y1] = P(CX, CY, 74, a + k * 25), [x2, y2] = P(CX, CY, 100, a + k * 25); s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#b45309" stroke-width="6" stroke-linecap="round"/>`; }
+    const [tx, ty] = P(CX, CY, 84, a); s += `<text id="spt${i}" x="${tx}" y="${ty + 5}" text-anchor="middle" fill="#fff" font-weight="800" font-size="15"></text>`;
+    const [lx, ly] = P(CX, CY, 116, a + 30); s += `<text x="${lx}" y="${ly + 4}" text-anchor="middle" font-size="12" font-weight="700" fill="${i % 2 ? '#7c3aed' : '#c2410c'}">${i % 2 ? 'B' : 'A'}</text>`;
+  });
+  s += `<g id="stRot">${pmDisc(CX, CY, 54)}</g>`;
+  s += lab(CX + 20, CY - 92, 300, 40, 'Phase A (oben / unten)', '#c2410c');
+  s += lab(CX + 92, CY + 20, 300, 110, 'Phase B (rechts / links)', '#7c3aed');
+  s += lab(CX + 30, CY + 30, 300, 180, 'Permanentmagnet-Läufer');
+  s += `<text x="292" y="232" font-size="11" fill="#5b6475">Vereinfachter Läufer:</text><text x="292" y="247" font-size="11" fill="#5b6475">4 Vollschritte pro Umdrehung,</text><text x="292" y="262" font-size="11" fill="#5b6475">stark verlangsamt</text>`;
+  $('stSvg').innerHTML = s;
+
+  const MB = (f, m) => MH0 * HF[m] / (1 + f / 600);
+  const MS = (f, m) => MH0 * HF[m] * Math.max(0, 1 - f / 700);
+  const mode = () => segVal('stMode');
+  const alpha = () => mode() === 'h' ? 0.9 : 1.8;
+  const target = () => { const q = SEQ[mode()], e = q[((idx % q.length) + q.length) % q.length]; const base = seqAng(e[0], e[1]); const turns = Math.floor(idx / q.length); return base + turns * 360; };
+  function coils(){
+    const q = SEQ[mode()], k = ((idx % q.length) + q.length) % q.length, [A, B] = q[k];
+    const set = (i, col, t) => { $('sp' + i).setAttribute('fill', col); $('spt' + i).textContent = t; };
+    set(0, A > 0 ? '#2563eb' : A < 0 ? '#dc2626' : '#9ca3af', A > 0 ? 'S' : A < 0 ? 'N' : '');
+    set(2, A > 0 ? '#dc2626' : A < 0 ? '#2563eb' : '#9ca3af', A > 0 ? 'N' : A < 0 ? 'S' : '');
+    set(1, B > 0 ? '#2563eb' : B < 0 ? '#dc2626' : '#9ca3af', B > 0 ? 'S' : B < 0 ? 'N' : '');
+    set(3, B > 0 ? '#dc2626' : B < 0 ? '#2563eb' : '#9ca3af', B > 0 ? 'N' : B < 0 ? 'S' : '');
+    const sy = v => v > 0 ? '<b style="color:#dc2626">+</b>' : v < 0 ? '<b style="color:#2563eb">−</b>' : '<span style="color:#9ca3af">0</span>';
+    $('stTab').innerHTML = '<tr><th>Takt</th>' + q.map((_, i) => `<th>${i + 1}</th>`).join('') + '</tr>' +
+      '<tr><td>A</td>' + q.map((e, i) => `<td style="${i === k ? 'background:#fde68a' : ''}">${sy(e[0])}</td>`).join('') + '</tr>' +
+      '<tr><td>B</td>' + q.map((e, i) => `<td style="${i === k ? 'background:#fde68a' : ''}">${sy(e[1])}</td>`).join('') + '</tr>';
+  }
+  function step(d){ idx += d; steps += d; coils(); readout(); }
+  function readout(){
+    $('stCnt').textContent = nf(Math.round(steps), 0);
+    $('stPos').textContent = nf(steps * alpha(), 1) + '°';
+  }
+  function upd(){
+    const f = +$('stF').value, ML = +$('stL').value, m = mode(), d = +segVal('stDir');
+    $('stFo').textContent = nf(f, 0) + ' Hz'; $('stLo').textContent = nf(ML, 2) + ' Nm';
+    $('stA').textContent = nf(alpha(), 1) + '°';
+    $('stN').textContent = running && stState !== 'lost' ? fmtN(60 * f * alpha() / 360) : '0 min⁻¹';
+    const mh = MH0 * HF[m];
+    let cls = 'ok', msg;
+    if (!running || f === 0){
+      if (ML > mh){ stState = 'lost'; cls = 'danger'; msg = `Das Lastmoment ist größer als das <b>Haltemoment</b> (${nf(mh, 2)} Nm) – der Motor kann die Position nicht halten.`; }
+      else { stState = 'ok'; msg = `Motor steht und hält die Position mit dem Haltemoment (${nf(mh, 2)} Nm). Starte den Takt oder mache Einzelschritte.`; }
+    } else if (ML > MB(f, m)){ stState = 'lost'; cls = 'danger'; msg = '<b>Schrittverlust!</b> Das Lastmoment liegt über der Betriebsgrenzkennlinie. Der Läufer kann dem Feld nicht folgen und bleibt stehen. Die Steuerung merkt das nicht!'; }
+    else if (ML > MS(f, m)){ stState = 'ok'; cls = 'warn'; msg = 'Betrieb möglich, aber <b>Anlauf nur mit Frequenzrampe</b>: Aus dem Stillstand müsste die Frequenz langsam erhöht werden.'; }
+    else { stState = 'ok'; msg = 'Start-Stopp-Bereich: Der Motor kann mit dieser Frequenz direkt starten und stoppen, ohne Schritte zu verlieren.'; }
+    $('stMsg').className = 'status ' + cls; $('stMsg').innerHTML = msg;
+    $('stRun').textContent = running ? '■ Stopp' : '▶ Start';
+    $('stOne').disabled = running;
+    readout(); draw();
+  }
+  function draw(){
+    const f = +$('stF').value, ML = +$('stL').value, m = mode(), mh = MH0 * HF[m];
+    plot($('stPlot'), {xmax: 2000, ymax: 0.6, xlabel: 'Schrittfrequenz f in Hz', ylabel: 'Moment M in Nm', xfmt: v => nf(v, 0),
+      curves: [
+        {f: x => MB(x, m), color: '#c2410c', width: 3, label: 'Betriebsgrenzkennlinie'},
+        {f: x => MS(x, m), color: '#7c3aed', width: 3, dash: [7, 4], label: 'Start-Stopp-Grenzkennlinie'}
+      ],
+      labels: [
+        {x: 60, y: mh * 0.25, text: 'Start-Stopp-Bereich', color: '#7c3aed', nodot: true},
+        {x: 720, y: mh * 0.3, text: 'nur mit Rampe', color: '#c2410c', nodot: true},
+        {x: 1100, y: mh * 0.62, text: 'Schrittverlust', color: '#b42318', nodot: true}
+      ],
+      marker: {x: f, y: ML, color: stState === 'lost' ? '#b42318' : '#1d2433'}});
+  }
+  $('stRun').onclick = () => { running = !running; acc = 0; upd(); };
+  $('stOne').onclick = () => { if (!running) step(+segVal('stDir')); };
+  $('stZero').onclick = () => { steps = 0; readout(); };
+  segment('stMode', () => { idx = 0; steps = 0; coils(); upd(); });
+  segment('stDir', upd);
+  ['stF', 'stL'].forEach(id => $(id).addEventListener('input', upd));
+  anims.push(dt => {
+    const f = +$('stF').value, d = +segVal('stDir');
+    if (running && f > 0 && stState !== 'lost'){
+      acc += Math.min(5, 1 + f / 400) * dt;
+      while (acc >= 1){ acc -= 1; idx += d; coils(); }
+      steps += d * f * dt; readout();
+    }
+    const tgt = target();
+    visA += (tgt - visA) * Math.min(1, dt * 20);
+    const jit = (running && stState === 'lost') ? (Math.random() - .5) * 14 : 0;
+    $('stRot').setAttribute('transform', `rotate(${visA + jit} ${CX} ${CY})`);
+  });
+  coils(); redraws.push(draw); upd();
+})();
+
+/* ======================= Universalmotor ======================= */
+(() => {
+  const p = {ke: 0.00926, R: 10, Fm: 2, Is: 2, Mr: 0.06}; p.kt = p.ke * 60 / (2 * Math.PI);
+  let st = {n: 0}, ang = 0;
+  const bumps = (x1, x2, y, up) => { let d = `M${x1} ${y}`; const n = 4, w = (x2 - x1) / n; for (let i = 0; i < n; i++) d += ` a${w / 2} ${w / 2} 0 0 ${up ? 1 : 0} ${w} 0`; return `<path d="${d}" fill="none" stroke="#b45309" stroke-width="3"/>`; };
+  const W = (pts, c = '#1d2433') => `<polyline points="${pts}" fill="none" stroke="${c}" stroke-width="2.5"/>`;
+  let s = `<circle cx="45" cy="110" r="22" fill="#fff" stroke="#1d2433" stroke-width="2.5"/><text x="45" y="117" text-anchor="middle" font-size="20" id="uSrcT">~</text><text x="74" y="116" font-size="12" font-weight="700">230 V</text>`;
+  s += W('45,88 45,40 95,40') + `<rect x="95" y="28" width="60" height="24" rx="4" fill="#fff" stroke="#7c3aed" stroke-width="2"/><text x="125" y="45" text-anchor="middle" font-size="12" font-weight="700" fill="#7c3aed">Triac</text>`;
+  s += W('155,40 190,40') + bumps(190, 270, 40, true) + W('270,40 360,40 360,78');
+  s += `<circle cx="360" cy="110" r="32" fill="#e5e7eb" stroke="#1d2433" stroke-width="2.5"/><g id="uRot"><circle cx="360" cy="110" r="22" fill="#cbd5e1" stroke="#475569" stroke-width="1.5"/><line x1="360" y1="110" x2="360" y2="90" stroke="#0e7490" stroke-width="4" stroke-linecap="round"/></g>`;
+  s += `<rect x="354" y="74" width="12" height="8" fill="#374151"/><rect x="354" y="138" width="12" height="8" fill="#374151"/>`;
+  s += W('360,142 360,180 270,180') + bumps(190, 270, 180, false) + W('190,180 45,180 45,132');
+  s += `<text x="230" y="18" text-anchor="middle" font-size="12" fill="#b45309">Erregerwicklung</text><text x="230" y="206" text-anchor="middle" font-size="12" fill="#b45309">Erregerwicklung</text>`;
+  s += `<text x="125" y="68" text-anchor="middle" font-size="11" fill="#5b6475">Phasenanschnitt</text>`;
+  s += `<text x="400" y="104" font-size="12">Anker mit</text><text x="400" y="119" font-size="12">Kommutator</text><text x="372" y="72" font-size="11" fill="#5b6475">Bürste</text>`;
+  s += `<text x="8" y="214" font-size="11" fill="#5b6475">Zeitlupe 1 : 500</text>`;
+  $('uSvg').innerHTML = s;
+  const ueff = (sup, a) => sup === 'dc' ? 230 : 230 * Math.sqrt(Math.max(0, 1 - rad(a) / Math.PI + Math.sin(2 * rad(a)) / (2 * Math.PI)));
+  function upd(){
+    const sup = segVal('uSup'), a = +$('uA').value, ML = +$('uL').value;
+    $('uA').disabled = sup === 'dc'; $('uSrcT').textContent = sup === 'dc' ? '=' : '~';
+    $('uAo').textContent = sup === 'dc' ? '—' : a + '°'; $('uLo').textContent = nf(ML, 2) + ' Nm';
+    const U = ueff(sup, a);
+    st = seriesOp(U, ML + p.Mr, p);
+    $('uU').textContent = nf(U, 0) + ' V'; $('uN').textContent = fmtN(st.n); $('uI').textContent = nf(st.I, 2) + ' A';
+    $('uP').textContent = fmtP(ML * 2 * Math.PI * st.n / 60);
+    let cls = 'ok', msg;
+    if (st.stall) { cls = 'danger'; msg = 'Motor blockiert – Last zu groß für diese Spannung.'; }
+    else if (st.n > 28000) { cls = 'warn'; msg = 'Sehr hohe Leerlaufdrehzahl! Bei kleinen Geräten begrenzt die Reibung die Drehzahl, große Reihenschlussmotoren könnten durchgehen.'; }
+    else msg = sup === 'dc' ? 'An Gleichspannung arbeitet der Universalmotor wie ein Reihenschlussmotor.' : 'Phasenanschnitt: Der Triac schaltet jede Halbwelle erst beim Zündwinkel α ein. So sinkt die wirksame Spannung und damit die Drehzahl.';
+    $('uMsg').className = 'status ' + cls; $('uMsg').innerHTML = msg;
+    draw();
+  }
+  function draw(){
+    const sup = segVal('uSup'), a = +$('uA').value, ML = +$('uL').value, U = ueff(sup, a);
+    const on = t => sup === 'dc' ? 1 : (((2 * Math.PI * 50 * t / 1000) % Math.PI) >= rad(a) ? 1 : 0);
+    const um = t => sup === 'dc' ? 1 : on(t) * Math.sin(2 * Math.PI * 50 * t / 1000);
+    plot($('uWave'), {xmax: 40, ymin: -1.2, ymax: 1.2, samples: 1200, xlabel: 't in ms', ylabel: 'bezogene Größe', xfmt: v => nf(v, 0), yfmt: v => nf(v, 1),
+      curves: [
+        {f: t => sup === 'dc' ? 1 : Math.sin(2 * Math.PI * 50 * t / 1000), color: '#94a3b8', width: 1.5, dash: [5, 4], label: 'Netzspannung'},
+        {f: um, color: '#7c3aed', width: 2.5, label: 'Motorspannung'},
+        {f: t => 0.8 * um(t), color: '#0b6bcb', width: 2, label: 'Strom I und Feld Φ'},
+        {f: t => um(t) * um(t), color: '#15803d', width: 2.5, label: 'Drehmoment M ~ Φ·I'}
+      ]});
+    plot($('uPlot'), {xmax: 1.5, ymax: 40000, xlabel: 'Lastmoment M in Nm', ylabel: 'Drehzahl n in min⁻¹', yfmt: v => nf(v, 0),
+      curves: [
+        {f: x => seriesOp(230, x + p.Mr, p).n, color: '#7c3aed', width: 1.8, dash: [6, 5], alpha: .55, label: '230 V'},
+        {f: x => seriesOp(U, x + p.Mr, p).n, color: '#7c3aed', width: 3.5, label: nf(U, 0) + ' V'}
+      ],
+      marker: {x: ML, y: Math.min(st.n, 40000), color: '#7c3aed'}});
+  }
+  anims.push(dt => { ang = (ang + clamp(st.n * 0.012, 0, 900) * dt) % 360; $('uRot').setAttribute('transform', `rotate(${ang} 360 110)`); });
+  segment('uSup', upd);
+  ['uA', 'uL'].forEach(id => $(id).addEventListener('input', upd));
+  redraws.push(draw); upd();
+})();
+
+/* ======================= Kondensatormotor ======================= */
+(() => {
+  const CX = 145, CY = 150, NS = 1500, SK = 0.25, MKR = 6;
+  const K = s => s <= 0 ? 0 : 2 / (s / SK + SK / s);
+  const prm = (m, n) => m === 'none' ? {k: 0, ph: 0} : (m === 'start' && n < 0.75 * NS) ? {k: 1.6, ph: 88} : {k: 0.9, ph: 60};
+  const amps = (k, ph) => ({Af: Math.hypot(1 + k * Math.cos(rad(90 - ph)), k * Math.sin(rad(90 - ph))) / 2,
+                            Ab: Math.hypot(1 + k * Math.cos(rad(90 + ph)), k * Math.sin(rad(90 + ph))) / 2});
+  const Tq = (m, n) => { const q = prm(m, n), a = amps(q.k, q.ph), s = 1 - n / NS; return MKR * (a.Af * a.Af * K(s) - a.Ab * a.Ab * K(2 - s)); };
+  let running = false, nOp = 0, dir = 1, startDir = 1, ang = 0, ft = 0, kipp = false;
+
+  let s = ring(CX, CY, 125, 100);
+  [[0, '#8b4513', 'U1'], [180, '#8b4513', 'U2'], [90, '#7c3aed', 'Z1'], [270, '#7c3aed', 'Z2']].forEach(([a, c, t], i) => {
+    s += `<path id="kw${i}" d="${sector(CX, CY, 80, 100, a - 25, a + 25)}" fill="${c}" opacity=".85"/>`;
+    const [tx, ty] = P(CX, CY, 112, a); s += `<text x="${tx}" y="${ty + 4}" text-anchor="middle" font-size="12" font-weight="700" fill="${c}">${t}</text>`;
+  });
+  s += `<g id="kRot">${cage(CX, CY, 62)}</g>`;
+  s += `<path id="kLoc" d="" fill="none" stroke="#f59e0b" stroke-width="2" stroke-dasharray="5 4"/><line id="kVec" x1="${CX}" y1="${CY}" x2="${CX}" y2="${CY}" stroke="#dc2626" stroke-width="5" stroke-linecap="round"/><circle id="kTip" cx="${CX}" cy="${CY}" r="6" fill="#dc2626"/>`;
+  s += `<text x="8" y="16" font-size="11" fill="#5b6475">Feld rot · Bahn der Feldspitze gelb</text>`;
+  // Schaltbild
+  s += `<text x="300" y="36" font-weight="700">L</text><line x1="312" y1="40" x2="492" y2="40" stroke="#8b4513" stroke-width="2.5"/>`;
+  s += `<text x="300" y="266" font-weight="700">N</text><line x1="312" y1="262" x2="492" y2="262" stroke="#1e66d0" stroke-width="2.5"/>`;
+  const coilV = (x, y1, y2, c) => { let d = `M${x} ${y1}`; const n = 4, h = (y2 - y1) / n; for (let i = 0; i < n; i++) d += ` a${h / 2} ${h / 2} 0 0 1 0 ${h}`; return `<path d="${d}" fill="none" stroke="${c}" stroke-width="3"/>`; };
+  s += `<line x1="340" y1="40" x2="340" y2="110" stroke="#1d2433" stroke-width="2"/>${coilV(340, 110, 180, '#8b4513')}<line x1="340" y1="180" x2="340" y2="262" stroke="#1d2433" stroke-width="2"/>`;
+  s += `<text x="352" y="140" font-size="11" fill="#8b4513">Haupt-</text><text x="352" y="153" font-size="11" fill="#8b4513">wicklung</text>`;
+  s += `<g id="kAux"><line x1="420" y1="40" x2="420" y2="76" stroke="#1d2433" stroke-width="2"/><g id="kCB"><line x1="406" y1="76" x2="434" y2="76" stroke="#1d2433" stroke-width="3"/><line x1="406" y1="84" x2="434" y2="84" stroke="#1d2433" stroke-width="3"/></g>`;
+  s += `<text x="384" y="86" font-size="11" font-weight="700">C<tspan font-size="8">B</tspan></text>`;
+  s += `<line x1="420" y1="84" x2="420" y2="130" stroke="#1d2433" stroke-width="2"/>${coilV(420, 130, 200, '#7c3aed')}<line x1="420" y1="200" x2="420" y2="262" stroke="#1d2433" stroke-width="2"/>`;
+  s += `<text x="372" y="222" font-size="11" fill="#7c3aed">Hilfs-</text><text x="372" y="235" font-size="11" fill="#7c3aed">wicklung</text><text id="kRevT" x="428" y="250" font-size="10" fill="#b42318"></text></g>`;
+  s += `<g id="kCA"><line x1="420" y1="56" x2="470" y2="56" stroke="#1d2433" stroke-width="2"/><line x1="470" y1="56" x2="470" y2="64" stroke="#1d2433" stroke-width="2"/>`;
+  s += `<circle cx="470" cy="64" r="2.5" fill="#1d2433"/><line id="kSw" x1="470" y1="64" x2="470" y2="80" stroke="#1d2433" stroke-width="2.5"/><circle cx="470" cy="80" r="2.5" fill="#1d2433"/>`;
+  s += `<line x1="456" y1="90" x2="484" y2="90" stroke="#1d2433" stroke-width="3"/><line x1="456" y1="98" x2="484" y2="98" stroke="#1d2433" stroke-width="3"/><line x1="470" y1="80" x2="470" y2="90" stroke="#1d2433" stroke-width="2"/>`;
+  s += `<line x1="470" y1="98" x2="470" y2="112" stroke="#1d2433" stroke-width="2"/><line x1="470" y1="112" x2="420" y2="112" stroke="#1d2433" stroke-width="2"/>`;
+  s += `<text x="446" y="124" font-size="11" font-weight="700">C<tspan font-size="8">A</tspan></text><text x="478" y="76" font-size="10" fill="#5b6475">S</text></g>`;
+  $('kSvg').innerHTML = s;
+
+  function locus(k, ph, sg){
+    let d = '';
+    const sc = 78 / Math.max(1, k);
+    for (let i = 0; i <= 72; i++){ const t = i / 72 * 2 * Math.PI, x = CX + sc * sg * k * Math.cos(t - rad(ph)), y = CY - sc * Math.cos(t); d += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1); }
+    $('kLoc').setAttribute('d', d);
+  }
+  function evalOp(){
+    const m = segVal('kC'), ML = +$('kL').value;
+    kipp = false;
+    if (!running){
+      if (Tq(m, 0) > ML){ running = true; nOp = NS; for (let n = 0; n <= NS; n += 1){ if (Tq(m, n) <= ML){ nOp = n; break; } } }
+      else nOp = 0;
+    } else {
+      nOp = -1;
+      for (let n = NS - 1; n >= 0; n -= 1){ if (Tq(m, n) >= ML){ nOp = n; break; } }
+      if (nOp < 0){ running = false; nOp = 0; kipp = true; }
+    }
+  }
+  function upd(reset){
+    const m = segVal('kC'), ML = +$('kL').value, rev = $('kRev').checked;
+    if (reset) running = false;
+    dir = m === 'none' ? startDir : (rev ? -1 : 1);
+    $('kLo').textContent = nf(ML, 2) + ' Nm';
+    evalOp();
+    const q = prm(m, nOp), a = amps(q.k, q.ph);
+    locus(q.k, q.ph, rev ? -1 : 1);
+    $('kN').textContent = fmtN(nOp) + (nOp > 0 ? (dir > 0 ? ' ↻' : ' ↺') : '');
+    $('kS').textContent = running ? nf((NS - nOp) / NS * 100, 1) + ' %' : '100 %';
+    $('kPh').textContent = m === 'none' ? '— (keine Hilfsphase)' : nf(q.ph, 0) + '°';
+    $('kMA').textContent = nf(Tq(m, 0), 2) + ' Nm';
+    $('kPush').disabled = !(m === 'none' && !running);
+    // Schaltbild
+    $('kAux').setAttribute('opacity', m === 'none' ? .25 : 1);
+    $('kCA').style.display = m === 'start' ? '' : 'none';
+    const swClosed = m === 'start' && nOp < 0.75 * NS;
+    $('kSw').setAttribute('x2', swClosed ? 470 : 480); $('kSw').setAttribute('y2', swClosed ? 80 : 74);
+    $('kRevT').textContent = rev && m !== 'none' ? 'Z1↔Z2' : '';
+    [2, 3].forEach(i => $('kw' + i).setAttribute('opacity', m === 'none' ? .2 : .85));
+    const form = q.k === 0 ? 'Wechselfeld (pulsierend)' : a.Ab / a.Af < 0.12 ? 'fast kreisförmiges Drehfeld' : 'elliptisches Drehfeld';
+    let cls = 'ok', msg;
+    if (!running && m === 'none') { cls = 'danger'; msg = `<b>${form}:</b> Ohne Hilfsphase hat der Motor kein Anlaufmoment – er brummt nur. Von Hand angeworfen läuft er in diese Richtung weiter.`; }
+    else if (!running) { cls = 'danger'; msg = kipp ? 'Der Motor ist <b>gekippt</b>: Das Lastmoment ist größer als das Kippmoment.' : `Das Anlaufmoment (${nf(Tq(m, 0), 2)} Nm) reicht für diese Last nicht aus – der Motor läuft nicht an.`; }
+    else if (m === 'none') { cls = 'warn'; msg = `<b>${form}:</b> Angeworfen läuft der Motor weiter, gibt aber nur wenig Moment ab.`; }
+    else if (m === 'start') msg = `<b>${form}</b> beim Anlauf: Der Anlaufkondensator erhöht das Anlaufmoment stark. Ab ca. 75 % der Drehzahl schaltet der Fliehkraftschalter C<sub>A</sub> ab.`;
+    else msg = `<b>${form}:</b> Der Betriebskondensator erzeugt die Phasenverschiebung. Das Anlaufmoment ist eher klein.`;
+    $('kMsg').className = 'status ' + cls; $('kMsg').innerHTML = msg;
+    draw();
+  }
+  function draw(){
+    const m = segVal('kC'), ML = +$('kL').value;
+    const curves = [{f: n => Tq(m, n), color: '#7c3aed', width: 3.5, label: m === 'none' ? 'ohne Kondensator' : m === 'run' ? 'mit C_B' : 'mit C_B + C_A'}];
+    if (m !== 'run') curves.push({f: n => Tq('run', n), color: '#7c3aed', width: 1.6, dash: [6, 5], alpha: .45, label: 'nur C_B (Vergleich)'});
+    if (m !== 'none') curves.push({f: n => Tq('none', n), color: '#94a3b8', width: 1.6, dash: [3, 4], label: 'ohne Kondensator'});
+    curves.push({f: () => ML, color: '#c2410c', width: 2, dash: [8, 5], label: 'Lastmoment'});
+    plot($('kPlot'), {xmax: NS, ymin: 0, ymax: 8, xlabel: 'Drehzahl n in min⁻¹', ylabel: 'Drehmoment M in Nm', xfmt: v => nf(v, 0), legendLeft: true, curves,
+      marker: {x: nOp, y: running ? Math.max(0, Tq(m, nOp)) : 0, color: running ? '#7c3aed' : '#b42318'}});
+  }
+  $('kOn').onclick = () => upd(true);
+  $('kPush').onclick = () => { startDir = $('kRev').checked ? -1 : 1; running = true; upd(false); };
+  segment('kC', () => upd(true));
+  $('kRev').addEventListener('input', () => upd(true));
+  $('kL').addEventListener('input', () => upd(false));
+  anims.push((dt, tt) => {
+    const m = segVal('kC'), q = prm(m, nOp), sg = $('kRev').checked ? -1 : 1, sc = 78 / Math.max(1, q.k);
+    ft += dt * Math.PI;
+    const x = CX + sc * sg * q.k * Math.cos(ft - rad(q.ph)), y = CY - sc * Math.cos(ft);
+    $('kVec').setAttribute('x2', x); $('kVec').setAttribute('y2', y); $('kTip').setAttribute('cx', x); $('kTip').setAttribute('cy', y);
+    const hum = !running && segVal('kC') === 'none' ? Math.sin(tt * 60) * 1.5 : 0;
+    ang = (ang + dir * (nOp / NS) * 180 * dt) % 360;
+    $('kRot').setAttribute('transform', `rotate(${ang + hum} ${CX} ${CY})`);
+  });
+  redraws.push(draw); upd(true);
+})();
+
+/* ======================= Spaltpolmotor ======================= */
+(() => {
+  const CX = 160, CY = 140;
+  let s = `<path d="M30 20 H290 V260 H30 Z M52 42 V238 H268 V42 Z" fill="#cbd5e1" stroke="#6b7280" stroke-width="2" fill-rule="evenodd"/>`;
+  s += `<rect x="105" y="42" width="110" height="36" fill="#cbd5e1" stroke="#6b7280" stroke-width="2"/><rect x="105" y="202" width="110" height="36" fill="#cbd5e1" stroke="#6b7280" stroke-width="2"/>`;
+  for (let y = 96; y <= 184; y += 11) s += `<rect x="20" y="${y}" width="44" height="8" rx="3" fill="#b45309"/>`;
+  s += `<rect x="178" y="54" width="40" height="28" fill="none" stroke="#ea580c" stroke-width="5" rx="2"/><rect x="102" y="198" width="40" height="28" fill="none" stroke="#ea580c" stroke-width="5" rx="2"/>`;
+  s += `<rect id="spM1" x="108" y="80" width="68" height="8" fill="#dc2626" rx="2"/><rect id="spS1" x="182" y="80" width="32" height="8" fill="#dc2626" rx="2"/>`;
+  s += `<rect id="spM2" x="144" y="192" width="68" height="8" fill="#dc2626" rx="2"/><rect id="spS2" x="106" y="192" width="32" height="8" fill="#dc2626" rx="2"/>`;
+  s += `<g id="spRot">${cage(CX, CY, 48)}</g>`;
+  s += `<path d="M118 112 A50 50 0 0 1 206 112" fill="none" stroke="#15803d" stroke-width="3"/><polygon points="210,118 198,112 210,104" fill="#15803d"/>`;
+  s += lab(42, 140, 300, 140, 'Erregerspule');
+  s += lab(130, 60, 300, 40, 'Hauptpol');
+  s += lab(214, 60, 300, 70, 'Spaltpol + Cu-Ring', '#ea580c');
+  s += lab(185, 160, 300, 180, 'Käfigläufer');
+  s += lab(200, 108, 300, 110, 'Drehrichtung', '#15803d');
+  s += lab(275, 230, 300, 230, 'Ständer-Blechpaket');
+  $('spSvg').innerHTML = s;
+  let t = 0, ang = 0;
+  anims.push(dt => {
+    t += dt * 2.2; ang = (ang + 70 * dt) % 360;
+    const m = Math.abs(Math.sin(t)), sh = Math.abs(Math.sin(t - rad(70)));
+    ['spM1', 'spM2'].forEach(id => $(id).setAttribute('opacity', (0.1 + 0.9 * m).toFixed(2)));
+    ['spS1', 'spS2'].forEach(id => $(id).setAttribute('opacity', (0.1 + 0.9 * sh).toFixed(2)));
+    $('spRot').setAttribute('transform', `rotate(${ang} ${CX} ${CY})`);
+  });
+})();
+
+/* ======================= Asynchronmotor ======================= */
+(() => {
+  const CX = 150, CY = 150, NS = 1500, MK = 25;
+  const skf = (type, R, s) => type === 'k' ? 0.16 * (1 + 1.2 * s) : 0.12 * (1 + 2 * R);
+  const Mf = (type, R, n) => { const s = 1 - n / NS; if (s <= 0) return 0; const k = skf(type, R, s); return 2 * MK / (s / k + k / s); };
+  let nOp = 0, fa = 0, ra = 0, dir = 1;
+  function stat(type, R){
+    let s = ring(CX, CY, 128, 104) + phaseCoils(CX, CY, 104, 118);
+    if (type === 'k') s += `<g id="aRot">${cage(CX, CY, 74)}</g>`;
+    else {
+      s += `<g id="aRot"><circle cx="${CX}" cy="${CY}" r="74" fill="#cbd5e1" stroke="#475569" stroke-width="2"/>`;
+      [0, 120, 240].forEach(a => { s += `<path d="${sector(CX, CY, 40, 66, a - 22, a + 22)}" fill="#b45309" opacity=".85"/>`; });
+      const [mx, my] = P(CX, CY, 52, 60); s += `<circle cx="${CX}" cy="${CY}" r="12" fill="#475569"/><circle cx="${mx}" cy="${my}" r="6" fill="#0e7490"/></g>`;
+    }
+    s += `<g id="aF">${fieldArrow(CX, CY, 92)}</g>`;
+    if (type === 'k'){
+      s += `<text x="300" y="50" font-size="12" font-weight="700">Käfig (ohne Blechpaket):</text>`;
+      s += `<ellipse cx="320" cy="150" rx="14" ry="62" fill="none" stroke="#b45309" stroke-width="6"/><ellipse cx="460" cy="150" rx="14" ry="62" fill="none" stroke="#b45309" stroke-width="6"/>`;
+      for (let i = 0; i < 9; i++){ const t = -Math.PI / 2 + i * Math.PI / 8, y = 150 + 62 * Math.sin(t), x = 14 * Math.cos(t); s += `<line x1="${320 + x}" y1="${y}" x2="${460 + x}" y2="${y}" stroke="#d97706" stroke-width="4"/>`; }
+      s += `<text x="300" y="240" font-size="12">Stäbe + Kurzschlussringe</text><text x="300" y="256" font-size="12" fill="#5b6475">keine Bürsten, keine Schleifringe</text>`;
+    } else {
+      s += `<rect x="296" y="142" width="80" height="16" fill="#94a3b8"/>`;
+      [312, 330, 348].forEach(x => { s += `<ellipse cx="${x}" cy="150" rx="5" ry="26" fill="#d97706" stroke="#92400e"/><rect x="${x - 5}" y="114" width="10" height="9" fill="#374151"/><line x1="${x}" y1="114" x2="${x}" y2="${60 + (x - 312) / 18 * 0}" stroke="#1d2433" stroke-width="1.5"/>`; });
+      [[312, 405], [330, 430], [348, 455]].forEach(([x, rx]) => { s += `<polyline points="${x},114 ${x},${70 - (x - 312) / 3} ${rx},${70 - (x - 312) / 3} ${rx},90" fill="none" stroke="#1d2433" stroke-width="1.5"/>`; });
+      [405, 430, 455].forEach(x => { s += `<rect x="${x - 6}" y="90" width="12" height="90" fill="#fff" stroke="#1d2433" stroke-width="1.5"/>`; const y = 180 - R / 6 * 86; s += `<line x1="${x - 11}" y1="${y}" x2="${x + 11}" y2="${y}" stroke="#b42318" stroke-width="3"/>`; });
+      s += `<polyline points="405,180 405,196 455,196 455,180" fill="none" stroke="#1d2433" stroke-width="1.5"/><line x1="430" y1="180" x2="430" y2="196" stroke="#1d2433" stroke-width="1.5"/>`;
+      s += `<text x="296" y="212" font-size="12">Schleifringe + Bürsten</text><text x="380" y="226" font-size="12">Anlasswiderstände</text><text x="380" y="242" font-size="12" fill="#b42318">Stufe ${R}${R === 0 ? ' (kurzgeschlossen)' : ''}</text>`;
+    }
+    s += `<text x="8" y="16" font-size="11" fill="#5b6475">Zeitlupe 1 : 100</text>`;
+    $('aSvg').innerHTML = s;
+  }
+  function upd(){
+    const type = segVal('aType'), R = +$('aR').value, ML = +$('aL').value; dir = $('aRev').checked ? -1 : 1;
+    $('aR').disabled = type === 'k';
+    $('aRo').textContent = type === 'k' ? '—' : 'Stufe ' + R; $('aLo').textContent = nf(ML, 1) + ' Nm';
+    const MA = Mf(type, R, 0), sk1 = skf(type, R, 1), IA = 7 / Math.sqrt(1 + sk1 * sk1);
+    nOp = 0;
+    if (MA > ML){ nOp = NS; for (let n = 0; n <= NS; n += 0.5){ if (Mf(type, R, n) <= ML){ nOp = n; break; } } }
+    stat(type, R);
+    $('aN').textContent = fmtN(nOp) + (nOp > 0 ? (dir > 0 ? ' ↻' : ' ↺') : '');
+    $('aS').textContent = nf((NS - nOp) / NS * 100, 1) + ' %';
+    $('aMA').textContent = nf(MA, 1) + ' Nm (' + nf(MA / 10, 2) + '·M_N)';
+    $('aIA').textContent = '≈ ' + nf(IA, 1) + ' · I_N';
+    let cls = 'ok', msg;
+    if (nOp === 0){ cls = 'danger'; msg = `Der Motor läuft nicht an: Anlaufmoment ${nf(MA, 1)} Nm &lt; Lastmoment ${nf(ML, 1)} Nm.${type === 's' ? ' Erhöhe den Anlasswiderstand!' : ''}`; }
+    else if (ML > 10){ cls = 'warn'; msg = 'Überlast: Der Motor läuft, aber über dem Nennmoment – er wird zu warm. Der Motorschutz schaltet nach einiger Zeit ab.'; }
+    else if (type === 's' && R > 0){ cls = 'warn'; msg = 'Mit Anlasswiderständen läuft der Motor mit großem Schlupf → hohe Verluste in den Widerständen. Nach dem Hochlauf werden sie kurzgeschlossen (Stufe 0).'; }
+    else msg = 'Der Motor läuft im stabilen Arbeitspunkt mit kleinem Schlupf.';
+    if (type === 's' && R >= 5) msg += '<br>Zu viel Widerstand: Das Kippmoment liegt jetzt „unter“ der Drehzahl 0, und das Anlaufmoment sinkt wieder.';
+    $('aMsg').className = 'status ' + cls; $('aMsg').innerHTML = msg;
+    draw();
+  }
+  function draw(){
+    const type = segVal('aType'), R = +$('aR').value, ML = +$('aL').value;
+    const curves = [];
+    if (type === 's') for (let r = 0; r <= 6; r++) if (r !== R) curves.push({f: n => Mf('s', r, n), color: '#0e7490', width: 1.3, alpha: .3});
+    curves.push({f: n => Mf(type, R, n), color: '#0e7490', width: 3.5, label: type === 'k' ? 'Käfigläufer' : 'Schleifring, Stufe ' + R});
+    curves.push({f: () => ML, color: '#c2410c', width: 2, dash: [8, 5], label: 'Lastmoment'});
+    if (type === 's') curves.push({f: () => NaN, color: '#0e7490', width: 1.3, alpha: .3, label: 'andere Stufen'});
+    let nk = 0, mk = 0; for (let n = 0; n < NS; n += 2){ const m = Mf(type, R, n); if (m > mk){ mk = m; nk = n; } }
+    plot($('aPlot'), {xmax: NS, ymax: 30, xlabel: 'Drehzahl n in min⁻¹', ylabel: 'Drehmoment M in Nm', xfmt: v => nf(v, 0), legendLeft: true, curves,
+      labels: nk > 20 ? [{x: nk, y: mk, text: 'Kippmoment', color: '#0e7490'}] : [],
+      marker: {x: nOp, y: nOp > 0 ? ML : 0, color: nOp > 0 ? '#c2410c' : '#b42318'}});
+  }
+  anims.push(dt => {
+    fa = (fa + dir * vis(NS) * dt) % 360; ra = (ra + dir * vis(nOp) * dt) % 360;
+    const f = $('aF'), r = $('aRot'); if (!f) return;
+    f.setAttribute('transform', `rotate(${fa} ${CX} ${CY})`); r.setAttribute('transform', `rotate(${ra} ${CX} ${CY})`);
+  });
+  segment('aType', upd);
+  ['aR', 'aL', 'aRev'].forEach(id => $(id).addEventListener('input', upd));
+  redraws.push(draw); upd();
+})();
+
+/* ======================= Synchronmotor ======================= */
+(() => {
+  const CX = 150, CY = 150;
+  let synced = true, th = 0, ns = 1500, mk = 20, fa = 0, ra = 0, tt = 0;
+  let s = ring(CX, CY, 128, 104) + phaseCoils(CX, CY, 104, 118);
+  s += `<g id="smRot">${pmDisc(CX, CY, 70)}`;
+  for (let i = 0; i < 16; i++){ const [x, y] = P(CX, CY, 62, i * 22.5 + 11); s += `<circle cx="${x}" cy="${y}" r="2.6" fill="#fbbf24"/>`; }
+  s += `</g><g id="smF" opacity=".85">${fieldArrow(CX, CY, 96)}</g>`;
+  s += `<path id="smArc" d="" fill="none" stroke="#f59e0b" stroke-width="4"/><text id="smArcT" x="0" y="0" font-size="14" font-weight="800" fill="#b45309"></text>`;
+  s += lab(...P(CX, CY, 118, 30), 300, 34, 'Ständerwicklung (3~)');
+  s += lab(CX + 60, CY - 60, 300, 80, 'Ständerdrehfeld (rot)', '#dc2626');
+  s += lab(CX + 50, CY + 30, 300, 160, 'Polrad (Läufer, Magnet)');
+  s += lab(CX + 40, CY + 47, 300, 196, 'Dämpferkäfig (gelb)', '#b45309');
+  s += `<text x="300" y="120" font-size="12" fill="#b45309">ϑ = Polradwinkel</text>`;
+  s += `<text x="8" y="16" font-size="11" fill="#5b6475">Zeitlupe 1 : 100</text>`;
+  $('smSvg').innerHTML = s;
+  function upd(){
+    const f = +$('smF').value, p = +$('smP').value, E = +$('smE').value / 100, ML = +$('smL').value;
+    ns = 60 * f / p; mk = 20 * E * (f > 50 ? 50 / f : 1);
+    if (ML > mk) synced = false;
+    th = synced ? Math.asin(ML / mk) * 180 / Math.PI : 0;
+    $('smFo').textContent = f + ' Hz'; $('smEo').textContent = nf(E * 100, 0) + ' %'; $('smLo').textContent = nf(ML, 1) + ' Nm';
+    $('smNs').textContent = fmtN(ns); $('smN').textContent = fmtN(synced ? ns : 0);
+    $('smTh').textContent = synced ? nf(th, 1) + '°' : '—'; $('smMk').textContent = nf(mk, 1) + ' Nm';
+    $('smSync').disabled = synced;
+    const cos = E < 0.9 ? 'untererregt: nimmt induktive Blindleistung auf' : E > 1.1 ? 'übererregt: gibt induktive Blindleistung ab (wirkt wie ein Kondensator)' : 'normal erregt: cos φ ≈ 1';
+    let cls = 'ok', msg;
+    if (!synced){ cls = 'danger'; msg = `<b>Außer Tritt!</b> Das Lastmoment (${nf(ML, 1)} Nm) war größer als das Kippmoment (${nf(mk, 1)} Nm). Der Läufer kann dem Drehfeld nicht mehr folgen und bleibt stehen. Last verringern oder Erregung erhöhen, dann neu hochfahren.`; }
+    else if (th > 60){ cls = 'warn'; msg = `Polradwinkel ${nf(th, 0)}° – nahe am Kippen! Die Drehzahl ist trotzdem exakt ${fmtN(ns)}.`; }
+    else msg = `Der Läufer dreht <b>synchron</b> mit dem Drehfeld (${fmtN(ns)}). Die Last vergrößert nur den Polradwinkel ϑ.`;
+    msg += `<br><span style="font-weight:400">Erregung: ${cos}.</span>`;
+    $('smMsg').className = 'status ' + cls; $('smMsg').innerHTML = msg;
+    draw();
+  }
+  function draw(){
+    const E = +$('smE').value / 100, f = +$('smF').value, ML = +$('smL').value;
+    plot($('smPlot1'), {xmax: 180, ymax: 40, xlabel: 'Polradwinkel ϑ in °', ylabel: 'Drehmoment M in Nm', xfmt: v => nf(v, 0), yfmt: v => nf(v, 0),
+      curves: [
+        {f: x => mk * Math.sin(rad(x)), color: '#0e7490', width: 3.5, label: 'M = M_K · sin ϑ'},
+        {f: x => x <= 90 ? NaN : mk * Math.sin(rad(x)), color: '#b42318', width: 3.5, label: 'instabil (ϑ > 90°)'},
+        {f: () => ML, color: '#c2410c', width: 2, dash: [8, 5], label: 'Lastmoment'}
+      ],
+      labels: [{x: 90, y: mk, text: 'Kippmoment', color: '#0e7490'}],
+      marker: synced ? {x: th, y: ML, color: '#c2410c'} : null});
+    const nmax = niceMax(ns * 1.25);
+    plot($('smPlot2'), {xmax: 40, ymax: nmax, xlabel: 'Lastmoment M in Nm', ylabel: 'Drehzahl n in min⁻¹', yfmt: v => nf(v, 0),
+      curves: [
+        {data: [[0, ns], [mk, ns]], color: '#0e7490', width: 3.5, label: 'n = n_s (konstant)'},
+        {data: [[mk, ns], [mk, 0]], color: '#b42318', width: 2, dash: [6, 4], label: 'außer Tritt'}
+      ],
+      marker: {x: ML, y: synced ? ns : 0, color: synced ? '#c2410c' : '#b42318'}});
+  }
+  $('smSync').onclick = () => { const ML = +$('smL').value; if (ML <= mk) synced = true; upd(); };
+  ['smF', 'smP', 'smE', 'smL'].forEach(id => $(id).addEventListener('input', upd));
+  anims.push(dt => {
+    tt += dt;
+    fa = (fa + vis(ns) * dt) % 360;
+    if (synced) ra = fa - th; else ra += Math.sin(tt * 9) * 40 * dt;
+    $('smF').setAttribute('transform', `rotate(${fa} ${CX} ${CY})`);
+    $('smRot').setAttribute('transform', `rotate(${ra} ${CX} ${CY})`);
+    if (synced && th > 1){
+      const r = 44, [x1, y1] = P(CX, CY, r, ra), [x2, y2] = P(CX, CY, r, fa), [tx, ty] = P(CX, CY, r + 16, ra + th / 2);
+      $('smArc').setAttribute('d', `M${x1} ${y1} A${r} ${r} 0 0 1 ${x2} ${y2}`);
+      $('smArcT').setAttribute('x', tx - 5); $('smArcT').setAttribute('y', ty + 5); $('smArcT').textContent = 'ϑ';
+    } else { $('smArc').setAttribute('d', ''); $('smArcT').textContent = ''; }
+  });
+  redraws.push(draw); upd();
+})();
+
+/* ======================= Servomotor ======================= */
+(() => {
+  const J = 0.002, b = 0.002, MMAX = 3, H = 0.0005, DX = 120, DY = 210;
+  let th = rad(90), w = 0, integ = 0, simT = 0, hist = [], lastS = 0, step = {from: 0, to: 90, peak: 0}, Mcur = 0;
+  let s = '';
+  const box = (x, t1, t2, c = '#0e7490') => `<rect x="${x}" y="18" width="84" height="40" rx="6" fill="#fff" stroke="${c}" stroke-width="2"/><text x="${x + 42}" y="35" text-anchor="middle" font-size="11" font-weight="700" fill="${c}">${t1}</text><text x="${x + 42}" y="50" text-anchor="middle" font-size="11" fill="${c}">${t2}</text>`;
+  s += `<text x="4" y="12" font-size="10" fill="#5b6475">Sollwert</text>` + arrow(4, 38, 16, 38, '#1d2433', 2);
+  s += box(18, 'Lage-', 'regler') + arrow(102, 38, 114, 38, '#1d2433', 2) + box(116, 'Drehzahl-', 'regler') + arrow(200, 38, 212, 38, '#1d2433', 2) + box(214, 'Strom-', 'regler') + arrow(298, 38, 310, 38, '#1d2433', 2) + box(312, 'Umrichter', '(Servoregler)', '#7c3aed') + arrow(396, 38, 410, 38, '#1d2433', 2);
+  s += `<circle cx="438" cy="38" r="26" fill="#e5e7eb" stroke="#1d2433" stroke-width="2"/><text x="438" y="36" text-anchor="middle" font-size="13" font-weight="800">M</text><text x="438" y="50" text-anchor="middle" font-size="10">3~</text>`;
+  s += `<rect x="466" y="30" width="26" height="16" rx="3" fill="#fde68a" stroke="#b45309"/><text x="479" y="42" text-anchor="middle" font-size="9" font-weight="700">G</text>`;
+  s += `<polyline points="479,46 479,92 60,92 60,60" fill="none" stroke="#15803d" stroke-width="2" stroke-dasharray="6 4"/><polygon points="60,58 55,68 65,68" fill="#15803d"/>`;
+  s += `<text x="270" y="106" text-anchor="middle" font-size="11" fill="#15803d">Istwerte (Lage, Drehzahl) vom Geber G</text>`;
+  s += `<circle cx="${DX}" cy="${DY}" r="72" fill="#fff" stroke="#1d2433" stroke-width="2"/>`;
+  for (let a = 0; a < 360; a += 30){ const [x1, y1] = P(DX, DY, 64, a), [x2, y2] = P(DX, DY, 72, a), [tx, ty] = P(DX, DY, 84, a); s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#1d2433" stroke-width="2"/>`; if (a % 90 === 0) s += `<text x="${tx}" y="${ty + 4}" text-anchor="middle" font-size="11">${a}°</text>`; }
+  s += `<g id="svSoll"><line x1="${DX}" y1="${DY}" x2="${DX}" y2="${DY - 66}" stroke="#f59e0b" stroke-width="4" stroke-dasharray="6 4"/></g>`;
+  s += `<g id="svIst"><line x1="${DX}" y1="${DY}" x2="${DX}" y2="${DY - 58}" stroke="#0b6bcb" stroke-width="7" stroke-linecap="round"/><circle cx="${DX}" cy="${DY}" r="9" fill="#0b6bcb"/></g>`;
+  s += `<text x="230" y="170" font-size="12"><tspan fill="#f59e0b" font-weight="700">— —</tspan> Sollposition</text><text x="230" y="190" font-size="12"><tspan fill="#0b6bcb" font-weight="700">——</tspan> Istposition (Motorwelle)</text>`;
+  s += `<text x="230" y="222" font-size="12" fill="#5b6475">Der Regler berechnet aus der</text><text x="230" y="238" font-size="12" fill="#5b6475">Regelabweichung e = Soll − Ist</text><text x="230" y="254" font-size="12" fill="#5b6475">das Motormoment.</text>`;
+  $('svSvg').innerHTML = s;
+  function setT(v){ $('svT').value = v; onT(); }
+  function onT(){ const t = +$('svT').value; $('svTo').textContent = t + '°'; step = {from: th * 180 / Math.PI, to: t, peak: 0}; }
+  function labels(){
+    $('svKpo').textContent = nf(+$('svKp').value, 1) + ' Nm/rad'; $('svKdo').textContent = nf(+$('svKd').value, 3); $('svLo').textContent = nf(+$('svL').value, 2) + ' Nm';
+  }
+  $('svJump').querySelectorAll('button').forEach(bt => bt.onclick = () => setT(+bt.dataset.t));
+  $('svT').addEventListener('input', onT);
+  ['svKp', 'svKd', 'svL'].forEach(id => $(id).addEventListener('input', labels));
+  let hAcc = 0, uiAcc = 0;
+  anims.push(dt => {
+    const Kp = +$('svKp').value, Kd = +$('svKd').value, ML = +$('svL').value, useI = $('svI').checked, ts = rad(+$('svT').value), Ki = 5 * Kp;
+    const nsub = Math.ceil(dt / H);
+    for (let i = 0; i < nsub; i++){
+      const e = ts - th;
+      if (useI){ integ += e * H; integ = clamp(integ, -MMAX / Ki, MMAX / Ki); } else integ = 0;
+      const M = clamp(Kp * e + Ki * integ - Kd * w, -MMAX, MMAX);
+      const acc = (M - b * w - ML) / J;
+      w += acc * H; th += w * H; Mcur = M;
+    }
+    simT += dt; hAcc += dt; uiAcc += dt;
+    const thd = th * 180 / Math.PI, tsd = +$('svT').value;
+    const sg = Math.sign(step.to - step.from); if (sg) step.peak = Math.max(step.peak, (thd - step.to) * sg);
+    if (hAcc >= 0.01){ hAcc = 0; hist.push([simT, tsd, thd]); while (hist.length && hist[0][0] < simT - 4) hist.shift(); }
+    $('svIst').setAttribute('transform', `rotate(${thd} ${DX} ${DY})`);
+    $('svSoll').setAttribute('transform', `rotate(${tsd} ${DX} ${DY})`);
+    if (uiAcc >= 0.08){
+      uiAcc = 0;
+      const e = tsd - thd, span = Math.abs(step.to - step.from), os = span > 1 ? Math.max(0, step.peak) / span * 100 : 0;
+      const z = v => Math.abs(v) < 0.05 ? 0 : v;
+      $('svPos').textContent = nf(z(thd), 1) + '°'; $('svE').textContent = nf(z(e), 1) + '°'; $('svOS').textContent = nf(os, 0) + ' %'; $('svM').textContent = nf(Math.abs(Mcur) < 0.005 ? 0 : Mcur, 2) + ' Nm';
+      let cls = 'ok', msg;
+      const settled = Math.abs(w) < 0.2;
+      if (ML > 0 && !useI && Math.abs(e) > 1 && settled){ cls = 'warn'; msg = `<b>Bleibende Regelabweichung</b> (${nf(e, 1)}°): Ein reiner P-Regler braucht eine Abweichung, um das Gegenmoment aufzubringen (e = M<sub>L</sub> / K<sub>P</sub>). Abhilfe: I-Anteil einschalten.`; }
+      else if (Math.abs(e) <= 1 && settled) msg = '✔ Position erreicht – der Regler hält die Welle auf dem Sollwert.' + (os > 25 ? ` Beim Anfahren gab es aber <b>${nf(os, 0)} % Überschwingen</b> → Dämpfung erhöhen oder K<sub>P</sub> verringern.` : '');
+      else if (os > 25){ cls = 'warn'; msg = `<b>Starkes Überschwingen</b> (${nf(os, 0)} %): Der Antrieb fährt über das Ziel hinaus. Abhilfe: Dämpfung (D-Anteil) erhöhen oder K<sub>P</sub> verringern.`; }
+      else if (Math.abs(Mcur) >= MMAX - 0.01){ cls = 'warn'; msg = 'Der Motor arbeitet an seiner Momentengrenze (Strombegrenzung im Servoregler).'; }
+      else msg = 'Der Antrieb fährt zur Sollposition …';
+      $('svMsg').className = 'status ' + cls; $('svMsg').innerHTML = msg;
+      drawPlot();
+    }
+  });
+  function drawPlot(){
+    if (!hist.length) return;
+    let lo = Infinity, hi = -Infinity; hist.forEach(h => { lo = Math.min(lo, h[1], h[2]); hi = Math.max(hi, h[1], h[2]); });
+    const pad = Math.max(20, (hi - lo) * 0.12); lo -= pad; hi += pad;
+    plot($('svPlot'), {xmin: -4, xmax: 0, ymin: lo, ymax: hi, xlabel: 'Zeit t in s (0 = jetzt)', ylabel: 'Position in °', yfmt: v => nf(v, 0),
+      curves: [
+        {data: hist.map(h => [h[0] - simT, h[1]]), color: '#f59e0b', width: 2.5, dash: [7, 4], label: 'Sollposition'},
+        {data: hist.map(h => [h[0] - simT, h[2]]), color: '#0b6bcb', width: 3, label: 'Istposition'}
+      ]});
+  }
+  labels(); onT();
+})();
+
+/* ======================= Kennlinien-Vergleich ======================= */
+(() => {
+  const kl = (m, mk, sk) => m > mk ? NaN : m <= 0 ? 0 : sk * (mk / m - Math.sqrt((mk / m) ** 2 - 1));
+  const asyn = (mk, sk) => { const sN = kl(1, mk, sk); return m => { const s = kl(m, mk, sk); return isNaN(s) ? NaN : (1 - s) / (1 - sN); }; };
+  const drop = (mk, sk) => { const sN = kl(1, mk, sk); return [[mk, (1 - sk) / (1 - sN)], [mk, 0]]; };
+  const C = [
+    {k: 'sm', n: 'Synchron / Schritt / Servo', c: '#15803d', f: m => m <= 2 ? 1 : NaN, d: [[2, 1], [2, 0]]},
+    {k: 'nb', n: 'Nebenschluss (PM-DC, BLDC)', c: '#c2410c', f: m => 1.12 - 0.12 * m, d: null},
+    {k: 'asm', n: 'Asynchron Käfigläufer', c: '#0e7490', f: asyn(2.5, 0.2), d: drop(2.5, 0.2)},
+    {k: 'kond', n: 'Kondensatormotor', c: '#7c3aed', f: asyn(2.0, 0.3), d: drop(2.0, 0.3)},
+    {k: 'spalt', n: 'Spaltpolmotor', c: '#a78bfa', f: asyn(1.4, 0.5), d: drop(1.4, 0.5)},
+    {k: 'rs', n: 'Reihenschluss / Universal', c: '#f59e0b', f: m => 1 / Math.sqrt(Math.max(m, 0.01)), d: null}
+  ];
+  $('cmpSel').innerHTML = C.map(c => `<label><input type="checkbox" data-k="${c.k}" checked><span style="display:inline-block;width:18px;height:4px;background:${c.c};border-radius:2px"></span>${c.n}</label>`).join('');
+  function draw(){
+    const on = {}; $('cmpSel').querySelectorAll('input').forEach(i => on[i.dataset.k] = i.checked);
+    const curves = [];
+    C.forEach(c => { if (!on[c.k]) return; curves.push({f: c.f, color: c.c, width: 3, label: c.n}); if (c.d) curves.push({data: c.d, color: c.c, width: 1.5, dash: [5, 4]}); });
+    plot($('cmpPlot'), {xmax: 3, ymax: 2.5, xlabel: 'Lastmoment bezogen M / M_N', ylabel: 'Drehzahl bezogen n / n_N', yfmt: v => nf(v, 1), curves, samples: 600,
+      labels: [{x: 1, y: 1, text: 'Nennpunkt', color: '#1d2433'}]});
+  }
+  $('cmpSel').querySelectorAll('input').forEach(i => i.addEventListener('input', draw));
+  redraws.push(draw); draw();
+})();
+
+/* ======================= Vergleichstabelle + Auswahl ======================= */
+const MOT = [
+  {id: 'm-dc', n: 'Gleichstrommotor permanenterregt', vt: ['dc'], komm: 'Kommutator + Bürsten', verh: 'Nebenschlussverhalten', st: 'Ankerspannung, PWM-Steller', dr: 'Spannung umpolen', anl: 'hoch', eta: '50–85 %', wart: 'Bürstenverschleiß', p: 'mW bis einige kW', use: 'Kfz (Fensterheber, Wischer), Spielzeug, Kleinantriebe',
+   r: [4, 3, 2, 4, 5, 2], konst: 3, speed: 4, direct: ['dc'], elec: true},
+  {id: 'm-dc', n: 'Gleichstrom fremderregt / Nebenschluss', vt: ['dc'], komm: 'Kommutator + Bürsten', verh: 'Nebenschlussverhalten', st: 'Ankerspannung + Feldschwächung', dr: 'Anker umpolen', anl: 'hoch', eta: '80–95 %', wart: 'Bürsten, Kommutator', p: 'kW bis MW', use: 'Walzwerke, Prüfstände (heute meist durch FU-Antriebe ersetzt)',
+   r: [4, 4, 2, 5, 2, 3], konst: 4, speed: 4, direct: ['dc'], elec: true},
+  {id: 'm-dc', n: 'Gleichstrom-Reihenschlussmotor', vt: ['dc'], komm: 'Kommutator + Bürsten', verh: 'Reihenschlussverhalten, Durchgehgefahr im Leerlauf', st: 'Spannung, Vorwiderstand', dr: 'nur Anker ODER Feld umpolen', anl: 'sehr hoch', eta: '70–90 %', wart: 'Bürsten, Kommutator', p: 'W bis MW', use: 'Kfz-Anlasser (Starter), Bahnen (früher), Hebezeuge',
+   r: [5, 3, 2, 2, 3, 1], konst: 1, speed: 4, direct: ['dc'], elec: true},
+  {id: 'm-bldc', n: 'BLDC- / EC-Motor', vt: ['dc'], komm: 'elektronisch (Hallsensoren)', verh: 'Nebenschlussverhalten', st: 'PWM über Elektronik', dr: 'Schaltfolge umkehren', anl: 'hoch', eta: '80–95 %', wart: 'wartungsarm', p: 'W bis einige 10 kW', use: 'Lüfter, Drohnen, Akkuwerkzeuge, E-Bikes, Pumpen',
+   r: [4, 5, 5, 5, 3, 3], konst: 4, speed: 5, direct: ['dc'], elec: true},
+  {id: 'm-step', n: 'Schrittmotor', vt: ['dc'], komm: 'elektronisch (Taktimpulse)', verh: 'Drehzahl = Taktfrequenz, Schrittverlust bei Überlast', st: 'Taktfrequenz', dr: 'Richtungssignal', anl: 'hoch bei kleiner Drehzahl', eta: 'gering (30–60 %)', wart: 'wartungsfrei', p: 'W bis einige 100 W', use: '3D-Drucker, Plotter, Ventile, kleine CNC',
+   r: [4, 2, 5, 4, 4, 4], konst: 5, speed: 2, direct: ['dc'], elec: true},
+  {id: 'm-uni', n: 'Universalmotor', vt: ['ac1', 'dc'], komm: 'Kommutator + Bürsten', verh: 'Reihenschlussverhalten', st: 'Phasenanschnitt (Triac)', dr: 'Anker oder Feld umpolen', anl: 'hoch', eta: '40–70 %', wart: 'Bürsten, laut', p: 'bis ca. 2 kW', use: 'Bohrmaschine, Winkelschleifer, Staubsauger, Küchenmaschine',
+   r: [4, 2, 1, 4, 5, 1], konst: 1, speed: 5, direct: ['ac1', 'dc'], elec: false},
+  {id: 'm-kond', n: 'Kondensatormotor', vt: ['ac1'], komm: 'Drehfeld (Hilfswicklung + Kondensator)', verh: 'asynchron, Schlupf', st: 'kaum (Polzahl; Lüfter: Spannung)', dr: 'Hilfswicklung umpolen', anl: 'gering (C_B) bis hoch (C_A)', eta: '50–75 %', wart: 'wartungsarm', p: 'bis ca. 2–3 kW', use: 'Pumpen, Kompressoren, Ventilatoren, Garagentore',
+   r: [2, 3, 5, 1, 4, 1], konst: 3, speed: 2, direct: ['ac1'], elec: false},
+  {id: 'm-spalt', n: 'Spaltpolmotor', vt: ['ac1'], komm: 'Wanderfeld (Kurzschlussring)', verh: 'asynchron, großer Schlupf', st: 'praktisch nicht', dr: 'fest (nur durch Umbau)', anl: 'gering', eta: '10–30 %', wart: 'wartungsfrei', p: 'bis ca. 100 W', use: 'Laugenpumpen, Kleinlüfter, Heizlüfter',
+   r: [1, 1, 5, 1, 5, 1], konst: 2, speed: 2, direct: ['ac1'], elec: false},
+  {id: 'm-asm', n: 'Asynchron – Käfigläufer', vt: ['ac3'], komm: 'Drehfeld, Läufer induktiv', verh: 'asynchron, Schlupf 2–8 %', st: 'Frequenzumrichter, Polumschaltung', dr: 'zwei Außenleiter tauschen', anl: 'mittel (1,5–3 · M_N)', eta: '80–96 %', wart: 'wartungsfrei', p: '0,1 kW bis MW', use: 'Pumpen, Lüfter, Förderbänder, Werkzeugmaschinen',
+   r: [3, 4, 5, 3, 5, 2], konst: 4, speed: 3, direct: ['ac3'], elec: true},
+  {id: 'm-asm', n: 'Asynchron – Schleifringläufer', vt: ['ac3'], komm: 'Drehfeld, Läuferwicklung über Schleifringe', verh: 'asynchron, Kennlinie über R_V verstellbar', st: 'Läuferwiderstände (verlustreich)', dr: 'zwei Außenleiter tauschen', anl: 'sehr hoch bei kleinem Strom', eta: '80–95 %', wart: 'Schleifringe, Bürsten', p: 'kW bis MW', use: 'Krane, Mühlen, Brecher (heute selten)',
+   r: [5, 4, 2, 3, 2, 1], konst: 3, speed: 2, direct: ['ac3'], elec: false},
+  {id: 'm-sm', n: 'Synchronmotor', vt: ['ac3'], komm: 'Drehfeld, Polrad (Magnet oder Erregung)', verh: 'exakt synchron, kippt bei Überlast', st: 'Frequenzumrichter', dr: 'zwei Außenleiter tauschen / FU', anl: 'kein Selbstanlauf am Netz', eta: '90–97 %', wart: 'wartungsarm (PM)', p: 'W bis 100 MW', use: 'E-Autos, Generatoren, Verdichter, Uhren',
+   r: [2, 5, 4, 4, 2, 4], konst: 5, speed: 3, direct: ['ac3'], elec: true},
+  {id: 'm-servo', n: 'Servomotor (PMSM + Geber)', vt: ['ac3'], komm: 'elektronisch, Sinuskommutierung', verh: 'geregelt: Lage, Drehzahl, Moment', st: 'Servoregler (Sollwert)', dr: 'über Sollwert', anl: 'sehr hoch, 3–4 · M_N kurzzeitig', eta: '90–95 %', wart: 'wartungsarm', p: 'W bis einige 10 kW', use: 'Roboter, CNC-Maschinen, Verpackungsmaschinen',
+   r: [5, 5, 4, 5, 1, 5], konst: 5, speed: 4, direct: [], elec: true}
+];
+const VTB = {dc: '<span class="vt dc">DC</span>', ac1: '<span class="vt ac1">1~</span>', ac3: '<span class="vt ac3">3~</span>'};
+const dots = v => '<span class="dots">' + [1, 2, 3, 4, 5].map(i => `<i class="${i <= v ? 'f' : ''}"></i>`).join('') + '</span>';
+(() => {
+  function render(f){
+    const L = MOT.filter(m => f === 'all' || m.vt.includes(f));
+    $('tabS').innerHTML = '<tr><th>Motor</th><th>Spannung</th><th>Kommutierung / Feld</th><th>Drehzahlverhalten</th><th>Drehzahl einstellen</th><th>Drehrichtung umkehren</th><th>Anlaufmoment</th><th>Wirkungsgrad</th><th>Wartung</th><th>Leistung</th><th>Typischer Einsatz</th></tr>' +
+      L.map(m => `<tr><td><a href="#${m.id}">${m.n}</a></td><td>${m.vt.map(v => VTB[v]).join(' ')}</td><td>${m.komm}</td><td>${m.verh}</td><td>${m.st}</td><td>${m.dr}</td><td>${m.anl}</td><td>${m.eta}</td><td>${m.wart}</td><td>${m.p}</td><td>${m.use}</td></tr>`).join('');
+    $('tabB').innerHTML = '<tr><th>Motor</th><th>Spannung</th><th>Anlaufmoment</th><th>Wirkungsgrad</th><th>Wartungsarm</th><th>Drehzahl stellbar</th><th>Preis günstig</th><th>Positionieren</th></tr>' +
+      L.map(m => `<tr><td>${m.n}</td><td>${m.vt.map(v => VTB[v]).join(' ')}</td>${m.r.map(v => `<td>${dots(v)}</td>`).join('')}</tr>`).join('');
+  }
+  segment('tabF', render); render('all');
+})();
+(() => {
+  const CRIT = {konst: ['Drehzahl konstant', m => m.konst], stell: ['Drehzahl stellbar', m => m.r[3]], pos: ['Positionieren', m => m.r[5]], anl: ['Anlaufmoment', m => m.r[0]],
+                wart: ['Wartungsarm', m => m.r[2]], speed: ['Hohe Drehzahl', m => m.speed], preis: ['Preis günstig', m => m.r[4]], eta: ['Wirkungsgrad', m => m.r[1]]};
+  function run(){
+    const src = $('awSrc').value, el = $('awElec').checked;
+    const ks = [...$('awCrit').querySelectorAll('input:checked')].map(i => i.dataset.k);
+    const ok = MOT.filter(m => (src === 'any' ? m.direct.length > 0 : m.direct.includes(src)) || (el && m.elec));
+    if (!ks.length){ $('awOut').innerHTML = '<div class="status warn">Wähle mindestens ein Kriterium aus.</div>'; return; }
+    if (!ok.length){ $('awOut').innerHTML = '<div class="status danger">Für diese Energiequelle passt ohne Leistungselektronik kein Motor.</div>'; return; }
+    const sc = ok.map(m => ({m, s: ks.reduce((a, k) => a + CRIT[k][1](m), 0) / (5 * ks.length)})).sort((a, b) => b.s - a.s).slice(0, 3);
+    $('awOut').innerHTML = `<h4 style="margin-top:16px">Empfehlung (${ok.length} Motoren möglich)</h4>` + sc.map((x, i) => {
+      const m = x.m, needs = !(src === 'any' ? m.direct.length > 0 : m.direct.includes(src));
+      return `<div class="rec"><h4><span class="rank">${i + 1}</span><a href="#${m.id}">${m.n}</a> ${m.vt.map(v => VTB[v]).join(' ')}${needs ? ' <span class="vt" style="background:#475569">mit Elektronik</span>' : ''}</h4>` +
+        `<div class="bar"><div style="width:${nf(x.s * 100, 0).replace(',', '.')}%"></div></div><small>Übereinstimmung ${nf(x.s * 100, 0)} %</small>` +
+        `<table class="t" style="margin-top:6px"><tr>${ks.map(k => `<th>${CRIT[k][0]}</th>`).join('')}</tr><tr>${ks.map(k => `<td>${dots(CRIT[k][1](m))}</td>`).join('')}</tr></table>` +
+        `<p class="hint" style="margin-top:6px">Typischer Einsatz: ${m.use}</p></div>`;
+    }).join('');
+  }
+  $('awSrc').addEventListener('input', run); $('awElec').addEventListener('input', run);
+  $('awCrit').querySelectorAll('input').forEach(i => i.addEventListener('input', run));
+  run();
+})();
+
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

@@ -1,0 +1,1032 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GM 10 Stern- und Dreieckschaltung im Vergleich – Ströme, Spannungen, Messen – Grundmodul</title>
+<style>:root{
+  --bg:#f3f5f7;--card:#ffffff;--ink:#17202b;--muted:#5a6573;--line:#d6dce3;--soft:#eef3f6;
+  --accent:#0a6a85;--accent-ink:#ffffff;--accent-soft:#e1f0f4;--warm:#d9731c;--warm-soft:#fbeee2;
+  --ok:#1b8049;--ok-soft:#e3f3ea;--bad:#b93226;--bad-soft:#f8e4e1;
+  --press:#1d64c8;--press-soft:#dbe7f8;--exh:#8d97a3;--crit:#c8362a;
+  --L:#8B4513;--N:#1d64c8;--PE:#1b8049;--live:#d9361c;
+  --mono:ui-monospace,"Cascadia Mono",Consolas,"Liberation Mono",monospace;
+  --sans:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+@media screen and (prefers-color-scheme:dark){
+  :root{--bg:#11161c;--card:#19212a;--ink:#e4e9ee;--muted:#9aa6b3;--line:#2f3a46;--soft:#202a35;
+  --accent:#4cb3cf;--accent-ink:#06222b;--accent-soft:#163846;--warm:#f0a35c;--warm-soft:#3a2a1a;
+  --ok:#57c487;--ok-soft:#173726;--bad:#ef7b6e;--bad-soft:#3d1f1b;--press:#6aa5ff;--press-soft:#1b2c48;--exh:#7d8794;--crit:#ff7a6b;
+  --L:#d08a52;--N:#6aa5ff;--PE:#57c487;--live:#ff7a5c}
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--sans)}
+a{color:var(--accent)}
+h1,h2,h3,h4{line-height:1.25;margin:1.2em 0 .5em}
+h1{font-size:1.7rem;margin:0}
+h2{font-size:1.3rem;border-bottom:2px solid var(--accent);padding-bottom:.25em}
+h3{font-size:1.08rem}
+p{margin:.5em 0}
+ul,ol{padding-left:1.3em;margin:.4em 0}
+li{margin:.15em 0}
+code,.mono{font-family:var(--mono);font-size:.92em}
+svg{max-width:100%;height:auto}
+.wrap{max-width:1000px;margin:0 auto;padding:0 16px}
+
+/* Kopf */
+.topbar{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.topbar .wrap{display:flex;align-items:center;gap:12px;min-height:52px;flex-wrap:wrap}
+.brand{font-weight:700;letter-spacing:.02em;color:var(--accent);text-decoration:none}
+.brand small{color:var(--muted);font-weight:500;margin-left:6px}
+.topbar .sp{flex:1}
+.hero{padding:22px 0 8px}
+.kicker{font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.lead{color:var(--muted);max-width:70ch}
+
+/* Tabs */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 18px;position:sticky;top:52px;z-index:10;background:var(--bg);padding:8px 0}
+.tabs button{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 14px;border-radius:999px;font:inherit;font-size:.95rem;cursor:pointer}
+.tabs button[aria-selected=true]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.tabs button.prbtn{border-color:var(--warm);color:var(--warm);font-weight:600}
+.panel{display:none}
+.panel.on{display:block}
+.paper{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px 24px;margin-bottom:24px}
+.paper>h2:first-child,.paper>.ph+h2{margin-top:.2em}
+
+/* Bausteine */
+.goals{background:var(--accent-soft);border-radius:8px;padding:10px 16px;margin:10px 0}
+.goals b{display:block;margin-bottom:2px}
+.box{border-left:4px solid var(--accent);background:var(--soft);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
+.merk{border-left:4px solid var(--ok);background:var(--ok-soft);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
+.merk::before{content:"Merke: ";font-weight:700}
+.warn{border-left:4px solid var(--warm);background:var(--warm-soft);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
+.deep{border:1px dashed var(--accent);border-radius:8px;padding:4px 16px 10px;margin:18px 0}
+.deep>h3:first-child,.deep>h2:first-child{margin-top:.6em}
+.book{border:1px solid var(--line);background:var(--soft);border-radius:8px;padding:8px 14px;margin:10px 0;font-size:.9rem}
+.book::before{content:"📗 Fachkunde Elektrotechnik: ";font-weight:700;color:var(--accent)}
+.newbadge{display:inline-block;font-size:.68rem;font-weight:700;padding:1px 7px;border-radius:999px;background:var(--accent);color:var(--accent-ink);vertical-align:middle;margin-left:6px;letter-spacing:.04em}
+.badge{display:inline-block;font-size:.72rem;font-weight:700;padding:1px 8px;border-radius:999px;vertical-align:middle;margin-left:6px;letter-spacing:.03em}
+.b1{background:var(--ok-soft);color:var(--ok)}
+.b2{background:var(--warm-soft);color:var(--warm)}
+.formula{font-family:var(--mono);background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:8px 12px;margin:8px 0;display:inline-block;min-width:min(100%,280px)}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px 16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:720px){.grid2{grid-template-columns:1fr}}
+.fig{margin:12px 0;text-align:center}
+.fig figcaption{font-size:.85rem;color:var(--muted);margin-top:4px}
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table.t{border-collapse:collapse;width:100%;margin:10px 0;font-size:.93rem}
+table.t th,table.t td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+table.t th{background:var(--soft);font-weight:600}
+table.t td.num,table.t th.num{text-align:right;font-variant-numeric:tabular-nums}
+table.t tr.sum td{font-weight:700;background:var(--accent-soft)}
+.steps{counter-reset:s;list-style:none;padding:0}
+.steps>li{counter-increment:s;position:relative;padding-left:34px;margin:6px 0}
+.steps>li::before{content:counter(s);position:absolute;left:0;top:1px;width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+
+/* Simulatoren */
+.sim{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px 18px;margin-bottom:22px;scroll-margin-top:110px}
+.sim>h3{margin-top:0;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.sim>h3 .no{background:var(--accent);color:var(--accent-ink);border-radius:6px;padding:0 8px;font-size:.85rem}
+.sim .how{color:var(--muted);font-size:.92rem;margin:0 0 10px}
+.ctrls{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:flex-end;margin:8px 0 12px}
+.ctrl{display:flex;flex-direction:column;gap:3px;min-width:140px;font-size:.88rem}
+.ctrl label{color:var(--muted)}
+.ctrl output{font-weight:700;color:var(--ink)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number],input[type=text],select{font:inherit;font-size:.95rem;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);min-width:0}
+.btn{font:inherit;font-size:.92rem;border:1px solid var(--accent);background:var(--card);color:var(--accent);padding:7px 14px;border-radius:8px;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.btn:hover{background:var(--accent-soft)}
+.btn.pri,.btn.on{background:var(--accent);color:var(--accent-ink)}
+.btn.sm{padding:4px 10px;font-size:.85rem}
+.btn:disabled{opacity:.45;cursor:default}
+.seg{display:inline-flex;border:1px solid var(--accent);border-radius:8px;overflow:hidden;flex-wrap:wrap}
+.seg button{border:0;background:var(--card);color:var(--accent);font:inherit;font-size:.9rem;padding:7px 12px;cursor:pointer;border-right:1px solid var(--accent)}
+.seg button:last-child{border-right:0}
+.seg button.on{background:var(--accent);color:var(--accent-ink)}
+.stage{background:var(--soft);border-radius:10px;padding:8px;margin:8px 0}
+.stage svg{display:block;margin:0 auto}
+.out{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:10px 0}
+.out div{background:var(--soft);border-radius:8px;padding:8px 10px}
+.out small{display:block;color:var(--muted);font-size:.78rem}
+.out b{font-size:1.1rem;font-variant-numeric:tabular-nums}
+.calc{font-family:var(--mono);font-size:.86rem;background:var(--soft);border-radius:8px;padding:10px 12px;white-space:pre-wrap;line-height:1.6;margin:8px 0;overflow-x:auto}
+.status{background:var(--accent-soft);border-radius:8px;padding:8px 12px;font-size:.92rem;margin:8px 0}
+.fb{padding:8px 12px;border-radius:8px;margin:8px 0;font-size:.93rem}
+.fb.ok{background:var(--ok-soft);color:var(--ok)}
+.fb.bad{background:var(--bad-soft);color:var(--bad)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 10px;font:inherit;font-size:.88rem;cursor:pointer;text-align:left}
+.chip.sel{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 2px var(--accent) inset}
+.chip.ok{border-color:var(--ok);background:var(--ok-soft)}
+.chip.bad{border-color:var(--bad);background:var(--bad-soft)}
+.olist{list-style:none;padding:0;margin:8px 0}
+.olist li{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 8px;margin:5px 0}
+.olist li .n{width:26px;height:26px;border-radius:50%;background:var(--soft);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex:none}
+.olist li .tx{flex:1}
+.olist li.ok{border-color:var(--ok);background:var(--ok-soft)}
+.olist li.bad{border-color:var(--bad);background:var(--bad-soft)}
+.olist li .mv{display:flex;gap:4px}
+.olist li .mv button{width:34px;height:30px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:6px;cursor:pointer;font-size:1rem}
+.svgtxt{font-family:var(--sans)}
+.sv{color:var(--ink)}
+.hl{outline:2px solid var(--warm);outline-offset:1px}
+.clk{cursor:pointer}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.8rem;color:var(--muted);margin:4px 0}
+.legend i{display:inline-block;width:18px;height:4px;border-radius:2px;vertical-align:middle;margin-right:5px}
+
+/* Arbeitsblatt */
+.ab-head{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:10px;margin:4px 0 16px}
+.ab-head div{border-bottom:1px solid var(--ink);padding:16px 0 2px;font-size:.78rem;color:var(--muted)}
+@media (max-width:640px){.ab-head{grid-template-columns:1fr 1fr}}
+.task{margin:16px 0 10px;break-inside:avoid;page-break-inside:avoid}
+.task>h3{margin:0 0 6px;display:flex;gap:8px;align-items:baseline}
+.task>h3 .pts{margin-left:auto;font-size:.8rem;color:var(--muted);font-weight:500;white-space:nowrap}
+.lines{margin:6px 0}
+.lines .l{border-bottom:1px solid #9aa4ae;height:30px}
+.fill{display:inline-block;min-width:90px;border-bottom:1px solid #9aa4ae;height:1.2em;vertical-align:bottom}
+.fill.w2{min-width:180px}
+table.t td.blank{height:30px}
+.sketch{border:1px solid var(--line);border-radius:6px;margin:8px 0}
+.ab-intro{font-size:.9rem;color:var(--muted)}
+.sol{color:var(--ok)}
+.lo .task>h3{color:var(--ink)}
+.lo .ans{border-left:3px solid var(--ok);padding:4px 12px;margin:4px 0 8px;background:var(--ok-soft);border-radius:0 6px 6px 0}
+
+/* Gesamtseite */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin:14px 0 26px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:8px}
+.card h3{margin:0;font-size:1.05rem}
+.card .nr{font-size:.75rem;font-weight:700;color:var(--accent);letter-spacing:.06em}
+.card p{color:var(--muted);font-size:.9rem;margin:0}
+.card .acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}
+.card .sims{display:flex;flex-direction:column;gap:4px}
+.card .sims button{text-align:left;font:inherit;font-size:.88rem;border:0;background:var(--soft);color:var(--ink);border-radius:6px;padding:6px 10px;cursor:pointer}
+.card .sims button:hover{background:var(--accent-soft)}
+.card .sims button::before{content:"▶ ";color:var(--accent)}
+.prmatrix{width:100%;border-collapse:collapse;font-size:.93rem}
+.prmatrix th,.prmatrix td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left}
+.prmatrix td.c,.prmatrix th.c{text-align:center}
+.prmatrix input{width:20px;height:20px;accent-color:var(--accent)}
+.printbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:10px 0}
+.printbar label{display:flex;align-items:center;gap:6px;font-size:.93rem}
+.printbar input{width:18px;height:18px;accent-color:var(--accent)}
+.view{display:none}.view.on{display:block}
+.backlink{font-size:.9rem}
+.print-head,.cover{display:none}
+.foot{color:var(--muted);font-size:.8rem;padding:20px 0 40px}
+
+/* Präsentationsmodus */
+.pres{position:fixed;inset:0;z-index:100;background:var(--bg);display:none;flex-direction:column}
+.pres.on{display:flex}
+body.pres-open{overflow:hidden}
+.pres-bar{display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--card);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.pres-bar .t{font-weight:700;color:var(--accent);flex:1;min-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.92rem}
+.pres-bar .n{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.9rem;min-width:64px;text-align:center}
+.pres-bar button{font:inherit;font-size:.9rem;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 11px;cursor:pointer}
+.pres-bar button.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.pres-bar select{max-width:220px}
+.pres-prog{height:4px;background:var(--line)}
+.pres-prog i{display:block;height:100%;background:var(--warm);width:0;transition:width .25s}
+.pres-stage{flex:1;overflow:hidden;position:relative;display:flex;align-items:stretch;justify-content:center;padding:18px 3vw}
+.pres-slide{width:min(1200px,100%);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:3vh 4vw;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.pres-slide.scroll{overflow:auto}
+.pres-inner{transform-origin:top left;font-size:clamp(17px,1.55vw + .5vh,27px);line-height:1.45}
+.pres-inner h2.ps-title{font-size:1.6em;margin:0 0 .5em;border-bottom:3px solid var(--accent);padding-bottom:.2em}
+.pres-inner h3{font-size:1.15em}
+.pres-inner table.t{font-size:.86em}
+.pres-inner .formula{font-size:.92em}
+.pres-inner .fig svg,.pres-inner .sv svg{max-height:48vh;width:auto}
+.pres-inner .badge{font-size:.55em}
+.pres-inner .ps-kicker{font-size:.7em;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.pres-inner .ps-cover{display:flex;flex-direction:column;justify-content:center;min-height:60vh}
+.pres-inner .ps-cover h1{font-size:2.3em;margin:.2em 0}
+.pres-inner .ps-cover .lead{font-size:1em;max-width:none}
+.pres-inner .ps-simlist{display:flex;flex-direction:column;gap:.4em;margin-top:.6em}
+.pres-inner .ps-simlist button{font:inherit;text-align:left;border:1px solid var(--line);background:var(--soft);color:var(--ink);border-radius:10px;padding:.45em .8em;cursor:pointer}
+.pres-inner .ps-simlist button::before{content:"▶ ";color:var(--accent)}
+.pres-inner .sim{border:0;padding:0;margin:0;font-size:.8em}
+.pres-inner .ps-step{opacity:.18;transition:opacity .25s}
+.pres-inner .ps-step.shown{opacity:1}
+.pres-help{position:absolute;right:16px;bottom:10px;font-size:.75rem;color:var(--muted)}
+.pres.black .pres-stage{background:#000}.pres.black .pres-slide{visibility:hidden}
+.pres.pointer .pres-slide{cursor:none}
+.pres-dot{position:fixed;width:22px;height:22px;border-radius:50%;background:rgba(230,40,30,.55);box-shadow:0 0 14px 4px rgba(230,40,30,.45);pointer-events:none;z-index:120;display:none;transform:translate(-50%,-50%)}
+.pres.pointer~.pres-dot{display:block}
+.pres-ov{position:absolute;inset:0;overflow:auto;background:var(--bg);padding:16px;display:none;z-index:5}
+.pres-ov.on{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;align-content:start}
+.pres-ov button{font:inherit;font-size:.85rem;text-align:left;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:10px;cursor:pointer;min-height:64px}
+.pres-ov button.cur{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+.pres-ov button small{display:block;color:var(--muted)}
+@media (max-width:640px){.pres-stage{padding:8px}.pres-slide{padding:14px;border-radius:10px}.pres-help{display:none}.pres-inner{font-size:16px}}
+
+/* Druck */
+@page{size:A4;margin:14mm 14mm 16mm}
+@media print{
+  :root{--bg:#fff;--card:#fff;--ink:#000;--muted:#444;--line:#999;--soft:#f1f1f1;--accent:#0a6a85;--accent-soft:#e6f1f4}
+  body{background:#fff;font-size:10.5pt;line-height:1.45}
+  .noprint,.topbar,.tabs,.printbar,.sim,.panel.sim,.view.home .cards,.hero .lead,.backlink,.pres,.pres-dot{display:none!important}
+  .view{display:block!important}
+  .topic{display:none!important}
+  .topic.pr-topic{display:block!important}
+  .hero{display:none!important}
+  .panel{display:none!important}
+  .panel.pr-show{display:block!important;break-before:page;page-break-before:always}
+  .panel.pr-show.pr-first{break-before:auto;page-break-before:auto}
+  .paper{border:0;padding:0;margin:0;border-radius:0}
+  .print-head{display:flex;justify-content:space-between;border-bottom:1.5px solid #000;font-size:8.5pt;padding-bottom:3px;margin-bottom:10px}
+  .wrap{max-width:none;padding:0}
+  h2{break-after:avoid}
+  h3{break-after:avoid}
+  table,figure,.box,.merk,.warn,.formula,.fig{break-inside:avoid}
+  .tscroll{overflow:visible}
+  .home-inner{display:none!important}
+  .cover.pr-on{display:block!important}
+  .lines .l{border-bottom:.6pt solid #777;height:8.5mm}
+  .ab-head div{border-bottom:.8pt solid #000}
+  a{color:#000;text-decoration:none}
+  .fb,.status{display:none}
+}
+.cover{padding-top:60mm;text-align:center}
+.cover h1{font-size:28pt;margin-bottom:6mm}
+.cover .toc{text-align:left;max-width:140mm;margin:20mm auto 0;font-size:11pt}
+.cover .toc li{margin:2mm 0}
+[data-hold]{touch-action:none;-webkit-touch-callout:none}
+@media screen and (max-width:640px){
+  .topbar{position:static}
+  .brand small{display:none}
+  .tabs{top:0}
+  .tabs button{padding:7px 11px;font-size:.88rem}
+  .sim{scroll-margin-top:60px;padding:14px 12px}
+  .paper{padding:16px 14px}
+}
+</style>
+<script>/* ===== Gemeinsame Hilfsfunktionen ===== */
+var TOPIC_INIT = {};
+function fmt(x, d) {
+  if (d === undefined) d = 2;
+  if (!isFinite(x)) return "–";
+  return Number(x).toLocaleString("de-AT", { minimumFractionDigits: d, maximumFractionDigits: d });
+}
+function fmtAuto(x) { // bis 3 signifikante Nachkommastellen, ohne unnötige Nullen
+  if (!isFinite(x)) return "–";
+  var a = Math.abs(x), d = a >= 1000 ? 0 : a >= 100 ? 1 : a >= 10 ? 2 : 3;
+  return Number(x).toLocaleString("de-AT", { minimumFractionDigits: 0, maximumFractionDigits: d });
+}
+function eur(x) { return fmt(x, 2) + " €"; }
+function refFn(root) { return function (n) { return root.querySelector('[data-ref="' + n + '"]'); }; }
+function refsFn(root) { return function (n) { return Array.prototype.slice.call(root.querySelectorAll('[data-ref="' + n + '"]')); }; }
+function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function rnd(a, b, step) { step = step || 1; var n = Math.floor((b - a) / step); return a + step * Math.floor(Math.random() * (n + 1)); }
+function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+function parseNum(s) { if (typeof s === "number") return s; s = String(s).trim().replace(/\s/g, "").replace(/\.(?=\d{3}(\D|$))/g, "").replace(",", "."); return parseFloat(s); }
+function segInit(seg, cb) {
+  seg.addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    Array.prototype.forEach.call(seg.querySelectorAll("button"), function (x) { x.classList.toggle("on", x === b); });
+    cb(b.dataset.v, b);
+  });
+}
+function bindRange(input, out, f) {
+  function upd() { out.textContent = f ? f(+input.value) : input.value; }
+  input.addEventListener("input", upd); upd();
+}
+function simVisible(el) { return !!(el && el.closest(".panel.on")); }
+
+/* ===== Tabs ===== */
+function showTab(topic, name) {
+  Array.prototype.forEach.call(topic.querySelectorAll(".tabs button[data-tab]"), function (b) { b.setAttribute("aria-selected", b.dataset.tab === name ? "true" : "false"); });
+  Array.prototype.forEach.call(topic.querySelectorAll(":scope > .panel"), function (p) { p.classList.toggle("on", p.dataset.panel === name); });
+}
+function initTabs(topic) {
+  topic.querySelector(".tabs").addEventListener("click", function (e) {
+    if (e.target.closest("[data-pres]")) { PRES.start([topic]); return; }
+    var b = e.target.closest("button[data-tab]"); if (!b) return;
+    showTab(topic, b.dataset.tab);
+    if (history.replaceState) history.replaceState(null, "", "#" + topic.dataset.topic + "/" + b.dataset.tab);
+  });
+  showTab(topic, "lu");
+}
+function openSim(topicId, idx) {
+  var topic = document.querySelector('.topic[data-topic="' + topicId + '"]'); if (!topic) return;
+  if (window.showView) window.showView(topicId);
+  showTab(topic, "sim");
+  var s = topic.querySelectorAll(".panel.sim .sim")[idx || 0];
+  setTimeout(function () { (s || topic).scrollIntoView({ behavior: "smooth", block: "start" }); }, 30);
+}
+
+/* ===== Druck ===== */
+function applyPrint() {
+  Array.prototype.forEach.call(document.querySelectorAll(".pr-topic"), function (x) { x.classList.remove("pr-topic"); });
+  Array.prototype.forEach.call(document.querySelectorAll(".pr-show,.pr-first"), function (x) { x.classList.remove("pr-show", "pr-first"); });
+  var cover = document.querySelector(".cover"); var coverOn = false;
+  var cbs = document.querySelectorAll("input[data-pr-kind]:checked");
+  var any = false;
+  Array.prototype.forEach.call(cbs, function (cb) {
+    if (cb.dataset.prKind === "cover") { coverOn = true; return; }
+    var t = document.querySelector('.topic[data-topic="' + cb.dataset.prTopic + '"]'); if (!t) return;
+    var p = t.querySelector(':scope > .panel[data-panel="' + cb.dataset.prKind + '"]'); if (!p) return;
+    t.classList.add("pr-topic"); p.classList.add("pr-show"); any = true;
+  });
+  if (cover) { cover.classList.toggle("pr-on", coverOn); if (coverOn) buildToc(); }
+  if (!any && !coverOn) { // Fallback: aktuelle Ansicht drucken
+    var vis = document.querySelector(".topic .panel.on");
+    if (vis) { vis.closest(".topic").classList.add("pr-topic"); vis.classList.add("pr-show"); }
+  }
+  var first = document.querySelector(".panel.pr-show");
+  if (first && !coverOn) first.classList.add("pr-first");
+}
+function buildToc() {
+  var ol = document.querySelector(".cover .toc ol"); if (!ol) return;
+  var names = { lu: "Lernunterlage", ab: "Arbeitsblatt", lo: "Lösungen" };
+  var items = [];
+  Array.prototype.forEach.call(document.querySelectorAll(".topic.pr-topic"), function (t) {
+    var kinds = []; Array.prototype.forEach.call(t.querySelectorAll(":scope > .panel.pr-show"), function (p) { kinds.push(names[p.dataset.panel]); });
+    items.push("<li><b>" + esc(t.dataset.title) + "</b> – " + kinds.join(", ") + "</li>");
+  });
+  ol.innerHTML = items.join("");
+}
+function doPrint() { applyPrint(); setTimeout(function () { window.print(); }, 60); }
+window.addEventListener("beforeprint", applyPrint);
+
+/* ===== Start ===== */
+document.addEventListener("DOMContentLoaded", function () {
+  Array.prototype.forEach.call(document.querySelectorAll(".topic"), function (t) {
+    initTabs(t);
+    var f = TOPIC_INIT[t.dataset.topic];
+    if (f) { try { f(t); } catch (e) { console.error("Init " + t.dataset.topic, e); } }
+  });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-print]"), function (b) { b.addEventListener("click", doPrint); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-pres-all]"), function (b) { b.addEventListener("click", function () { PRES.start(Array.prototype.slice.call(document.querySelectorAll(".topic"))); }); });
+  if (window.routeInit) window.routeInit();
+  else {
+    var h = location.hash.replace("#", "").split("/");
+    var t = document.querySelector(".topic");
+    if (t && h[1] && t.querySelector('.panel[data-panel="' + h[1] + '"]')) showTab(t, h[1]);
+    if (t && h[1] === "sim" && h[2]) openSim(t.dataset.topic, +h[2]);
+    if (t && h[1] === "pres") PRES.start([t]);
+  }
+});
+
+/* ===== SVG-Helfer ===== */
+function zig(x1, x2, y, a, n) { var d = "M" + x1 + " " + y, w = (x2 - x1) / n; for (var i = 0; i < n; i++) d += " L" + (x1 + w * (i + .5)) + " " + (y + (i % 2 ? a : -a)); return d + " L" + x2 + " " + y; }
+function arrow(x1, y1, x2, y2, attr) { var a = Math.atan2(y2 - y1, x2 - x1), L = 8; return '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" ' + (attr || 'stroke="currentColor" stroke-width="2"') + '/><polygon points="' + x2 + ',' + y2 + ' ' + (x2 - L * Math.cos(a - .45)) + ',' + (y2 - L * Math.sin(a - .45)) + ' ' + (x2 - L * Math.cos(a + .45)) + ',' + (y2 - L * Math.sin(a + .45)) + '" fill="currentColor" stroke="none"/>'; }
+function svgOpen(w, h, extra) { return '<svg viewBox="0 0 ' + w + ' ' + h + '" width="' + w + '" class="sv" font-family="Segoe UI,Arial,sans-serif" ' + (extra || "") + '>'; }
+function txt(x, y, s, o) { o = o || {}; return '<text x="' + x + '" y="' + y + '" font-size="' + (o.fs || 12) + '"' + (o.a ? ' text-anchor="' + o.a + '"' : '') + (o.b ? ' font-weight="700"' : '') + ' fill="' + (o.c || "currentColor") + '">' + s + '</text>'; }
+function outGrid(rows) { return rows.map(function (x) { return "<div><small>" + x[0] + "</small><b>" + x[1] + "</b></div>"; }).join(""); }
+/* Liniendiagramm: series [{pts:[[x,y]...], c:color, n:name}] */
+function plotSVG(series, o) {
+  o = o || {}; var W = o.w || 500, H = o.h || 220, L = 52, B = 30, T = 12, Rr = 12;
+  var xs = [], ys = []; series.forEach(function (s) { s.pts.forEach(function (p) { xs.push(p[0]); ys.push(p[1]); }); });
+  var x0 = o.x0 !== undefined ? o.x0 : Math.min.apply(null, xs), x1 = o.x1 !== undefined ? o.x1 : Math.max.apply(null, xs);
+  var y0 = o.y0 !== undefined ? o.y0 : Math.min(0, Math.min.apply(null, ys)), y1 = o.y1 !== undefined ? o.y1 : Math.max.apply(null, ys) * 1.08 || 1;
+  if (y1 === y0) y1 = y0 + 1;
+  var X = function (x) { return L + (x - x0) / (x1 - x0) * (W - L - Rr); }, Y = function (y) { return H - B - (y - y0) / (y1 - y0) * (H - B - T); };
+  var h = [svgOpen(W, H)];
+  for (var i = 0; i <= 4; i++) { var yv = y0 + (y1 - y0) * i / 4; h.push('<line x1="' + L + '" y1="' + Y(yv) + '" x2="' + (W - Rr) + '" y2="' + Y(yv) + '" stroke="var(--line)"/>' + txt(L - 6, Y(yv) + 4, fmtAuto(yv), { fs: 10, a: "end" })); }
+  for (i = 0; i <= 5; i++) { var xv = x0 + (x1 - x0) * i / 5; h.push(txt(X(xv), H - B + 14, fmtAuto(xv), { fs: 10, a: "middle" })); }
+  if (y0 < 0 && y1 > 0) h.push('<line x1="' + L + '" y1="' + Y(0) + '" x2="' + (W - Rr) + '" y2="' + Y(0) + '" stroke="currentColor" stroke-width="1"/>');
+  h.push('<line x1="' + L + '" y1="' + T + '" x2="' + L + '" y2="' + (H - B) + '" stroke="currentColor"/>');
+  series.forEach(function (s, k) {
+    var d = s.pts.map(function (p, j) { return (j ? "L" : "M") + X(p[0]).toFixed(1) + " " + Y(p[1]).toFixed(1); }).join(" ");
+    h.push('<path d="' + d + '" fill="none" stroke="' + (s.c || "var(--accent)") + '" stroke-width="' + (s.w || 2.4) + '"' + (s.dash ? ' stroke-dasharray="6 4"' : '') + '/>');
+    if (s.n) h.push(txt(W - Rr - 4, T + 12 + k * 14, s.n, { fs: 11, a: "end", c: s.c || "var(--accent)", b: 1 }));
+  });
+  (o.marks || []).forEach(function (m) { h.push('<circle cx="' + X(m[0]) + '" cy="' + Y(m[1]) + '" r="5" fill="' + (m[2] || "var(--warm)") + '"/>' + (m[3] ? txt(X(m[0]) + 8, Y(m[1]) - 8, m[3], { fs: 11 }) : "")); });
+  if (o.xl) h.push(txt((W + L) / 2, H - 2, o.xl, { fs: 10, a: "middle" }));
+  if (o.yl) h.push('<text x="12" y="' + (H / 2) + '" font-size="10" fill="currentColor" transform="rotate(-90 12 ' + (H / 2) + ')" text-anchor="middle">' + o.yl + '</text>');
+  h.push('</svg>'); return h.join("");
+}
+
+/* ===== Schaltzeichen-Bibliothek (IEC 60617), senkrechte Strompfade =====
+   Alle Elemente werden zwischen y1 (oben) und y2 (unten) auf der Senkrechten x gezeichnet,
+   die Anschlussleitungen gehören dazu – so entstehen keine Lücken in den Leitungen. */
+var EL = {
+  col: function (live, c) { return live ? (c || "var(--live)") : "currentColor"; },
+  w: function (d, live, c, sw) { return '<path d="' + d + '" fill="none" stroke="' + EL.col(live, c) + '" stroke-width="' + (sw || 2.4) + '" stroke-linejoin="round" stroke-linecap="round"/>'; },
+  dot: function (x, y, live) { return '<circle cx="' + x + '" cy="' + y + '" r="3.6" fill="' + EL.col(live) + '"/>'; },
+  /* Schließer: geschlossen = Kontakt zu */
+  no: function (x, y1, y2, closed, liveTop, label, o) { o = o || {}; var m = (y1 + y2) / 2, a = m - 14, b = m + 14, liveBot = liveTop && closed;
+    return EL.w("M" + x + " " + y1 + " V" + a, liveTop) + EL.w("M" + x + " " + b + " V" + y2, liveBot) + EL.w("M" + x + " " + b + " L" + (closed ? x + 1 : x - 13) + " " + (closed ? a : a - 3), liveBot, null, 2.6) +
+      (o.push ? EL.w("M" + (x - (closed ? 3 : 8)) + " " + m + " H" + (x - 24) + " M" + (x - 24) + " " + (m - 7) + " V" + (m + 7) + " M" + (x - 24) + " " + (m - 7) + " h-4 M" + (x - 24) + " " + (m + 7) + " h-4", false, null, 1.6).replace('stroke-width="1.6"', 'stroke-width="1.6" stroke-dasharray="3 2"') : "") +
+      (label ? txt(x - (o.push ? 32 : 18), m + 4, label, { a: "end", fs: 11, b: 1 }) : "") + (o.t1 ? txt(x + 5, a + 2, o.t1, { fs: 9 }) : "") + (o.t2 ? txt(x + 5, b + 6, o.t2, { fs: 9 }) : ""); },
+  /* Öffner: geschlossen = Ruhelage (nicht betätigt) */
+  nc: function (x, y1, y2, closed, liveTop, label, o) { o = o || {}; var m = (y1 + y2) / 2, a = m - 14, b = m + 14, liveBot = liveTop && closed;
+    return EL.w("M" + x + " " + y1 + " V" + a + " H" + (x + 11), liveTop) + EL.w("M" + x + " " + b + " V" + y2, liveBot) + EL.w("M" + x + " " + b + " L" + (closed ? x + 13 : x + 18) + " " + (closed ? a - 2 : a - 10), liveBot, null, 2.6) +
+      (o.push ? EL.w("M" + (x + 6) + " " + m + " H" + (x - 22), false, null, 1.6).replace('stroke-width="1.6"', 'stroke-width="1.6" stroke-dasharray="3 2"') + EL.w("M" + (x - 22) + " " + (m - 7) + " V" + (m + 7) + " M" + (x - 22) + " " + (m - 7) + " h-4 M" + (x - 22) + " " + (m + 7) + " h-4", false, null, 1.6) : "") +
+      (label ? txt(x - (o.push ? 30 : 10), m + 4, label, { a: "end", fs: 11, b: 1 }) : "") + (o.t1 ? txt(x + 14, a + 2, o.t1, { fs: 9 }) : "") + (o.t2 ? txt(x + 5, b + 6, o.t2, { fs: 9 }) : ""); },
+  /* Spule (Schütz/Relais) */
+  coil: function (x, y1, y2, on, live, label) { var m = (y1 + y2) / 2; return EL.w("M" + x + " " + y1 + " V" + (m - 13), live) + EL.w("M" + x + " " + (m + 13) + " V" + y2, live) + '<rect x="' + (x - 15) + '" y="' + (m - 13) + '" width="30" height="26" fill="' + (on ? "var(--press-soft)" : "var(--card)") + '" stroke="currentColor" stroke-width="2"/>' + (label ? txt(x + 20, m + 4, label, { fs: 11, b: 1 }) : "") + txt(x + 5, m - 16, "A1", { fs: 8.5 }) + txt(x + 5, m + 22, "A2", { fs: 8.5 }); },
+  /* Leuchte */
+  lamp: function (x, y1, y2, on, live, label, color) { var m = (y1 + y2) / 2, r = 14; return EL.w("M" + x + " " + y1 + " V" + (m - r), live) + EL.w("M" + x + " " + (m + r) + " V" + y2, live) + '<circle cx="' + x + '" cy="' + m + '" r="' + r + '" fill="' + (on ? (color || "rgba(255,200,40,.92)") : "var(--card)") + '" stroke="currentColor" stroke-width="2"/>' + EL.w("M" + (x - 10) + " " + (m - 10) + " L" + (x + 10) + " " + (m + 10) + " M" + (x + 10) + " " + (m - 10) + " L" + (x - 10) + " " + (m + 10), false, null, 1.8) + (label ? txt(x + r + 5, m + 4, label, { fs: 11, b: 1 }) : ""); },
+  /* Widerstand (Rechteck) senkrecht */
+  res: function (x, y1, y2, live, label, val) { var m = (y1 + y2) / 2; return EL.w("M" + x + " " + y1 + " V" + (m - 18), live) + EL.w("M" + x + " " + (m + 18) + " V" + y2, live) + '<rect x="' + (x - 8) + '" y="' + (m - 18) + '" width="16" height="36" fill="var(--card)" stroke="currentColor" stroke-width="2"/>' + (label ? txt(x + 13, m - 2, label, { fs: 11, b: 1 }) : "") + (val ? txt(x + 13, m + 12, val, { fs: 10 }) : ""); },
+  /* Widerstand waagrecht */
+  resH: function (x1, x2, y, live, label, val) { var m = (x1 + x2) / 2; return EL.w("M" + x1 + " " + y + " H" + (m - 22), live) + EL.w("M" + (m + 22) + " " + y + " H" + x2, live) + '<rect x="' + (m - 22) + '" y="' + (y - 8) + '" width="44" height="16" fill="var(--card)" stroke="currentColor" stroke-width="2"/>' + (label ? txt(m, y - 13, label, { a: "middle", fs: 11, b: 1 }) : "") + (val ? txt(m, y + 23, val, { a: "middle", fs: 10 }) : ""); },
+  /* Gleichspannungsquelle: langer Strich = +, oben */
+  src: function (x, y1, y2, label, live) { var m = (y1 + y2) / 2; return EL.w("M" + x + " " + y1 + " V" + (m - 5), live) + EL.w("M" + x + " " + (m + 5) + " V" + y2, false) + '<line x1="' + (x - 16) + '" y1="' + (m - 5) + '" x2="' + (x + 16) + '" y2="' + (m - 5) + '" stroke="currentColor" stroke-width="2.6"/><line x1="' + (x - 8) + '" y1="' + (m + 5) + '" x2="' + (x + 8) + '" y2="' + (m + 5) + '" stroke="currentColor" stroke-width="5"/>' + txt(x - 22, m - 4, "+", { a: "end", b: 1, fs: 13 }) + txt(x - 22, m + 13, "−", { a: "end", b: 1, fs: 13 }) + (label ? txt(x + 22, m + 5, label, { fs: 11, b: 1 }) : ""); },
+  /* Wechselspannungsquelle (Kreis mit ~) */
+  srcAC: function (x, y1, y2, label) { var m = (y1 + y2) / 2; return EL.w("M" + x + " " + y1 + " V" + (m - 15)) + EL.w("M" + x + " " + (m + 15) + " V" + y2) + '<circle cx="' + x + '" cy="' + m + '" r="15" fill="var(--card)" stroke="currentColor" stroke-width="2"/><path d="M' + (x - 9) + ' ' + m + ' q4.5 -9 9 0 t9 0" fill="none" stroke="currentColor" stroke-width="2"/>' + (label ? txt(x + 21, m + 4, label, { fs: 11, b: 1 }) : ""); },
+  /* Erdungszeichen */
+  gnd: function (x, y) { return '<path d="M' + (x - 12) + ' ' + y + ' H' + (x + 12) + ' M' + (x - 8) + ' ' + (y + 5) + ' H' + (x + 8) + ' M' + (x - 4) + ' ' + (y + 10) + ' H' + (x + 4) + '" stroke="currentColor" stroke-width="2"/>'; },
+  /* Wechsler-Schalter, senkrecht: gemeinsamer Anschluss unten (xc,yc), Ausgänge oben bei xa/xb (y = yt) */
+  changeoverUp: function (xc, yc, xa, xb, yt, pos, live, label) { var tipX = pos ? xb : xa; return EL.w("M" + xc + " " + yc + " L" + (tipX + (pos ? -3 : 3)) + " " + (yt + 6), live, null, 2.6) + EL.dot(xc, yc, live) + '<circle cx="' + xa + '" cy="' + yt + '" r="3" fill="var(--card)" stroke="currentColor" stroke-width="1.6"/><circle cx="' + xb + '" cy="' + yt + '" r="3" fill="var(--card)" stroke="currentColor" stroke-width="1.6"/>' + (label ? txt(Math.min(xa, xb) - 8, (yc + yt) / 2 + 4, label, { a: "end", fs: 11, b: 1 }) : ""); },
+  changeoverDown: function (xc, yc, xa, xb, yb, pos, live, label) { var tipX = pos ? xb : xa; return EL.w("M" + xc + " " + yc + " L" + (tipX + (pos ? -3 : 3)) + " " + (yb - 6), live, null, 2.6) + EL.dot(xc, yc, live) + '<circle cx="' + xa + '" cy="' + yb + '" r="3" fill="var(--card)" stroke="currentColor" stroke-width="1.6"/><circle cx="' + xb + '" cy="' + yb + '" r="3" fill="var(--card)" stroke="currentColor" stroke-width="1.6"/>' + (label ? txt(Math.min(xa, xb) - 8, (yc + yb) / 2 + 4, label, { a: "end", fs: 11, b: 1 }) : ""); }
+,
+  /* Diode senkrecht (IEC 60617): up = Durchlassrichtung nach oben (Kathode oben) */
+  diodeV: function (x, y1, y2, up, live, label, z) { var m = (y1 + y2) / 2, a = up ? m + 8 : m - 8, k = up ? m - 8 : m + 8, bar = z ? "M" + (x - 13) + " " + (k + (up ? 4 : -4)) + " L" + (x - 9) + " " + k + " H" + (x + 9) + " L" + (x + 13) + " " + (k + (up ? -4 : 4)) : "M" + (x - 10) + " " + k + " H" + (x + 10);
+    return EL.w("M" + x + " " + y1 + " V" + Math.min(a, k) + " M" + x + " " + Math.max(a, k) + " V" + y2, live) + '<polygon points="' + (x - 10) + ',' + a + ' ' + (x + 10) + ',' + a + ' ' + x + ',' + k + '" fill="var(--card)" stroke="currentColor" stroke-width="2"/>' + EL.w(bar, false, null, 2.4) + (label ? txt(x + 16, m + 4, label, { fs: 11, b: 1 }) : ""); },
+  /* Varistor (VDR) senkrecht: Rechteck mit geknickter Kennlinie und U */
+  vdrV: function (x, y1, y2, live, label) { var m = (y1 + y2) / 2; return EL.w("M" + x + " " + y1 + " V" + (m - 18) + " M" + x + " " + (m + 18) + " V" + y2, live) + '<rect x="' + (x - 8) + '" y="' + (m - 18) + '" width="16" height="36" fill="var(--card)" stroke="currentColor" stroke-width="2"/>' + EL.w("M" + (x - 16) + " " + (m + 16) + " H" + (x - 10) + " L" + (x + 12) + " " + (m - 16), false, null, 1.6) + txt(x - 18, m + 14, "U", { a: "end", fs: 10, b: 1 }) + (label ? txt(x + 14, m + 4, label, { fs: 11, b: 1 }) : ""); },
+  /* Kondensator senkrecht */
+  capV: function (x, y1, y2, live, label) { var m = (y1 + y2) / 2; return EL.w("M" + x + " " + y1 + " V" + (m - 4) + " M" + x + " " + (m + 4) + " V" + y2, live) + EL.w("M" + (x - 13) + " " + (m - 4) + " H" + (x + 13) + " M" + (x - 13) + " " + (m + 4) + " H" + (x + 13), false, null, 3) + (label ? txt(x + 17, m + 4, label, { fs: 11, b: 1 }) : ""); },
+  /* Messgerät (Kreis mit Formelzeichen V, A, Ω …) */
+  meter: function (x, y, letter, hi) { return '<circle cx="' + x + '" cy="' + y + '" r="15" fill="' + (hi ? "var(--warm-soft)" : "var(--card)") + '" stroke="currentColor" stroke-width="2"/>' + txt(x, y + 5, letter, { a: "middle", fs: 14, b: 1 }); },
+  /* Leitungsschutzschalter waagrecht (Schließer mit Leistungsschalter-Kreuz, Überstromauslöser I>) */
+  lsH: function (x1, x2, y, closed, live, label, below, cl) { var m = (x1 + x2) / 2, a = m - 14, b = m + 14, lo = live && closed, d = below ? 1 : -1;
+    return EL.w("M" + x1 + " " + y + " H" + a, live, cl) + EL.w("M" + b + " " + y + " H" + x2, lo, cl) + EL.w("M" + a + " " + y + " L" + (closed ? b : b - 4) + " " + (closed ? y : y - 13), live, cl, 2.6) + EL.w("M" + (b - 4) + " " + (y - 4) + " l8 8 M" + (b + 4) + " " + (y - 4) + " l-8 8", false, null, 1.8) +
+      '<path d="M' + m + ' ' + (y + d * (closed ? 2 : 7)) + ' V' + (y + d * 9) + '" stroke="currentColor" stroke-width="1.4" stroke-dasharray="3 2"/><rect x="' + (m - 12) + '" y="' + (below ? y + 9 : y - 23) + '" width="24" height="14" fill="var(--card)" stroke="currentColor" stroke-width="1.6"/>' + txt(m, (below ? y + 9 : y - 23) + 11, "I&gt;", { a: "middle", fs: 9, b: 1 }) + (label ? txt(m, below ? y - 9 : y + 18, label, { a: "middle", fs: 10, b: 1 }) : ""); },
+  /* Fehlerstrom-Schutzeinrichtung (2-polig) waagrecht über zwei Leitern y1 (L) und y2 (N) */
+  rcdH: function (x1, x2, y1, y2, closed, label, cL, cN) { var m = (x1 + x2) / 2, a = m - 14, b = m + 14, h = "";
+    [[y1, cL], [y2, cN]].forEach(function (p) { h += EL.w("M" + x1 + " " + p[0] + " H" + a, !!p[1], p[1]) + EL.w("M" + b + " " + p[0] + " H" + x2, !!(p[1] && closed), p[1]) + EL.w("M" + a + " " + p[0] + " L" + (closed ? b : b - 4) + " " + (closed ? p[0] : p[0] - 12), !!p[1], p[1], 2.4); });
+    h += '<path d="M' + (m - 2) + ' ' + (y1 - 6) + ' V' + (y2 + 22) + '" stroke="currentColor" stroke-width="1.4" stroke-dasharray="3 2"/><ellipse cx="' + (m - 26) + '" cy="' + ((y1 + y2) / 2) + '" rx="7" ry="' + ((y2 - y1) / 2 + 9) + '" fill="none" stroke="currentColor" stroke-width="1.6"/>' + EL.w("M" + (m - 19) + " " + ((y1 + y2) / 2) + " H" + (m - 2), false, null, 1.4).replace('stroke-width="1.4"', 'stroke-width="1.4" stroke-dasharray="3 2"') + '<rect x="' + (m - 12) + '" y="' + (y2 + 22) + '" width="24" height="14" fill="var(--card)" stroke="currentColor" stroke-width="1.6"/>' + txt(m, y2 + 33, "IΔ", { a: "middle", fs: 9, b: 1 });
+    return h + (label ? txt(m, y2 + 50, label, { a: "middle", fs: 10, b: 1 }) : ""); }
+};
+
+/* ===== Wiederverwendbare Simulatoren ===== */
+var SIM = {};
+/* Quiz: qs = [[Frage, [Antworten], Index richtig, Erklärung], ...] */
+SIM.quiz = function (el, qs) {
+  var st = { order: shuffle(qs.map(function (_, i) { return i; })), p: 0, ok: 0, n: 0, done: false };
+  el.innerHTML = '<div class="box" data-q style="font-size:1.02rem"></div><div class="chips" data-o style="flex-direction:column;max-width:640px"></div><div data-f></div><div class="ctrls"><button class="btn pri" data-n>Nächste Frage</button><b data-s></b></div>';
+  var Q = el.querySelector("[data-q]"), O = el.querySelector("[data-o]"), F = el.querySelector("[data-f]"), S = el.querySelector("[data-s]");
+  function show() {
+    if (st.p >= st.order.length) { st.order = shuffle(st.order); st.p = 0; }
+    var q = qs[st.order[st.p]]; st.done = false; st.cur = q;
+    Q.innerHTML = "<b>Frage " + (st.p + 1) + "/" + qs.length + ":</b> " + q[0];
+    st.map = shuffle(q[1].map(function (_, i) { return i; }));
+    O.innerHTML = st.map.map(function (i) { return '<button class="chip" data-i="' + i + '">' + q[1][i] + '</button>'; }).join(""); F.innerHTML = "";
+  }
+  O.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-i]"); if (!b || st.done) return; st.done = true; st.n++;
+    var ok = +b.dataset.i === st.cur[2]; if (ok) st.ok++;
+    Array.prototype.forEach.call(O.children, function (x) { if (+x.dataset.i === st.cur[2]) x.classList.add("ok"); else if (x === b) x.classList.add("bad"); });
+    F.innerHTML = '<div class="fb ' + (ok ? "ok" : "bad") + '">' + (ok ? "Richtig! " : "Leider falsch. ") + (st.cur[3] || "") + '</div>';
+    S.textContent = "Punkte: " + st.ok + " / " + st.n;
+  });
+  el.querySelector("[data-n]").addEventListener("click", function () { st.p++; show(); });
+  show();
+};
+/* Zuordnen: cats = [[key, Bezeichnung], ...], items = [[Text, key], ...] */
+SIM.sort = function (el, cats, items, hint) {
+  var st = { put: {}, sel: null };
+  el.innerHTML = '<div class="chips" data-p></div><div data-r style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:12px"></div><div class="ctrls"><button class="btn pri" data-c>Prüfen</button><button class="btn" data-x>Zurücksetzen</button></div><div data-f></div>';
+  var P = el.querySelector("[data-p]"), Rg = el.querySelector("[data-r]"), F = el.querySelector("[data-f]");
+  var order = shuffle(items.map(function (_, i) { return i; }));
+  function render(check) {
+    P.innerHTML = order.map(function (i) { return st.put[i] !== undefined ? "" : '<button class="chip' + (st.sel === i ? " sel" : "") + '" data-i="' + i + '">' + items[i][0] + '</button>'; }).join("") || '<span class="ab-intro">Alles zugeordnet – jetzt prüfen.</span>';
+    Rg.innerHTML = cats.map(function (c) {
+      return '<div data-k="' + c[0] + '" class="clk" style="border:2px dashed var(--line);border-radius:10px;padding:8px;min-height:80px;background:var(--soft)"><b style="display:block;margin-bottom:6px">' + c[1] + '</b><div class="chips" style="flex-direction:column">' +
+        order.map(function (i) { return st.put[i] === c[0] ? '<button class="chip' + (check ? (items[i][1] === c[0] ? " ok" : " bad") : "") + '" data-b="' + i + '">' + items[i][0] + '</button>' : ""; }).join("") + '</div></div>';
+    }).join("");
+  }
+  P.addEventListener("click", function (e) { var b = e.target.closest("[data-i]"); if (!b) return; st.sel = st.sel === +b.dataset.i ? null : +b.dataset.i; render(); });
+  Rg.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-b]"); if (b) { delete st.put[+b.dataset.b]; F.innerHTML = ""; render(); return; }
+    var k = e.target.closest("[data-k]"); if (!k) return;
+    if (st.sel === null) { F.innerHTML = '<div class="fb bad">Zuerst oben eine Karte antippen, dann das Feld.</div>'; return; }
+    st.put[st.sel] = k.dataset.k; st.sel = null; F.innerHTML = ""; render();
+  });
+  el.querySelector("[data-c]").addEventListener("click", function () {
+    var ok = items.filter(function (it, i) { return st.put[i] === it[1]; }).length; render(true);
+    F.innerHTML = '<div class="fb ' + (ok === items.length ? "ok" : "bad") + '">' + ok + " von " + items.length + " richtig." + (ok < items.length ? " Rote Karten antippen, um sie zurückzulegen." + (hint ? " " + hint : "") : " Perfekt!") + '</div>';
+  });
+  el.querySelector("[data-x]").addEventListener("click", function () { st.put = {}; st.sel = null; order = shuffle(order); F.innerHTML = ""; render(); });
+  render();
+};
+/* Reihenfolge: sc = [{t: Titel, s: [Schritte in richtiger Reihenfolge], h: Tipp}] */
+SIM.order = function (el, sc) {
+  var st = { k: 0, o: [] };
+  el.innerHTML = (sc.length > 1 ? '<div class="seg" data-g>' + sc.map(function (s, i) { return '<button data-v="' + i + '"' + (i ? "" : ' class="on"') + '>' + s.t + '</button>'; }).join("") + '</div>' : '') + '<ol class="olist" data-l></ol><div class="ctrls"><button class="btn pri" data-c>Prüfen</button><button class="btn" data-m>Neu mischen</button><button class="btn" data-s>Lösung zeigen</button></div><div data-f></div>';
+  var Lst = el.querySelector("[data-l]"), F = el.querySelector("[data-f]");
+  function mix() { var n = sc[st.k].s.length, a; do { a = shuffle(Array.apply(null, { length: n }).map(function (_, i) { return i; })); } while (n > 1 && a.every(function (v, i) { return v === i; })); st.o = a; F.innerHTML = ""; render(); }
+  function render(check) { Lst.innerHTML = st.o.map(function (s, i) { return '<li class="' + (check ? (s === i ? "ok" : "bad") : "") + '"><span class="n">' + (i + 1) + '</span><span class="tx">' + sc[st.k].s[s] + '</span><span class="mv"><button data-mv="' + i + '" data-d="-1" aria-label="nach oben">↑</button><button data-mv="' + i + '" data-d="1" aria-label="nach unten">↓</button></span></li>'; }).join(""); }
+  Lst.addEventListener("click", function (e) { var b = e.target.closest("[data-mv]"); if (!b) return; var i = +b.dataset.mv, j = i + +b.dataset.d; if (j < 0 || j >= st.o.length) return; var t = st.o[i]; st.o[i] = st.o[j]; st.o[j] = t; F.innerHTML = ""; render(); });
+  el.querySelector("[data-c]").addEventListener("click", function () { var ok = st.o.filter(function (s, i) { return s === i; }).length, n = st.o.length; render(true); F.innerHTML = '<div class="fb ' + (ok === n ? "ok" : "bad") + '">' + ok + " von " + n + " Schritten an der richtigen Stelle." + (ok === n ? " Perfekt!" : (sc[st.k].h ? " Tipp: " + sc[st.k].h : "")) + '</div>'; });
+  el.querySelector("[data-m]").addEventListener("click", mix);
+  el.querySelector("[data-s]").addEventListener("click", function () { st.o = sc[st.k].s.map(function (_, i) { return i; }); render(true); });
+  var g = el.querySelector("[data-g]"); if (g) segInit(g, function (v) { st.k = +v; mix(); });
+  mix();
+};
+/* Rechner: cfg.in = [{k, l, min, max, step, v, u, opts:[[wert, text]]}], cfg.f(v) -> {out:[[l,w]], calc:"", svg:""} */
+SIM.calc = function (el, cfg) {
+  el.innerHTML = '<div class="ctrls">' + cfg.in.map(function (c) {
+    if (c.opts) return '<div class="ctrl"><label>' + c.l + '</label><select data-k="' + c.k + '">' + c.opts.map(function (o) { return '<option value="' + o[0] + '"' + (String(o[0]) === String(c.v) ? " selected" : "") + '>' + o[1] + '</option>'; }).join("") + '</select></div>';
+    if (c.num) return '<div class="ctrl"><label>' + c.l + (c.u ? " in " + c.u : "") + '</label><input type="number" data-k="' + c.k + '" min="' + c.min + '" max="' + c.max + '" step="' + (c.step || 1) + '" value="' + c.v + '"></div>';
+    return '<div class="ctrl"><label>' + c.l + '</label><input type="range" data-k="' + c.k + '" min="' + c.min + '" max="' + c.max + '" step="' + (c.step || 1) + '" value="' + c.v + '"><output data-o="' + c.k + '"></output></div>';
+  }).join("") + '</div><div class="stage sv" data-svg></div><div class="out" data-out></div><div class="calc" data-calc></div><div data-note></div>';
+  var Sv = el.querySelector("[data-svg]"), O = el.querySelector("[data-out]"), C = el.querySelector("[data-calc]"), N = el.querySelector("[data-note]");
+  function upd() {
+    var v = {};
+    cfg.in.forEach(function (c) { var i = el.querySelector('[data-k="' + c.k + '"]'); v[c.k] = c.opts && isNaN(+i.value) ? i.value : +i.value; var o = el.querySelector('[data-o="' + c.k + '"]'); if (o) o.textContent = (c.fmt ? c.fmt(v[c.k]) : fmtAuto(v[c.k])) + (c.u ? " " + c.u : ""); });
+    var r = cfg.f(v) || {};
+    Sv.style.display = r.svg ? "" : "none"; if (r.svg) Sv.innerHTML = r.svg;
+    O.style.display = r.out ? "" : "none"; if (r.out) O.innerHTML = outGrid(r.out);
+    C.style.display = r.calc ? "" : "none"; if (r.calc) C.textContent = r.calc;
+    N.innerHTML = r.note || "";
+  }
+  el.addEventListener("input", upd); el.addEventListener("change", upd);
+  if (cfg.anim) { (function loop() { if (el.closest(".panel.on")) upd(); requestAnimationFrame(loop); })(); }
+  upd(); return upd;
+};
+/* Aufgabengenerator: gens = {key: [Bezeichnung, function(){ return {t, u, a, s, tol} }]} */
+SIM.gen = function (el, gens) {
+  var keys = Object.keys(gens), st = { ok: 0, n: 0, cur: null, done: false };
+  el.innerHTML = '<div class="ctrls"><div class="ctrl" style="min-width:230px"><label>Aufgabentyp</label><select data-t><option value="mix">Gemischt</option>' + keys.map(function (k) { return '<option value="' + k + '">' + gens[k][0] + '</option>'; }).join("") + '</select></div><button class="btn pri" data-n>Neue Aufgabe</button><b data-sc></b></div><div class="box" data-q></div><div class="ctrls"><div class="ctrl"><label data-l>Ergebnis</label><input type="text" inputmode="decimal" data-i></div><button class="btn" data-c>Prüfen</button><button class="btn" data-w>Lösungsweg</button></div><div data-f></div><div class="calc" data-s style="display:none"></div>';
+  var q = function (s) { return el.querySelector(s); };
+  function nw() { var t = q("[data-t]").value; if (t === "mix") t = pick(keys); st.cur = gens[t][1](); st.done = false; q("[data-q]").innerHTML = "<b>Aufgabe:</b> " + st.cur.t; q("[data-l]").textContent = "Ergebnis" + (st.cur.u ? " in " + st.cur.u : ""); q("[data-i]").value = ""; q("[data-f]").innerHTML = ""; q("[data-s]").style.display = "none"; q("[data-s]").textContent = st.cur.s; }
+  q("[data-n]").addEventListener("click", nw); q("[data-t]").addEventListener("change", nw);
+  q("[data-c]").addEventListener("click", function () {
+    var raw = q("[data-i]").value, ok;
+    if (typeof st.cur.a === "string") { var nz = function (x) { return String(x).trim().toUpperCase().replace(/[\s%]/g, "").replace(",", "."); }; ok = nz(raw) === nz(st.cur.a); }
+    else { var v = parseNum(raw); if (!isFinite(v)) { q("[data-f]").innerHTML = '<div class="fb bad">Bitte eine Zahl eingeben.</div>'; return; } ok = Math.abs(v - st.cur.a) <= Math.max(Math.abs(st.cur.a) * (st.cur.tol === undefined ? .02 : st.cur.tol), 1e-9); }
+    if (!st.done) { st.n++; if (ok) st.ok++; st.done = true; }
+    q("[data-sc]").textContent = "Richtig: " + st.ok + " / " + st.n;
+    q("[data-f]").innerHTML = '<div class="fb ' + (ok ? "ok" : "bad") + '">' + (ok ? "Richtig! " : "Nicht ganz. ") + "Ergebnis: " + (typeof st.cur.a === "string" ? st.cur.a : fmtAuto(st.cur.a)) + " " + (st.cur.u || "") + '</div>';
+    if (!ok) q("[data-s]").style.display = "";
+  });
+  q("[data-i]").addEventListener("keydown", function (e) { if (e.key === "Enter") q("[data-c]").click(); });
+  q("[data-w]").addEventListener("click", function () { q("[data-s]").style.display = ""; });
+  nw();
+};
+/* Schalter-Logik: inputs = [[Name, Tastend?, Text, Startwert]], f(state)->{svg, out, note} */
+SIM.toggles = function (el, inputs, f) {
+  var st = {}; inputs.forEach(function (i) { st[i[0]] = i[3] || 0; });
+  el.innerHTML = '<div class="chips" data-b>' + inputs.map(function (i) { return '<button class="btn" data-n="' + i[0] + '"' + (i[1] ? ' data-hold="1"' : '') + '>' + (i[2] || i[0]) + (i[1] ? " (halten)" : "") + '</button>'; }).join("") + '</div><div class="stage sv" data-svg></div><div class="out" data-out></div><div class="status" data-note></div>';
+  var B = el.querySelector("[data-b]");
+  function upd() { Array.prototype.forEach.call(B.children, function (b) { b.classList.toggle("on", !!st[b.dataset.n]); }); var r = f(st) || {}; el.querySelector("[data-svg]").innerHTML = r.svg || ""; var o = el.querySelector("[data-out]"); o.style.display = r.out ? "" : "none"; o.innerHTML = r.out ? outGrid(r.out) : ""; var n = el.querySelector("[data-note]"); n.style.display = r.note ? "" : "none"; n.innerHTML = r.note || ""; }
+  B.addEventListener("click", function (e) { var b = e.target.closest("[data-n]"); if (!b || b.dataset.hold) return; st[b.dataset.n] = st[b.dataset.n] ? 0 : 1; upd(); });
+  B.addEventListener("pointerdown", function (e) { var b = e.target.closest("[data-hold]"); if (!b) return; e.preventDefault(); st[b.dataset.n] = 1; try { b.setPointerCapture(e.pointerId); } catch (x) { } upd(); });
+  ["pointerup", "pointercancel", "lostpointercapture"].forEach(function (ev) { B.addEventListener(ev, function (e) { var b = e.target.closest("[data-hold]"); if (!b || !st[b.dataset.n]) return; st[b.dataset.n] = 0; upd(); }); });
+  B.addEventListener("keydown", function (e) { var b = e.target.closest("[data-hold]"); if (b && (e.key === " " || e.key === "Enter")) { e.preventDefault(); st[b.dataset.n] = 1; upd(); } });
+  B.addEventListener("keyup", function (e) { var b = e.target.closest("[data-hold]"); if (b) { st[b.dataset.n] = 0; upd(); } });
+  upd(); return { st: st, upd: upd };
+};
+
+/* ===== Präsentationsmodus =====
+   Erzeugt aus den Lernunterlagen Folien: Titel, Lernziele, je Abschnitt (h3) eine Folie,
+   die echten Simulatoren als Live-Folien, „Das Wichtigste“ (alle Merke-Kästen) und Abschluss.
+   Bedienung: → / Leertaste / Klick rechts = weiter, ← = zurück, S = Schrittweise einblenden,
+   P = Laserpointer, B = Schwarzbild, Ü = Übersicht, F = Vollbild, Esc = Ende. */
+var PRES = (function () {
+  var el, stage, slideBox, inner, bar, prog, ov, dot, slides = [], i = 0, moved = null, stepMode = false;
+  function make() {
+    if (el) return;
+    el = document.createElement("div"); el.className = "pres"; el.setAttribute("role", "dialog"); el.setAttribute("aria-label", "Präsentation");
+    el.innerHTML = '<div class="pres-bar"><span class="t" data-t></span><button data-a="prev" title="zurück (←)">◀</button><span class="n" data-n></span><button data-a="next" title="weiter (→)">▶</button><button data-a="ov" title="Übersicht (Ü)">▦ Übersicht</button><button data-a="step" title="Inhalte schrittweise einblenden (S)">☰ Schritte</button><button data-a="ptr" title="Laserpointer (P)">◉ Pointer</button><button data-a="blk" title="Schwarzbild (B)">■</button><button data-a="fs" title="Vollbild (F)">⛶</button><button data-a="x" title="Beenden (Esc)">✕</button></div><div class="pres-prog"><i></i></div><div class="pres-stage"><div class="pres-slide"><div class="pres-inner"></div></div><div class="pres-ov"></div><div class="pres-help">← → blättern · S Schritte · P Pointer · B Schwarz · Esc Ende</div></div>';
+    document.body.appendChild(el);
+    dot = document.createElement("div"); dot.className = "pres-dot"; document.body.appendChild(dot);
+    bar = el.querySelector(".pres-bar"); prog = el.querySelector(".pres-prog i"); stage = el.querySelector(".pres-stage"); slideBox = el.querySelector(".pres-slide"); inner = el.querySelector(".pres-inner"); ov = el.querySelector(".pres-ov");
+    bar.addEventListener("click", function (e) { var b = e.target.closest("[data-a]"); if (!b) return; act(b.dataset.a); });
+    ov.addEventListener("click", function (e) { var b = e.target.closest("[data-go]"); if (!b) return; ov.classList.remove("on"); go(+b.dataset.go); });
+    inner.addEventListener("click", function (e) { var b = e.target.closest("[data-sim]"); if (b) { var k = slides.findIndex(function (s) { return s.simEl && s.simKey === b.dataset.sim; }); if (k >= 0) go(k); } });
+    document.addEventListener("keydown", key);
+    var sx = null; stage.addEventListener("touchstart", function (e) { sx = e.touches[0].clientX; }, { passive: true });
+    stage.addEventListener("touchend", function (e) { if (sx === null) return; var dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 60 && !e.target.closest(".sim")) act(dx < 0 ? "next" : "prev"); sx = null; });
+    el.addEventListener("mousemove", function (e) { dot.style.left = e.clientX + "px"; dot.style.top = e.clientY + "px"; });
+    window.addEventListener("resize", function () { if (el.classList.contains("on")) fit(); });
+  }
+  function key(e) {
+    if (!el || !el.classList.contains("on")) return;
+    if (e.target.closest && e.target.closest("input,select,textarea")) return;
+    var k = e.key;
+    if (k === "ArrowRight" || k === "PageDown" || k === " ") { e.preventDefault(); act("next"); }
+    else if (k === "ArrowLeft" || k === "PageUp") { e.preventDefault(); act("prev"); }
+    else if (k === "Home") go(0); else if (k === "End") go(slides.length - 1);
+    else if (k === "Escape") { if (ov.classList.contains("on")) ov.classList.remove("on"); else stop(); }
+    else if (k === "f" || k === "F") act("fs"); else if (k === "b" || k === "B" || k === ".") act("blk");
+    else if (k === "p" || k === "P") act("ptr"); else if (k === "s" || k === "S") act("step");
+    else if (k === "ü" || k === "Ü" || k === "o" || k === "O") act("ov");
+  }
+  function act(a) {
+    if (a === "next") { if (stepMode && reveal(1)) return; go(i + 1); }
+    else if (a === "prev") { if (stepMode && reveal(-1)) return; go(i - 1); }
+    else if (a === "x") stop();
+    else if (a === "fs") { if (!document.fullscreenElement) { if (el.requestFullscreen) el.requestFullscreen().catch(function () { }); } else if (document.exitFullscreen) document.exitFullscreen(); }
+    else if (a === "blk") el.classList.toggle("black");
+    else if (a === "ptr") { el.classList.toggle("pointer"); bar.querySelector('[data-a="ptr"]').classList.toggle("on", el.classList.contains("pointer")); }
+    else if (a === "step") { stepMode = !stepMode; bar.querySelector('[data-a="step"]').classList.toggle("on", stepMode); render(); }
+    else if (a === "ov") { if (ov.classList.contains("on")) { ov.classList.remove("on"); return; } ov.innerHTML = slides.map(function (s, k) { return '<button data-go="' + k + '" class="' + (k === i ? "cur" : "") + '"><small>' + (k + 1) + " · " + esc(s.topicTitle) + '</small>' + esc(s.title) + '</button>'; }).join(""); ov.classList.add("on"); var c = ov.querySelector(".cur"); if (c) c.scrollIntoView({ block: "center" }); }
+  }
+  function stripBadges(h) { var c = h.cloneNode(true); Array.prototype.forEach.call(c.querySelectorAll(".badge,.newbadge"), function (b) { b.remove(); }); return c.textContent.trim().replace(/^\d+\s+/, ""); }
+  function cloneClean(n) { var c = n.cloneNode(true); if (c.querySelectorAll) Array.prototype.forEach.call(c.querySelectorAll("[data-ref]"), function (x) { x.removeAttribute("data-ref"); }); if (c.removeAttribute) c.removeAttribute("data-ref"); return c; }
+  function build(topics) {
+    slides = [];
+    topics.forEach(function (t) {
+      var tt = t.dataset.title, paper = t.querySelector(':scope > .panel[data-panel="lu"] .paper'); if (!paper) return;
+      var hero = t.querySelector(".hero"), book = paper.querySelector(".book");
+      slides.push({ topicTitle: tt, topic: t, title: "Titel", html: '<div class="ps-cover"><div class="ps-kicker">' + (hero ? hero.querySelector(".kicker").innerHTML : "") + '</div><h1>' + esc(tt.replace(/^\d+\.\d+\s*/, "")) + '</h1><p class="lead">' + (hero && hero.querySelector(".lead") ? hero.querySelector(".lead").innerHTML : "") + '</p>' + (book ? '<div class="book">' + book.innerHTML + '</div>' : '') + '</div>' });
+      var goals = paper.querySelector(".goals"); if (goals) slides.push({ topicTitle: tt, topic: t, title: "Lernziele", nodes: [cloneClean(goals)], h: "Lernziele" });
+      var cur = null;
+      function flush() { if (cur && cur.nodes.length) slides.push(cur); cur = null; }
+      Array.prototype.forEach.call(paper.children, function (n) {
+        if (n.classList.contains("print-head") || n.tagName === "H2" || n.classList.contains("goals") || n.classList.contains("book") || (n.classList.contains("ab-intro") && n.querySelector(".badge"))) return;
+        if (n.tagName === "H3") { flush(); cur = { topicTitle: tt, topic: t, title: stripBadges(n), h: n.innerHTML, nodes: [] }; return; }
+        if (n.classList.contains("deep")) { flush(); var h3 = n.querySelector("h3"); var s = { topicTitle: tt, topic: t, title: h3 ? stripBadges(h3) : "Vertiefung", h: h3 ? h3.innerHTML : "Vertiefung", nodes: [] }; Array.prototype.forEach.call(n.children, function (c) { if (c !== h3) s.nodes.push(cloneClean(c)); }); slides.push(s); return; }
+        if (!cur) cur = { topicTitle: tt, topic: t, title: "Einführung", h: "Einführung", nodes: [] };
+        cur.nodes.push(cloneClean(n));
+      });
+      flush();
+      var sims = Array.prototype.slice.call(t.querySelectorAll(":scope > .panel.sim .sim"));
+      if (sims.length) {
+        slides.push({ topicTitle: tt, topic: t, title: "Simulatoren", html: '<h2 class="ps-title">Simulatoren – live ausprobieren</h2><div class="ps-simlist">' + sims.map(function (s, k) { return '<button data-sim="' + t.dataset.topic + ":" + k + '">' + s.querySelector("h3").textContent.trim() + '</button>'; }).join("") + '</div><p class="ab-intro" style="margin-top:1em">Tipp: Mit ▶ geht es der Reihe nach durch alle Simulatoren.</p>' });
+        sims.forEach(function (s, k) { slides.push({ topicTitle: tt, topic: t, title: s.querySelector("h3").textContent.trim(), simEl: s, simKey: t.dataset.topic + ":" + k }); });
+      }
+      var merk = paper.querySelectorAll(".merk");
+      if (merk.length) slides.push({ topicTitle: tt, topic: t, title: "Das Wichtigste", h: "Das Wichtigste in Kürze", nodes: Array.prototype.map.call(merk, cloneClean) });
+      slides.push({ topicTitle: tt, topic: t, title: "Abschluss", html: '<div class="ps-cover"><div class="ps-kicker">' + esc(tt) + '</div><h1>Fragen?</h1><p class="lead">Weiter mit dem Arbeitsblatt (✏️) – Lösungen zum Vergleichen (✅).</p></div>' });
+    });
+  }
+  function restore() { if (moved) { moved.ph.parentNode.replaceChild(moved.el, moved.ph); moved = null; } }
+  function render() {
+    restore(); var s = slides[i]; if (!s) return;
+    inner.style.transform = ""; inner.style.width = ""; slideBox.classList.remove("scroll"); slideBox.classList.remove("panel", "on");
+    if (s.simEl) {
+      inner.innerHTML = '<div class="ps-kicker">Live-Simulator · ' + esc(s.topicTitle) + '</div>';
+      var ph = document.createComment("sim"); s.simEl.parentNode.replaceChild(ph, s.simEl); moved = { el: s.simEl, ph: ph };
+      inner.appendChild(s.simEl); slideBox.classList.add("panel", "on"); showTab(s.topic, "sim");
+    } else if (s.html) { inner.innerHTML = s.html; }
+    else { inner.innerHTML = '<h2 class="ps-title">' + s.h + '</h2>'; s.nodes.forEach(function (n) { var c = n.cloneNode(true); if (stepMode) c.classList.add("ps-step"); inner.appendChild(c); }); if (stepMode) { var f = inner.querySelector(".ps-step"); if (f) f.classList.add("shown"); } }
+    el.querySelector("[data-t]").textContent = s.topicTitle + " – " + s.title;
+    el.querySelector("[data-n]").textContent = (i + 1) + " / " + slides.length;
+    prog.style.width = ((i + 1) / slides.length * 100) + "%";
+    slideBox.scrollTop = 0; fit();
+  }
+  function reveal(d) { var st = inner.querySelectorAll(".ps-step"); if (!st.length) return false; var sh = inner.querySelectorAll(".ps-step.shown").length; if (d > 0 && sh < st.length) { st[sh].classList.add("shown"); return true; } if (d < 0 && sh > 1) { st[sh - 1].classList.remove("shown"); return true; } return false; }
+  function fit() {
+    var s = slides[i]; if (!s) return; inner.style.transform = ""; inner.style.width = "";
+    if (s.simEl) { slideBox.classList.add("scroll"); return; }
+    var avail = slideBox.clientHeight - parseFloat(getComputedStyle(slideBox).paddingTop) * 2, need = inner.scrollHeight;
+    if (need > avail) { var k = Math.max(0.58, avail / need); inner.style.transform = "scale(" + k + ")"; inner.style.width = (100 / k) + "%"; if (need * k > avail + 2) slideBox.classList.add("scroll"); }
+  }
+  function go(n) { n = Math.max(0, Math.min(slides.length - 1, n)); i = n; render(); }
+  function start(topics, at) {
+    make(); build(topics); if (!slides.length) return;
+    i = at || 0; el.classList.add("on"); document.body.classList.add("pres-open"); render();
+  }
+  function stop() { restore(); if (!el) return; el.classList.remove("on", "black", "pointer"); document.body.classList.remove("pres-open"); if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen(); var s = slides[i]; if (s && s.topic) { showTab(s.topic, s.simEl ? "sim" : "lu"); } }
+  return { start: start, stop: stop, go: go };
+})();
+</script>
+
+</head>
+<body>
+<div class="topbar"><div class="wrap"><a class="brand" href="/">Grundmodul<small>Grundmodul · Grundmodul – Elektrotechnik und Elektronik</small></a><span class="sp"></span><a class="btn sm noprint" href="/">Grundmodul · Übersicht</a><button class="btn sm noprint" data-print>🖨 Drucken</button></div></div>
+<main class="wrap">
+<article class="topic" data-topic="gm10" data-title="GM 10 Stern- und Dreieckschaltung im Vergleich – Ströme, Spannungen, Messen">
+  <header class="hero">
+    <div class="kicker">Grundmodul · Grundmodul – Elektrotechnik und Elektronik · Thema GM 10</div>
+    <h1>Stern- und Dreieckschaltung im Vergleich – Ströme, Spannungen, Messen</h1>
+    <p class="lead">Leiter- und Stranggrößen, Formeln und Leistungsvergleich, Leistungsschild und Klemmbrett, wo und womit man jede Größe misst, Fehlerfälle und Zeigerdiagramme.</p>
+  </header>
+  <nav class="tabs noprint" role="tablist">
+    <button data-tab="lu" role="tab">📘 Lernunterlage</button>
+    <button data-tab="sim" role="tab">🧪 Simulatoren (8)</button>
+    <button data-tab="ab" role="tab">✏️ Arbeitsblatt</button>
+    <button data-tab="lo" role="tab">✅ Lösungen</button>
+    <button class="prbtn" data-pres="1" title="Lernunterlage als Folien vortragen">🎤 Präsentation</button>
+  </nav>
+  <section class="panel lu" data-panel="lu"><div class="paper"><div class="print-head"><span>Elektrotechnik & Mechatronik – Grundmodul · GM 10 Stern- und Dreieckschaltung im Vergleich – Ströme, Spannungen, Messen</span><span>Lernunterlage</span></div>
+    <h2>Stern- und Dreieckschaltung im Vergleich – Ströme, Spannungen, Messen</h2>
+    <div class="goals"><b>Lernziele – nach diesem Kapitel kannst du …</b><ul><li>Leiter- und Strangspannung sowie Leiter- und Strangstrom unterscheiden und richtig bezeichnen</li><li>Spannungen, Ströme und Leistungen in Stern- und Dreieckschaltung berechnen und vergleichen</li><li>erklären, warum dieselbe Last im Dreieck die dreifache Leistung aufnimmt</li><li>anhand des Leistungsschilds die richtige Schaltung wählen und das Klemmbrett brücken</li><li>angeben, wo und womit man jede Größe am Motor bzw. im Schaltschrank messen kann – und was spannungsfrei gemessen werden muss</li><li>Fehlerfälle (Außenleiterausfall, Strangunterbrechung, N-Unterbrechung) erkennen und bewerten</li></ul></div>
+    <div class="book">Kap. 7.9–7.11 „Drehstrom“ (Verkettung, Stern- und Dreieckschaltung, Leistung bei Drehstrom), Kap. 7.12 „Unsymmetrische Belastung“, Kap. 12 „Elektrische Maschinen“ (Klemmbrett, Leistungsschild, Stern-Dreieck-Anlauf). Grundlagen zum Drehstromnetz in GM 3.</div>
+    <p class="ab-intro"><span class="badge b1">★ Grundlagen</span> für alle · <span class="badge b2">★★ Vertiefung</span> für Fortgeschrittene / LAP-Vorbereitung · <span class="newbadge">Fachkunde</span> = nach dem Buch ergänzt</p>
+
+<h3>1 Die Begriffe: Leiter- und Stranggrößen <span class="badge b1">★</span></h3>
+<p>Ein Drehstromverbraucher, zum Beispiel ein Motor oder ein Heizregister, hat <b>drei Stränge</b> (Wicklungen bzw. Heizwiderstände). Ihre Anschlüsse heißen am Motor U1–U2, V1–V2 und W1–W2. Wie diese Stränge mit dem Netz verbunden werden, bestimmt, welche Spannung an jedem Strang liegt und welcher Strom fließt.</p>
+<div class="tscroll"><table class="t"><tr><th>Größe</th><th>Formelzeichen</th><th>Bedeutung</th></tr>
+<tr><td><b>Leiterspannung</b> (Außenleiterspannung)</td><td>U oder U<sub>L</sub></td><td>Spannung zwischen zwei Außenleitern, z. B. L1–L2 = 400 V</td></tr>
+<tr><td><b>Sternspannung</b> (Netz)</td><td>U<sub>0</sub> oder U<sub>LN</sub></td><td>Spannung zwischen Außenleiter und N = 230 V</td></tr>
+<tr><td><b>Strangspannung</b></td><td>U<sub>Str</sub></td><td>Spannung an einem Strang des Verbrauchers (z. B. U1–U2)</td></tr>
+<tr><td><b>Leiterstrom</b></td><td>I oder I<sub>L</sub></td><td>Strom in einem Außenleiter der Zuleitung</td></tr>
+<tr><td><b>Strangstrom</b></td><td>I<sub>Str</sub></td><td>Strom durch einen Strang</td></tr></table></div>
+<div class="merk">Das Leistungsschild und die Netzangabe „400 V“ meinen immer die <b>Leiterspannung</b>, der Nennstrom auf dem Schild immer den <b>Leiterstrom</b>.</div>
+
+<h3>2 Sternschaltung (Y) <span class="badge b1">★</span><span class="newbadge">Fachkunde</span></h3>
+<div class="grid2"><div>
+<p>Die Strangenden U2, V2 und W2 werden zum <b>Sternpunkt</b> verbunden. Die Anfänge U1, V1 und W1 kommen an L1, L2 und L3. Jeder Strang liegt also zwischen einem Außenleiter und dem Sternpunkt.</p>
+<div class="fgrid"><div class="formula">U = √3 · U<sub>Str</sub></div><div class="formula">I = I<sub>Str</sub></div></div>
+<ul><li>Strangspannung am 400-V-Netz: 400 V / √3 = <b>230 V</b></li><li>Der Leiterstrom fließt unverändert durch den Strang.</li><li>Der Sternpunkt kann mit dem <b>Neutralleiter</b> verbunden werden (Vierleitersystem). Bei symmetrischer Last ist I<sub>N</sub> = 0.</li><li>Bei unsymmetrischer Last (z. B. drei verschiedene Heizstäbe) hält der N die Strangspannungen auf 230 V.</li></ul></div>
+<figure class="fig"><div class="sv" data-ref="figY"></div><figcaption>Bild: Sternschaltung mit Leiter- und Stranggrößen (eigene Darstellung)</figcaption></figure></div>
+
+<h3>3 Dreieckschaltung (Δ) <span class="badge b1">★</span><span class="newbadge">Fachkunde</span></h3>
+<div class="grid2"><div>
+<p>Die Stränge werden hintereinander zu einem geschlossenen Ring verbunden: U2 mit V1, V2 mit W1, W2 mit U1. An jede Verbindungsstelle kommt ein Außenleiter. Jeder Strang liegt also zwischen <b>zwei Außenleitern</b>.</p>
+<div class="fgrid"><div class="formula">U = U<sub>Str</sub></div><div class="formula">I = √3 · I<sub>Str</sub></div></div>
+<ul><li>Strangspannung am 400-V-Netz: <b>400 V</b></li><li>An jedem Eckpunkt treffen zwei Strangströme zusammen. Weil sie um 120° verschoben sind, ist ihre geometrische Differenz √3-mal so groß wie ein Strangstrom.</li><li>Ein Neutralleiter kann nicht angeschlossen werden, es gibt keinen Sternpunkt.</li></ul></div>
+<figure class="fig"><div class="sv" data-ref="figD"></div><figcaption>Bild: Dreieckschaltung mit Leiter- und Stranggrößen (eigene Darstellung)</figcaption></figure></div>
+
+<h3>4 Der direkte Vergleich <span class="badge b1">★</span></h3>
+<div class="tscroll"><table class="t"><tr><th>gleicher Verbraucher (Strang R = 46 Ω) am Netz 400 V</th><th class="num">Stern (Y)</th><th class="num">Dreieck (Δ)</th><th class="num">Verhältnis Δ : Y</th></tr>
+<tr><td>Strangspannung U<sub>Str</sub></td><td class="num">230 V</td><td class="num">400 V</td><td class="num">√3</td></tr>
+<tr><td>Strangstrom I<sub>Str</sub> = U<sub>Str</sub> / R</td><td class="num">5 A</td><td class="num">8,7 A</td><td class="num">√3</td></tr>
+<tr><td>Leiterstrom I</td><td class="num">5 A</td><td class="num">15 A</td><td class="num"><b>3</b></td></tr>
+<tr><td>Leistung P = √3 · U · I · cos φ</td><td class="num">3,46 kW</td><td class="num">10,4 kW</td><td class="num"><b>3</b></td></tr></table></div>
+<div class="grid2"><div>
+<p>Warum dreimal? Im Dreieck liegt an jedem Strang √3-mal so viel Spannung. Deshalb fließt √3-mal so viel Strangstrom, und die Strangleistung U<sub>Str</sub> · I<sub>Str</sub> wird (√3)² = <b>3-mal</b> so groß. Der Leiterstrom steigt ebenfalls auf das Dreifache: √3 vom Strangstrom und noch einmal √3 durch die Verkettung.</p>
+<div class="formula">P<sub>Δ</sub> = 3 · P<sub>Y</sub> &nbsp;·&nbsp; I<sub>Δ</sub> = 3 · I<sub>Y</sub></div></div>
+<div><p>Die Leistungsformel P = √3 · U · I · cos φ gilt für <b>beide</b> Schaltungen, wenn man Leitergrößen einsetzt. Mit Stranggrößen gilt immer P = 3 · U<sub>Str</sub> · I<sub>Str</sub> · cos φ.</p>
+<p>Genau diesen Effekt nutzt der <b>Stern-Dreieck-Anlauf</b>: Der Motor startet im Stern mit einem Drittel des Stroms und des Moments und wird dann auf Dreieck umgeschaltet (AT 3).</p></div></div>
+
+<h3>5 Welche Schaltung? – Leistungsschild und Klemmbrett <span class="badge b1">★</span></h3>
+<div class="grid2"><div>
+<p>Die Regel lautet: Die <b>Strangspannung</b> muss zur Wicklung passen. Die <b>kleinere</b> Zahl auf dem Schild ist die Spannung, die eine Wicklung verträgt (Dreieck-Spannung).</p>
+<div class="tscroll"><table class="t"><tr><th>Leistungsschild</th><th>Netz 400 V</th><th>Netz 230 V (Dreieck-Netz, selten)</th></tr>
+<tr><td>Δ/Y 230/400 V</td><td><b>Stern</b></td><td>Dreieck</td></tr>
+<tr><td>Δ/Y 400/690 V</td><td><b>Dreieck</b> (Stern-Dreieck-Anlauf möglich)</td><td>–</td></tr></table></div>
+<p><b>Falsch geschaltet?</b></p>
+<ul><li><b>Dreieck statt Stern</b> (230/400-V-Motor im Δ an 400 V): Jede Wicklung bekommt 400 V statt 230 V, Strom und Magnetisierung steigen stark, der Motorschutz löst aus oder die Wicklung verbrennt.</li><li><b>Stern statt Dreieck</b> (400/690-V-Motor im Y an 400 V): nur ⅓ von Moment und Leistung. Unter Last zieht der Motor nicht hoch, der Strom steigt und der Motor überhitzt.</li></ul></div>
+<figure class="fig"><div class="sv" data-ref="figKB"></div><figcaption>Bild: Klemmbrett-Brücken für Stern und Dreieck (eigene Darstellung)</figcaption></figure></div>
+
+<h3>6 Wo kann ich messen? <span class="badge b1">★</span><span class="newbadge">Praxis</span></h3>
+<p>Am laufenden Motor ist das Klemmbrett abgedeckt, unter Spannung darf es <b>nicht</b> geöffnet werden. Spannungen und Ströme misst man deshalb im <b>Schaltschrank</b> an den Abgangsklemmen, am Motorschutz oder am Schütz. Am Motor selbst misst man nur <b>spannungsfrei</b>, also Widerstände und die Isolation.</p>
+<div class="tscroll"><table class="t"><tr><th>Messgröße</th><th>Messpunkt</th><th>Messgerät</th><th>Stern</th><th>Dreieck</th></tr>
+<tr><td><b>Leiterspannung U</b></td><td>zwischen zwei Außenleitern, z. B. an den Klemmen −X1:L1 und −X1:L2 oder oben am Motorschutzschalter</td><td>Multimeter (V AC), CAT III</td><td>400 V</td><td>400 V</td></tr>
+<tr><td><b>Sternspannung U<sub>LN</sub></b></td><td>Außenleiter gegen N</td><td>Multimeter</td><td>230 V</td><td>230 V (Netz)</td></tr>
+<tr><td><b>Strangspannung U<sub>Str</sub></b></td><td>über einem Strang: U1–U2. Im Betrieb nicht zugänglich (Klemmbrett) – man berechnet sie aus U. Im Stern mit N-Anschluss: L–N am Klemmbrett</td><td>(Rechnung)</td><td>U / √3 = 230 V</td><td>= U = 400 V</td></tr>
+<tr><td><b>Leiterstrom I</b></td><td>Stromzange um <b>einen</b> Außenleiter der Zuleitung (nicht um das ganze Kabel – dann heben sich die Ströme auf!)</td><td>Stromzange (AC)</td><td>= I<sub>Str</sub></td><td>= √3 · I<sub>Str</sub></td></tr>
+<tr><td><b>Strangstrom I<sub>Str</sub></b></td><td>Stern: identisch mit dem Leiterstrom. Dreieck: Bei <b>Stern-Dreieck-Anlauf</b> führt die Motorleitung jedes Wicklungsende einzeln (U1 … W2) → Zange um die Ader U1 im Schaltschrank = Strangstrom</td><td>Stromzange</td><td>= I</td><td>= I / √3</td></tr>
+<tr><td><b>Neutralleiterstrom I<sub>N</sub></b></td><td>Zange um den N</td><td>Stromzange</td><td>0 bei Symmetrie</td><td>– (kein N)</td></tr>
+<tr><td><b>Wicklungswiderstand</b></td><td><b>spannungsfrei</b>, Brücken am Klemmbrett entfernen: U1–U2, V1–V2, W1–W2 müssen gleich sein (Abweichung &lt; 2…5 %)</td><td>Milliohmmeter / Multimeter</td><td colspan="2">mit Brücken gemessen: Y zwischen zwei Außenleiterklemmen 2 · R<sub>Str</sub>, Δ: ⅔ · R<sub>Str</sub></td></tr>
+<tr><td><b>Isolationswiderstand</b></td><td>spannungsfrei, alle Wicklungen gegen PE (Gehäuse)</td><td>Isolationsmessgerät 500 V DC</td><td colspan="2">≥ 1 MΩ (Richtwert)</td></tr></table></div>
+<div class="merk"><b>Sicherheit:</b> Bei Messungen unter Spannung nur geeignete Messgeräte (CAT III/IV) und isolierte Prüfspitzen mit Fingerschutz verwenden und den Messbereich vor dem Ansetzen wählen. Für Messungen am Motor gelten die <b>5 Sicherheitsregeln</b>. Bei Motoren am Frequenzumrichter zeigen einfache Messgeräte falsche Spannungen an, weil die Ausgangsspannung getaktet ist: TRMS-Gerät mit Tiefpassfilter verwenden.</div>
+
+<h3>7 Fehlerfälle <span class="badge b1">★</span></h3>
+<div class="tscroll"><table class="t"><tr><th>Fehler</th><th>Stern (ohne N, z. B. Motor)</th><th>Dreieck</th><th>Erkennen</th></tr>
+<tr><td><b>Außenleiter fällt aus</b> (Sicherung, loser Kontakt)</td><td>zwei Stränge in Reihe an 400 V, ein Strang stromlos</td><td>ein Strang an 400 V, die beiden anderen in Reihe an 400 V</td><td>Motor brummt und läuft nicht an; läuft er schon, steigt der Strom stark. Ein Leiterstrom = 0 A.</td></tr>
+<tr><td><b>Ein Strang unterbrochen</b></td><td>wie Außenleiterausfall</td><td>zwei Stränge arbeiten weiter (V-Schaltung), Leiterströme ungleich</td><td>Widerstandsmessung der Wicklungen</td></tr>
+<tr><td><b>N unterbrochen</b> bei unsymmetrischer Last</td><td colspan="2">Stern mit Einphasenlasten: Der Sternpunkt verschiebt sich, schwach belastete Stränge bekommen bis zu 400 V → Geräte werden zerstört (Brandgefahr)</td><td>stark unterschiedliche L–N-Spannungen</td></tr></table></div>
+<p>Motorschutzschalter mit <b>Phasenausfallempfindlichkeit</b> erkennen einen fehlenden Außenleiter und schalten früher ab (AT 2).</p>
+
+<div class="deep"><h3>8 Vertiefung: Zeigerdiagramme und Leistung bei cos φ <span class="badge b2">★★</span></h3>
+<div class="grid2"><div>
+<p><b>Stern:</b> Die Leiterspannung U<sub>12</sub> ist die geometrische Differenz der Sternspannungen U<sub>1N</sub> − U<sub>2N</sub>. Zwei Zeiger der Länge 230 V im Winkel von 120° ergeben eine Differenz von 2 · 230 V · cos 30° = 230 V · √3 = 400 V. U<sub>12</sub> eilt U<sub>1N</sub> um 30° voraus.</p>
+<p><b>Dreieck:</b> Genauso ist der Leiterstrom die Differenz zweier Strangströme: I<sub>1</sub> = I<sub>12</sub> − I<sub>31</sub> = √3 · I<sub>Str</sub>.</p>
+<p><b>Leistung mit cos φ und Wirkungsgrad:</b> Der Motor auf dem Schild leistet mechanisch P<sub>ab</sub>. Aufgenommen wird P<sub>zu</sub> = √3 · U · I · cos φ = P<sub>ab</sub> / η. Beispiel: 7,5 kW, 400 V, cos φ = 0,83, η = 0,88 ergibt I = 7500 / (0,88 · √3 · 400 · 0,83) = 14,8 A.</p></div>
+<div><div class="tscroll"><table class="t"><tr><th>Leistung</th><th>Formel</th><th>Einheit</th></tr><tr><td>Wirkleistung</td><td>P = √3 · U · I · cos φ</td><td>W</td></tr><tr><td>Blindleistung</td><td>Q = √3 · U · I · sin φ</td><td>var</td></tr><tr><td>Scheinleistung</td><td>S = √3 · U · I</td><td>VA</td></tr></table></div>
+<p>Weitere Einsatzfälle der Dreieckschaltung: <b>Kompensationskondensatoren</b> schaltet man meist im Dreieck. Bei 400 V statt 230 V liefern sie die dreifache Blindleistung, Q ~ U².</p></div></div></div>
+  </div></section>
+  <section class="panel sim" data-panel="sim">
+    <p class="lead noprint">Die Simulatoren laufen direkt im Browser – auch am Handy. Werte verändern, beobachten, Ergebnis mit der Lernunterlage vergleichen. Im 🎤 Präsentationsmodus lassen sie sich live vorführen.</p>
+<div class="sim"><h3><span class="no">S1</span> Stern oder Dreieck – Messen wie in der Praxis</h3><p class="how">Wähle die Schaltung, die Last und eine Messgröße. Das Messgerät erscheint an der richtigen Stelle (Voltmeter mit Messleitungen bzw. Stromzange) und zeigt den Messwert. Mit „Fehler“ kannst du einen Außenleiter oder einen Strang unterbrechen.</p><div data-ref="smess"></div></div>
+<div class="sim"><h3><span class="no">S2</span> Gleicher Verbraucher – Stern und Dreieck im Vergleich</h3><p class="how">Derselbe Verbraucher wird einmal im Stern, einmal im Dreieck angeschlossen. Die Balken zeigen die Faktoren √3 und 3.</p><div data-ref="svgl"></div></div>
+<div class="sim"><h3><span class="no">S3</span> Zeigerdiagramm: Warum √3?</h3><p class="how">Stern: Leiterspannung als Differenz zweier Sternspannungen. Dreieck: Leiterstrom als Differenz zweier Strangströme. Schiebe den Zeitpunkt (Drehwinkel), um die Zeiger rotieren zu lassen.</p><div data-ref="szeig"></div></div>
+<div class="sim"><h3><span class="no">S4</span> Klemmbrett brücken</h3><p class="how">Wähle das Leistungsschild und die Netzspannung. Setze dann die Brücken mit den Tastern. Die Simulation prüft, ob die Schaltung stimmt.</p><div data-ref="skb"></div></div>
+<div class="sim"><h3><span class="no">S5</span> Aufgaben-Generator Stern/Dreieck</h3><p class="how">Zufällige Aufgaben mit Lösungsweg. Toleranz ±2 %.</p><div data-ref="sgen"></div></div>
+<div class="sim"><h3><span class="no">S6</span> Stern, Dreieck oder beide?</h3><div data-ref="ssort"></div></div>
+<div class="sim"><h3><span class="no">S7</span> Wissenscheck A – Spannungen, Ströme, Leistung – 8 Fragen</h3><p class="how">Dieselben Fragen wie auf dem Arbeitsblatt, interaktiv mit sofortiger Rückmeldung.</p><div data-ref="wcq"></div></div>
+<div class="sim"><h3><span class="no">S8</span> Wissenscheck B – Klemmbrett, Messen und Fehler – 8 Fragen</h3><p class="how">Dieselben Fragen wie auf dem Arbeitsblatt, interaktiv mit sofortiger Rückmeldung.</p><div data-ref="wcq2"></div></div>
+  </section>
+  <section class="panel ab" data-panel="ab"><div class="paper"><div class="print-head"><span>Elektrotechnik & Mechatronik – Grundmodul · GM 10 Stern- und Dreieckschaltung im Vergleich – Ströme, Spannungen, Messen</span><span>Arbeitsblatt</span></div>
+    <h2>Arbeitsblatt: Stern- und Dreieckschaltung im Vergleich – Ströme, Spannungen, Messen</h2>
+    <div class="ab-head"><div>Name</div><div>Klasse / Lehrjahr</div><div>Datum</div><div>Punkte: ______ / 49</div></div>
+    <p class="ab-intro">Hilfsmittel: Lernunterlage, Taschenrechner, Tabellenbuch. Rechenaufgaben immer mit <b>Formel, eingesetzten Werten und Einheit</b> lösen.</p>
+<div class="task"><h3>1. Begriffe <span class="badge b1">★</span><span class="pts">4 P</span></h3><p>Erkläre die Begriffe Leiterspannung, Strangspannung, Leiterstrom und Strangstrom und gib für ein 400-V-Netz die Spannung zwischen L1 und L2 sowie zwischen L1 und N an.</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task"><h3>2. Sternschaltung <span class="badge b1">★</span><span class="pts">4 P</span></h3><p>Ein Heizregister mit drei Heizstäben zu je 53 Ω ist im Stern an 400 V angeschlossen. Berechne U<sub>Str</sub>, I<sub>Str</sub>, I und P.</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task"><h3>3. Dreieckschaltung <span class="badge b1">★</span><span class="pts">4 P</span></h3><p>Dasselbe Heizregister wird im Dreieck angeschlossen. Berechne U<sub>Str</sub>, I<sub>Str</sub>, I und P und vergleiche mit Aufgabe 2.</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task"><h3>4. Leistungsschild <span class="badge b1">★</span><span class="pts">4 P</span></h3><p>Ein Motor hat das Schild „Δ/Y 400/690 V, 18,5/10,7 A, 9,2 kW, cos φ 0,85“. Wie wird er am 400-V-Netz geschaltet? Welchen Strom misst du mit der Zange in L1? Zeichne die Brücken am Klemmbrett.</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task"><h3>5. Wo messen? <span class="badge b1">★</span><span class="pts">5 P</span></h3><p>Beschreibe für einen laufenden Motor im Dreieck, wo und womit du a) die Leiterspannung, b) den Leiterstrom, c) den Strangstrom misst. Was misst du am Motor nur spannungsfrei?</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task"><h3>6. Wicklungsmessung <span class="badge b2">★★</span><span class="pts">4 P</span></h3><p>Ein Motor im Stern hat R<sub>Str</sub> = 2,4 Ω. Welchen Widerstand misst du mit Brücken zwischen den Klemmen U1 und V1? Welchen im Dreieck? Warum entfernt man die Brücken für eine aussagekräftige Messung?</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task"><h3>7. Fehler <span class="badge b2">★★</span><span class="pts">4 P</span></h3><p>Ein Motor im Stern brummt beim Einschalten und läuft nicht an. Die Zange zeigt in L1 und L2 je 24 A, in L3 0 A. Was ist die Ursache, und wie gehst du weiter vor?</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task"><h3>8. Leistung mit cos φ und η <span class="badge b2">★★</span><span class="pts">4 P</span></h3><p>Ein Motor gibt 11 kW ab (η = 0,89, cos φ = 0,84) und liegt an 400 V. Berechne die aufgenommene Wirkleistung, den Leiterstrom und – bei Dreieckschaltung – den Strangstrom.</p><div class="lines"><div class="l"></div><div class="l"></div><div class="l"></div></div></div>
+<div class="task wcheck"><h3>9. Wissenscheck A – Spannungen, Ströme, Leistung – 8 Fragen <span class="badge b1">★</span><span class="pts">8 P</span></h3>
+<p class="ab-intro">Kreuze jeweils <b>eine</b> richtige Antwort an. Jede richtige Antwort = 1 Punkt.</p><ol class="wc">
+<li><p><b>Wie groß ist die Strangspannung eines Verbrauchers im Stern am 400-V-Netz?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) 400 V</li><li><span class="wcb">☐</span> b) 690 V</li><li><span class="wcb">☐</span> c) 133 V</li><li><span class="wcb">☐</span> d) 230 V</li></ul></li>
+<li><p><b>Welche Beziehung gilt in der Dreieckschaltung für die Ströme?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) I = I_Str</li><li><span class="wcb">☐</span> b) I = 3 · I_Str</li><li><span class="wcb">☐</span> c) I = I_Str / √3</li><li><span class="wcb">☐</span> d) I = √3 · I_Str</li></ul></li>
+<li><p><b>Welche Beziehung gilt in der Sternschaltung für die Spannungen?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) U = 3 · U_Str</li><li><span class="wcb">☐</span> b) U = U_Str</li><li><span class="wcb">☐</span> c) U = U_Str / √3</li><li><span class="wcb">☐</span> d) U = √3 · U_Str</li></ul></li>
+<li><p><b>Derselbe Verbraucher wird von Stern auf Dreieck umgeschaltet. Wie ändert sich die Leistung?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) sie bleibt gleich</li><li><span class="wcb">☐</span> b) sie verdoppelt sich</li><li><span class="wcb">☐</span> c) sie verdreifacht sich</li><li><span class="wcb">☐</span> d) sie steigt um √3</li></ul></li>
+<li><p><b>Drei Heizstäbe je 46 Ω im Dreieck an 400 V. Wie groß ist der Leiterstrom?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) ≈ 15 A</li><li><span class="wcb">☐</span> b) ≈ 26 A</li><li><span class="wcb">☐</span> c) ≈ 5 A</li><li><span class="wcb">☐</span> d) ≈ 8,7 A</li></ul></li>
+<li><p><b>Welche Leistungsformel gilt mit Leitergrößen für beide Schaltungen?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) P = √3 · U_Str · I_Str</li><li><span class="wcb">☐</span> b) P = U · I</li><li><span class="wcb">☐</span> c) P = 3 · U · I · cos φ</li><li><span class="wcb">☐</span> d) P = √3 · U · I · cos φ</li></ul></li>
+<li><p><b>Wie groß ist der Neutralleiterstrom bei symmetrischer Last im Stern?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) gleich dem Leiterstrom</li><li><span class="wcb">☐</span> b) 0 A</li><li><span class="wcb">☐</span> c) 3-mal der Leiterstrom</li><li><span class="wcb">☐</span> d) √3-mal der Leiterstrom</li></ul></li>
+<li><p><b>Warum ist die Leiterspannung √3-mal so groß wie die Sternspannung?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) sie ist die geometrische Differenz zweier um 120° verschobener Spannungen</li><li><span class="wcb">☐</span> b) weil der Trafo das so übersetzt</li><li><span class="wcb">☐</span> c) wegen des Neutralleiters</li><li><span class="wcb">☐</span> d) weil drei Leiter vorhanden sind</li></ul></li>
+</ol><p class="wcpts">Erreichte Punkte: ______ / 8 &nbsp;·&nbsp; Bewertung: 8–7 sehr gut · 6 gut · 5 befriedigend · 4 genügend · unter 4 wiederholen</p></div>
+<div class="task wcheck"><h3>10. Wissenscheck B – Klemmbrett, Messen und Fehler – 8 Fragen <span class="badge b1">★</span><span class="pts">8 P</span></h3>
+<p class="ab-intro">Kreuze jeweils <b>eine</b> richtige Antwort an. Jede richtige Antwort = 1 Punkt.</p><ol class="wc">
+<li><p><b>Ein Motor hat das Schild Δ/Y 230/400 V. Wie wird er am 400-V-Netz geschaltet?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) Stern-Dreieck-Anlauf</li><li><span class="wcb">☐</span> b) Stern</li><li><span class="wcb">☐</span> c) Doppelstern</li><li><span class="wcb">☐</span> d) Dreieck</li></ul></li>
+<li><p><b>Welche Brücken ergeben am Klemmbrett die Dreieckschaltung?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) W2–U1, U2–V1, V2–W1</li><li><span class="wcb">☐</span> b) W2–U2 und U2–V2</li><li><span class="wcb">☐</span> c) nur U2–V2</li><li><span class="wcb">☐</span> d) U1–V1 und V1–W1</li></ul></li>
+<li><p><b>Wo misst man den Leiterstrom eines laufenden Motors?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) mit dem Isolationsmessgerät</li><li><span class="wcb">☐</span> b) mit der Zange um das ganze Kabel</li><li><span class="wcb">☐</span> c) mit der Stromzange um einen einzelnen Außenleiter der Zuleitung</li><li><span class="wcb">☐</span> d) am offenen Klemmbrett unter Spannung</li></ul></li>
+<li><p><b>Was misst man am Motor-Klemmbrett ausschließlich spannungsfrei?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) Wicklungs- und Isolationswiderstand</li><li><span class="wcb">☐</span> b) Drehzahl</li><li><span class="wcb">☐</span> c) Leiterspannung</li><li><span class="wcb">☐</span> d) Leiterstrom</li></ul></li>
+<li><p><b>Wann ist der Strangstrom eines Dreieck-Motors direkt mit der Zange messbar?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) wenn die Wicklungsenden einzeln zum Schaltschrank geführt sind (Stern-Dreieck-Anlauf)</li><li><span class="wcb">☐</span> b) immer in der Zuleitung</li><li><span class="wcb">☐</span> c) nie</li><li><span class="wcb">☐</span> d) nur im Neutralleiter</li></ul></li>
+<li><p><b>Was misst man mit Brücken im Stern zwischen U1 und V1?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) 3 · R_Str</li><li><span class="wcb">☐</span> b) 2 · R_Str</li><li><span class="wcb">☐</span> c) ⅔ · R_Str</li><li><span class="wcb">☐</span> d) R_Str</li></ul></li>
+<li><p><b>Ein Motor brummt, läuft nicht an, in L3 fließen 0 A. Wahrscheinliche Ursache?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) zu große Sicherung</li><li><span class="wcb">☐</span> b) falsche Drehrichtung</li><li><span class="wcb">☐</span> c) Außenleiter L3 unterbrochen</li><li><span class="wcb">☐</span> d) N fehlt</li></ul></li>
+<li><p><b>Was passiert bei N-Unterbrechung im Stern mit unsymmetrischer Einphasenlast?</b></p><ul class="wco"><li><span class="wcb">☐</span> a) die Sicherung löst immer aus</li><li><span class="wcb">☐</span> b) nichts</li><li><span class="wcb">☐</span> c) alle Geräte bekommen 0 V</li><li><span class="wcb">☐</span> d) Sternpunktverschiebung – einzelne Geräte bekommen bis 400 V</li></ul></li>
+</ol><p class="wcpts">Erreichte Punkte: ______ / 8 &nbsp;·&nbsp; Bewertung: 8–7 sehr gut · 6 gut · 5 befriedigend · 4 genügend · unter 4 wiederholen</p></div>
+  </div></section>
+  <section class="panel lo" data-panel="lo"><div class="paper"><div class="print-head"><span>Elektrotechnik & Mechatronik – Grundmodul · GM 10 Stern- und Dreieckschaltung im Vergleich – Ströme, Spannungen, Messen</span><span>Lösungen</span></div>
+    <h2>Lösungen: Stern- und Dreieckschaltung im Vergleich – Ströme, Spannungen, Messen</h2>
+<div class="task"><h3>1. Begriffe (4 P)</h3><div class="ans">Leiterspannung: zwischen zwei Außenleitern; Strangspannung: an einem Strang des Verbrauchers; Leiterstrom: Strom in der Zuleitung (Außenleiter); Strangstrom: Strom durch einen Strang. L1–L2 = 400 V, L1–N = 230 V.</div></div>
+<div class="task"><h3>2. Stern (4 P)</h3><div class="ans">U<sub>Str</sub> = 400/√3 = 231 V; I<sub>Str</sub> = 231/53 = 4,36 A = I; P = 3 · 231 · 4,36 = 3,02 kW (= √3 · 400 · 4,36).</div></div>
+<div class="task"><h3>3. Dreieck (4 P)</h3><div class="ans">U<sub>Str</sub> = 400 V; I<sub>Str</sub> = 400/53 = 7,55 A; I = √3 · 7,55 = 13,1 A; P = 3 · 400 · 7,55 = 9,06 kW → Leistung und Leiterstrom dreimal so groß wie im Stern.</div></div>
+<div class="task"><h3>4. Leistungsschild (4 P)</h3><div class="ans">Kleinere Spannung 400 V = Wicklungsspannung → am 400-V-Netz <b>Dreieck</b>. Leiterstrom (Zange in L1) = 18,5 A. Brücken: U1–W2, V1–U2, W1–V2 (drei senkrechte Brücken).</div></div>
+<div class="task"><h3>5. Wo messen? (5 P)</h3><div class="ans">a) Im Schaltschrank zwischen zwei Außenleitern (z. B. oben am Motorschutzschalter oder an den Abgangsklemmen), Multimeter V AC, CAT III. b) Stromzange um einen einzelnen Außenleiter der Motorzuleitung. c) Nur zugänglich, wenn die Wicklungsenden einzeln geführt sind (Stern-Dreieck-Anlauf): Zange um die Ader U1; sonst I<sub>Str</sub> = I/√3 berechnen. Spannungsfrei am Motor: Wicklungswiderstände, Isolationswiderstand.</div></div>
+<div class="task"><h3>6. Wicklung (4 P)</h3><div class="ans">Stern: zwei Stränge in Reihe → 4,8 Ω. Dreieck: ein Strang parallel zu zwei in Reihe → R · 2R / 3R = ⅔ · 2,4 = 1,6 Ω. Mit Brücken misst man immer Kombinationen; ein Fehler in einem Strang ist schlecht erkennbar → Brücken entfernen und U1–U2, V1–V2, W1–W2 einzeln vergleichen.</div></div>
+<div class="task"><h3>7. Fehler (4 P)</h3><div class="ans">Außenleiter L3 fehlt (Sicherung ausgelöst, Kontakt im Schütz/Motorschutz defekt, lose Klemme) → Motor im Zweiphasenbetrieb, kein Drehfeld beim Anlauf. Sofort abschalten, freischalten, Sicherungen/LS prüfen, Spannung L1–L3 und L2–L3 vor und nach dem Schütz messen, Kontakte und Klemmen prüfen.</div></div>
+<div class="task"><h3>8. Leistung (4 P)</h3><div class="ans">P<sub>zu</sub> = 11 kW / 0,89 = 12,36 kW; I = 12 360 / (√3 · 400 · 0,84) = 21,2 A; I<sub>Str</sub> = 21,2 / √3 = 12,3 A.</div></div>
+<div class="task wcheck"><h3>9. Wissenscheck A – Spannungen, Ströme, Leistung – Lösungsblatt (8 P)</h3><div class="tscroll"><table class="t"><tr><th>Nr.</th><th>Lösung</th><th>Begründung</th></tr>
+<tr><td>1</td><td><b>d)</b> 230 V</td><td>U_Str = U / √3.</td></tr>
+<tr><td>2</td><td><b>d)</b> I = √3 · I_Str</td><td>–</td></tr>
+<tr><td>3</td><td><b>d)</b> U = √3 · U_Str</td><td>–</td></tr>
+<tr><td>4</td><td><b>c)</b> sie verdreifacht sich</td><td>(√3)² = 3.</td></tr>
+<tr><td>5</td><td><b>a)</b> ≈ 15 A</td><td>I_Str = 8,7 A; I = √3 · 8,7 A.</td></tr>
+<tr><td>6</td><td><b>d)</b> P = √3 · U · I · cos φ</td><td>–</td></tr>
+<tr><td>7</td><td><b>b)</b> 0 A</td><td>Die drei Ströme heben sich auf.</td></tr>
+<tr><td>8</td><td><b>a)</b> sie ist die geometrische Differenz zweier um 120° verschobener Spannungen</td><td>2 · cos 30° = √3.</td></tr>
+</table></div></div>
+<div class="task wcheck"><h3>10. Wissenscheck B – Klemmbrett, Messen und Fehler – Lösungsblatt (8 P)</h3><div class="tscroll"><table class="t"><tr><th>Nr.</th><th>Lösung</th><th>Begründung</th></tr>
+<tr><td>1</td><td><b>b)</b> Stern</td><td>Die Wicklung verträgt 230 V.</td></tr>
+<tr><td>2</td><td><b>a)</b> W2–U1, U2–V1, V2–W1</td><td>Drei senkrechte Brücken.</td></tr>
+<tr><td>3</td><td><b>c)</b> mit der Stromzange um einen einzelnen Außenleiter der Zuleitung</td><td>Um das ganze Kabel heben sich die Ströme auf.</td></tr>
+<tr><td>4</td><td><b>a)</b> Wicklungs- und Isolationswiderstand</td><td>–</td></tr>
+<tr><td>5</td><td><b>a)</b> wenn die Wicklungsenden einzeln zum Schaltschrank geführt sind (Stern-Dreieck-Anlauf)</td><td>–</td></tr>
+<tr><td>6</td><td><b>b)</b> 2 · R_Str</td><td>Zwei Stränge in Reihe.</td></tr>
+<tr><td>7</td><td><b>c)</b> Außenleiter L3 unterbrochen</td><td>–</td></tr>
+<tr><td>8</td><td><b>d)</b> Sternpunktverschiebung – einzelne Geräte bekommen bis 400 V</td><td>Brandgefahr.</td></tr>
+</table></div></div>
+  </div></section>
+</article>
+<script>
+TOPIC_INIT["gm10"] = function(root){
+  var R = refFn(root), RS = refsFn(root);
+// ---------- Hilfen ----------
+var S3 = Math.sqrt(3), PC = ["var(--L1, #8b5a2b)", "var(--L2, #222)", "var(--L3, #8e979f)"], NC = "var(--N, #2b6cc4)";
+var PH = ["#8b5a2b", "currentColor", "#8e979f"];
+function P(d, c, w, x) { return '<path d="' + d + '" fill="none" stroke="' + (c || "currentColor") + '" stroke-width="' + (w || 2.5) + '" stroke-linejoin="round"' + (x || "") + '/>'; }
+function dotp(x, y, c) { return '<circle cx="' + x + '" cy="' + y + '" r="4" fill="' + (c || "currentColor") + '"/>'; }
+function strandSym(x1, y1, x2, y2, lab, c, hi, broken) { // Strang als Impedanz-Rechteck auf der Verbindungslinie
+  var mx = (x1 + x2) / 2, my = (y1 + y2) / 2, a = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI, h = P("M" + x1 + " " + y1 + " L" + x2 + " " + y2, c || "currentColor", 2.5);
+  h += '<g transform="rotate(' + a.toFixed(1) + ' ' + mx + ' ' + my + ')"><rect x="' + (mx - 26) + '" y="' + (my - 10) + '" width="52" height="20" fill="' + (hi ? "var(--warm-soft)" : "var(--card)") + '" stroke="currentColor" stroke-width="2"/>' + (broken ? '<path d="M' + (mx - 6) + ' ' + (my - 14) + ' l12 28" stroke="var(--bad)" stroke-width="3"/>' : "") + '</g>';
+  return h + txt(mx, my + 4, lab, { a: "middle", fs: 10, b: 1 });
+}
+function Vm(x, y, val, x1, y1, x2, y2) { // Voltmeter mit Messleitungen
+  return P("M" + x1 + " " + y1 + " L" + (x - 10) + " " + (y - 12), "#c0392b", 1.6, ' stroke-dasharray="5 3"') + P("M" + x2 + " " + y2 + " L" + (x + 10) + " " + (y - 12), "#222", 1.6, ' stroke-dasharray="5 3"') + '<circle cx="' + x1 + '" cy="' + y1 + '" r="4.5" fill="#c0392b"/><circle cx="' + x2 + '" cy="' + y2 + '" r="4.5" fill="#222"/>' +
+    '<circle cx="' + x + '" cy="' + y + '" r="16" fill="var(--card)" stroke="currentColor" stroke-width="2.2"/>' + txt(x, y + 5, "V", { a: "middle", fs: 14, b: 1 }) + lcd(x + 22, y - 11, val);
+}
+function Am(x, y, ang, val, lx, ly) { // Stromzange um Leiter bei (x,y), Leiterrichtung ang
+  return '<g transform="rotate(' + ang + ' ' + x + ' ' + y + ')"><ellipse cx="' + x + '" cy="' + y + '" rx="9" ry="17" fill="none" stroke="#e0a800" stroke-width="4"/></g>' + '<circle cx="' + lx + '" cy="' + ly + '" r="16" fill="var(--card)" stroke="currentColor" stroke-width="2.2"/>' + txt(lx, ly + 5, "A", { a: "middle", fs: 14, b: 1 }) + P("M" + x + " " + y + " L" + lx + " " + ly, "#e0a800", 1.4, ' stroke-dasharray="2 3"') + lcd(lx + 22, ly - 11, val);
+}
+function lcd(x, y, v) { return '<rect x="' + x + '" y="' + y + '" width="74" height="22" rx="4" fill="#0d2318"/>' + txt(x + 37, y + 15, v, { a: "middle", fs: 11, b: 1, c: "#8dfc9a" }); }
+function fA(v) { return v < 0.005 ? "0,00 A" : fmt(v, v < 10 ? 2 : 1) + " A"; }
+function fV(v) { return fmt(v, 0) + " V"; }
+var CX = { a: function (p, q) { return [p[0] + q[0], p[1] + q[1]]; }, s: function (p, q) { return [p[0] - q[0], p[1] - q[1]]; }, m: function (p, q) { return [p[0] * q[0] - p[1] * q[1], p[0] * q[1] + p[1] * q[0]]; }, d: function (p, q) { var n = q[0] * q[0] + q[1] * q[1]; return n ? [(p[0] * q[0] + p[1] * q[1]) / n, (p[1] * q[0] - p[0] * q[1]) / n] : [0, 0]; }, k: function (p, s) { return [p[0] * s, p[1] * s]; }, abs: function (p) { return Math.hypot(p[0], p[1]); }, pol: function (r, deg) { return [r * Math.cos(deg * Math.PI / 180), r * Math.sin(deg * Math.PI / 180)]; } };
+
+// Netz lösen: mode Y/D, N verbunden, Last Z (Betrag, cos φ), Fehler
+function solve(mode, U, Zb, cphi, withN, fault) {
+  var U0 = U / S3, V = [CX.pol(U0, 0), CX.pol(U0, -120), CX.pol(U0, 120)], Z = CX.pol(Zb, Math.acos(cphi) * 180 / Math.PI), Y1 = CX.d([1, 0], Z), Y = [Y1, Y1, Y1], line = [1, 1, 1];
+  if (fault === "L3") line[2] = 0; if (fault === "S1") Y[0] = [0, 0];
+  var r = { U0: U0 };
+  if (mode === "Y") {
+    var Ye = Y.map(function (y, k) { return line[k] ? y : [0, 0]; }), Vs = [0, 0];
+    if (!withN) { var num = [0, 0], den = [0, 0]; for (var k = 0; k < 3; k++) { num = CX.a(num, CX.m(Ye[k], V[k])); den = CX.a(den, Ye[k]); } Vs = CX.d(num, den); }
+    var Ist = [0, 1, 2].map(function (k) { return CX.m(Ye[k], CX.s(V[k], Vs)); }), Ust = [0, 1, 2].map(function (k) { return Ye[k][0] || Ye[k][1] ? CX.s(V[k], Vs) : (line[k] ? CX.s(V[k], Vs) : [0, 0]); });
+    if (fault === "S1") Ust[0] = CX.s(V[0], Vs);
+    if (!line[2]) Ust[2] = [0, 0];
+    r.Ist = Ist; r.IL = Ist; r.Ust = Ust; r.IN = withN ? CX.a(CX.a(Ist[0], Ist[1]), Ist[2]) : [0, 0]; r.Vs = Vs;
+  } else {
+    var Vn = V.slice();
+    if (!line[2]) { var ya = Y[1], yb = Y[2], den2 = CX.a(ya, yb); Vn[2] = (den2[0] || den2[1]) ? CX.d(CX.a(CX.m(ya, V[1]), CX.m(yb, V[0])), den2) : [0, 0]; }
+    var Ust2 = [CX.s(Vn[0], Vn[1]), CX.s(Vn[1], Vn[2]), CX.s(Vn[2], Vn[0])], Ist2 = Ust2.map(function (u, k) { return CX.m(Y[k], u); });
+    r.Ust = Ust2; r.Ist = Ist2; r.IL = [CX.s(Ist2[0], Ist2[2]), CX.s(Ist2[1], Ist2[0]), CX.s(Ist2[2], Ist2[1])]; r.IN = [0, 0];
+  }
+  r.P = 0; for (var j = 0; j < 3; j++) { r.P += r.Ust[j][0] * r.Ist[j][0] + r.Ust[j][1] * r.Ist[j][1]; }
+  r.U12 = CX.abs(CX.s(V[0], V[1]));
+  return r;
+}
+// Zeichnung des Netzes mit Verbraucher
+var T1 = [330, 120], T2 = [530, 120], T3 = [430, 300], SP = [430, 186];
+function netSVG(mode, withN, fault, meter, vals, ann) {
+  var h = [svgOpen(640, 350)], ys = [30, 52, 74], yN = 186, xb = 250;
+  h.push(txt(10, ys[0] + 4, "L1", { fs: 11, b: 1, c: PH[0] }) + txt(10, ys[1] + 4, "L2", { fs: 11, b: 1 }) + txt(10, ys[2] + 4, "L3", { fs: 11, b: 1, c: PH[2] }) + txt(10, yN + 4, "N", { fs: 11, b: 1, c: NC }));
+  var brk = fault === "L3";
+  h.push(P("M30 " + ys[0] + " H" + T1[0] + " V" + T1[1], PH[0]) + P("M30 " + ys[1] + " H" + T2[0] + " V" + T2[1], PH[1]));
+  h.push(brk ? P("M30 " + ys[2] + " H" + (xb - 12), PH[2]) + P("M" + (xb + 12) + " " + ys[2] + " H600 V330 H" + T3[0] + " V" + T3[1], PH[2]) + '<path d="M' + (xb - 8) + ' ' + (ys[2] - 10) + ' l16 20 M' + (xb + 8) + ' ' + (ys[2] - 10) + ' l-16 20" stroke="var(--bad)" stroke-width="3"/>' + txt(xb, ys[2] + 26, "unterbrochen", { a: "middle", fs: 9, c: "var(--bad)", b: 1 }) : P("M30 " + ys[2] + " H600 V330 H" + T3[0] + " V" + T3[1], PH[2]));
+  if (mode === "Y") {
+    h.push(strandSym(T1[0], T1[1], SP[0], SP[1], "U", null, meter === "Ust" || meter === "Ist", fault === "S1") + strandSym(T2[0], T2[1], SP[0], SP[1], "V") + strandSym(T3[0], T3[1], SP[0], SP[1], "W") + dotp(SP[0], SP[1]) + txt(SP[0] + 12, SP[1] + 24, "Sternpunkt (U2 V2 W2)", { fs: 9 }));
+    if (withN) h.push(P("M30 " + yN + " H" + SP[0], NC) + dotp(SP[0], SP[1])); else h.push(P("M30 " + yN + " H150", NC, 2.5) + txt(160, yN + 4, "N nicht angeschlossen", { fs: 9, c: "var(--muted)" }));
+  } else {
+    h.push(strandSym(T1[0], T1[1], T2[0], T2[1], "U", null, meter === "Ust" || meter === "Ist", fault === "S1") + strandSym(T2[0], T2[1], T3[0], T3[1], "V") + strandSym(T3[0], T3[1], T1[0], T1[1], "W"));
+    h.push(P("M30 " + yN + " H150", NC, 2.5) + txt(160, yN + 4, "N – im Dreieck nicht anschließbar", { fs: 9, c: "var(--muted)" }));
+  }
+  var dl = mode === "Y" ? ["U1", "V1", "W1"] : ["U1 / W2", "V1 / U2", "W1 / V2"]; h.push(dotp(T1[0], T1[1]) + dotp(T2[0], T2[1]) + dotp(T3[0], T3[1]) + txt(T1[0] - 8, T1[1] - 6, dl[0], { a: "end", fs: 9 }) + txt(T2[0] + 8, T2[1] - 6, dl[1], { fs: 9 }) + txt(T3[0] + 8, T3[1] + 16, dl[2], { fs: 9 }));
+  // Messgeräte
+  if (meter === "UL") h.push(Vm(110, 130, vals, 90, ys[0], 130, ys[1]));
+  if (meter === "ULN") h.push(withN || true ? Vm(190, 130, vals, 170, ys[0], 210, yN) : "");
+  if (meter === "Ust") h.push(mode === "Y" ? Vm(280, 250, vals, T1[0], T1[1], SP[0], SP[1]) : Vm(400, 70, vals, T1[0], T1[1], T2[0], T2[1]).replace(/<circle cx="400" cy="70"/, '<circle cx="400" cy="70"'));
+  if (meter === "IL") h.push(Am(70, ys[0], 90, vals, 70, 120));
+  if (meter === "Ist") h.push(mode === "Y" ? Am(360, 142, 33, vals, 300, 240) : Am(390, 120, 0, vals, 330, 230));
+  if (meter === "IN") h.push(Am(90, yN, 90, vals, 90, 250));
+  if (ann) h.push(ann);
+  h.push('</svg>'); return h.join("");
+}
+// ---------- Abbildungen ----------
+R("figY").innerHTML = netSVG("Y", true, "", "", "", txt(106, 46, "U = 400 V", { fs: 10, b: 1, c: "#c0392b" }) + P("M100 34 V48", "#c0392b", 1.5) + txt(368, 172, "U_Str = 230 V", { a: "end", fs: 10, b: 1, c: "#c0392b" }) + txt(200, 22, "I = I_Str", { a: "middle", fs: 10, b: 1, c: "#e0a800" }) + '<path d="M180 30 h30" stroke="#e0a800" stroke-width="2" marker-end="url(#arr10)"/><defs><marker id="arr10" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="#e0a800"/></marker></defs>');
+R("figD").innerHTML = netSVG("D", false, "", "", "", txt(106, 46, "U = 400 V", { fs: 10, b: 1, c: "#c0392b" }) + P("M100 34 V48", "#c0392b", 1.5) + txt(430, 100, "U_Str = U = 400 V", { a: "middle", fs: 10, b: 1, c: "#c0392b" }) + txt(200, 22, "I = √3 · I_Str", { a: "middle", fs: 10, b: 1, c: "#e0a800" }) + '<path d="M170 30 h30" stroke="#e0a800" stroke-width="2" marker-end="url(#arr11)"/><defs><marker id="arr11" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="#e0a800"/></marker></defs>' + txt(430, 222, "I_Str", { a: "middle", fs: 10, b: 1, c: "#e0a800" }));
+function kbSVG(br, W, Hh, lab) { // Klemmbrett: oben W2 U2 V2, unten U1 V1 W1; br = Liste von Brücken
+  var h = [svgOpen(W || 300, Hh || 200)], X = [70, 150, 230], yT = 60, yB = 140, pos = { W2: [X[0], yT], U2: [X[1], yT], V2: [X[2], yT], U1: [X[0], yB], V1: [X[1], yB], W1: [X[2], yB] };
+  h.push('<rect x="30" y="25" width="240" height="150" rx="10" fill="var(--soft)" stroke="currentColor" stroke-width="1.5"/>');
+  br.forEach(function (b) { var a = pos[b[0]], c = pos[b[1]]; h.push('<line x1="' + a[0] + '" y1="' + a[1] + '" x2="' + c[0] + '" y2="' + c[1] + '" stroke="#c9a227" stroke-width="10" stroke-linecap="round"/>'); });
+  Object.keys(pos).forEach(function (k) { var p = pos[k]; h.push('<circle cx="' + p[0] + '" cy="' + p[1] + '" r="11" fill="#b5b5b5" stroke="currentColor" stroke-width="1.5"/><circle cx="' + p[0] + '" cy="' + p[1] + '" r="4" fill="#666"/>' + txt(p[0] + (p[1] === yT ? 0 : 24), p[1] + (p[1] === yT ? -16 : -10), k, { a: "middle", fs: 10, b: 1 })); });
+  [["L1", 0], ["L2", 1], ["L3", 2]].forEach(function (l) { h.push(P("M" + X[l[1]] + " " + (yB + 11) + " V" + (yB + 50), PH[l[1]], 3) + txt(X[l[1]] + 6, yB + 46, l[0], { fs: 9, b: 1 })); });
+  if (lab) h.push(txt(150, 18, lab, { a: "middle", fs: 11, b: 1 }));
+  h.push('</svg>'); return h.join("");
+}
+R("figKB").innerHTML = '<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">' + kbSVG([["W2", "U2"], ["U2", "V2"]], 300, 200, "Stern (Y)") + kbSVG([["W2", "U1"], ["U2", "V1"], ["V2", "W1"]], 300, 200, "Dreieck (Δ)") + '</div>';
+
+// ---------- S1 Messen ----------
+SIM.calc(R("smess"), {
+  in: [{ k: "s", l: "Schaltung", opts: [["Y", "Stern (Y)"], ["D", "Dreieck (Δ)"]], v: "Y" }, { k: "n", l: "Neutralleiter (nur Stern)", opts: [[0, "nicht angeschlossen (Motor)"], [1, "angeschlossen"]], v: 0 }, { k: "U", l: "Netz (Leiterspannung)", opts: [[400, "400 V"], [230, "230 V"], [690, "690 V"]], v: 400 }, { k: "Z", l: "Strangimpedanz Z", min: 10, max: 200, step: 1, v: 46, u: "Ω" }, { k: "c", l: "cos φ (1 = Heizung)", min: 0.5, max: 1, step: 0.01, v: 1, u: "" }, { k: "m", l: "Messgröße", opts: [["UL", "Leiterspannung L1–L2"], ["ULN", "Spannung L1–N"], ["Ust", "Strangspannung (Strang U)"], ["IL", "Leiterstrom L1 (Zange)"], ["Ist", "Strangstrom (Strang U)"], ["IN", "Neutralleiterstrom"]], v: "UL" }, { k: "f", l: "Fehler", opts: [["", "kein Fehler"], ["L3", "Außenleiter L3 unterbrochen"], ["S1", "Strang U unterbrochen"]], v: "" }],
+  f: function (v) {
+    var withN = v.s === "Y" && v.n === 1, r = solve(v.s, v.U, v.Z, v.c, withN, v.f), val = "", txtm = "", where = "";
+    var UL = r.U12, ULN = r.U0, Ust = CX.abs(r.Ust[0]), IL = CX.abs(r.IL[0]), Ist = CX.abs(r.Ist[0]), IN = CX.abs(r.IN);
+    if (v.m === "UL") { val = fV(UL); where = "zwischen L1 und L2 – z. B. oben am Motorschutzschalter oder an den Abgangsklemmen im Schaltschrank."; }
+    if (v.m === "ULN") { val = fV(ULN); where = "zwischen L1 und N in der Verteilung (Netzgröße, unabhängig von der Schaltung des Verbrauchers)."; }
+    if (v.m === "Ust") { val = fV(Ust); where = v.s === "Y" ? "über dem Strang U1–U2 (Sternpunkt). Am Motor nicht zugänglich – im Betrieb rechnet man U_Str = U/√3." : "über dem Strang U1–U2 = zwischen L1 und L2. Im Dreieck ist die Strangspannung gleich der Leiterspannung."; }
+    if (v.m === "IL") { val = fA(IL); where = "Stromzange um den einzelnen Außenleiter L1 der Zuleitung."; }
+    if (v.m === "Ist") { val = fA(Ist); where = v.s === "Y" ? "im Strang U – im Stern identisch mit dem Leiterstrom, also auch in der Zuleitung messbar." : "im Strang U – im Dreieck nur messbar, wenn die Wicklungsenden einzeln zum Schaltschrank geführt sind (Stern-Dreieck-Anlauf: Zange um Ader U1)."; }
+    if (v.m === "IN") { val = withN ? fA(IN) : "–"; where = withN ? "Stromzange um den Neutralleiter. Bei symmetrischer Last ≈ 0 A." : "Kein Neutralleiter angeschlossen – nichts zu messen."; }
+    var note = '<p class="ab-intro"><b>Messpunkt:</b> ' + where + '</p>';
+    if (v.f === "L3") note += '<div class="fb bad">Außenleiter L3 fehlt: ' + (v.s === "Y" ? "Die Stränge U und V liegen in Reihe an 400 V, Strang W ist stromlos." : "Strang U liegt weiter an L1–L2, die Stränge V und W liegen in Reihe an L1–L2.") + ' Ein Motor würde brummen und nicht anlaufen.</div>';
+    if (v.f === "S1") note += '<div class="fb bad">Strang U unterbrochen: ' + (v.s === "Y" ? (withN ? "Mit N arbeiten die Stränge V und W normal weiter, im N fließt Strom." : "Ohne N liegen die Stränge V und W in Reihe an 400 V – wie Außenleiterausfall.") : "Im Dreieck arbeiten V und W weiter (V-Schaltung); die Leiterströme werden ungleich.") + '</div>';
+    if (v.s === "D" && v.n === 1) note += '<p class="ab-intro">Hinweis: Im Dreieck gibt es keinen Sternpunkt – der N wird nicht angeschlossen.</p>';
+    return { svg: netSVG(v.s, withN, v.f, v.m, val), out: [["Leiterspannung U", fV(UL)], ["Strangspannung U_Str", fV(Ust)], ["Leiterstrom I (L1/L2/L3)", r.IL.map(function (c) { return fmt(CX.abs(c), 2); }).join(" / ") + " A"], ["Strangstrom I_Str (U/V/W)", r.Ist.map(function (c) { return fmt(CX.abs(c), 2); }).join(" / ") + " A"], ["Wirkleistung P", fmt(r.P / 1000, 2) + " kW"]].concat(withN ? [["Neutralleiterstrom", fA(IN)]] : []),
+      calc: v.s === "Y" ? "Stern: U_Str = U/√3 = " + fV(v.U / S3) + " · I = I_Str = U_Str/Z = " + fA(v.U / S3 / v.Z) + " · P = √3 · U · I · cos φ" : "Dreieck: U_Str = U = " + fV(v.U) + " · I_Str = U/Z = " + fA(v.U / v.Z) + " · I = √3 · I_Str = " + fA(S3 * v.U / v.Z), note: note };
+  }
+});
+
+// ---------- S2 Vergleich ----------
+SIM.calc(R("svgl"), {
+  in: [{ k: "U", l: "Netz (Leiterspannung)", opts: [[400, "400 V"], [230, "230 V"]], v: 400 }, { k: "R", l: "Strangwiderstand R", min: 10, max: 150, step: 1, v: 46, u: "Ω" }],
+  f: function (v) {
+    var y = { us: v.U / S3, is: v.U / S3 / v.R }, d = { us: v.U, is: v.U / v.R }; y.il = y.is; d.il = S3 * d.is; y.p = 3 * y.us * y.is; d.p = 3 * d.us * d.is;
+    var rows = [["Strangspannung", y.us, d.us, "V", "√3"], ["Strangstrom", y.is, d.is, "A", "√3"], ["Leiterstrom", y.il, d.il, "A", "3"], ["Leistung", y.p / 1000, d.p / 1000, "kW", "3"]], h = [svgOpen(560, 250)];
+    h.push(txt(150, 18, "■ Stern", { fs: 11, b: 1, c: "#2b6cc4" }) + txt(230, 18, "■ Dreieck", { fs: 11, b: 1, c: "#d9822b" }));
+    rows.forEach(function (r, i) { var y0 = 34 + i * 54, mx = r[2], wy = r[1] / mx * 300, wd = 300;
+      h.push(txt(10, y0 + 22, r[0], { fs: 10, b: 1 }) + '<rect x="130" y="' + y0 + '" width="' + wy + '" height="18" fill="#2b6cc4"/><rect x="130" y="' + (y0 + 21) + '" width="' + wd + '" height="18" fill="#d9822b"/>' + txt(134 + wy, y0 + 14, fmt(r[1], 2) + " " + r[3], { fs: 9.5, b: 1 }) + txt(134 + wd, y0 + 35, fmt(r[2], 2) + " " + r[3], { fs: 9.5, b: 1 }) + txt(555, y0 + 26, "× " + r[4], { a: "end", fs: 11, b: 1, c: "#d9822b" })); });
+    h.push('</svg>');
+    return { svg: h.join(""), out: [["P Stern", fmt(y.p / 1000, 2) + " kW"], ["P Dreieck", fmt(d.p / 1000, 2) + " kW"], ["Verhältnis P_Δ / P_Y", fmt(d.p / y.p, 2)]], calc: "Y: P = 3 · (U/√3)² / R = U²/R = " + fmt(v.U * v.U / v.R / 1000, 2) + " kW · Δ: P = 3 · U² / R = " + fmt(3 * v.U * v.U / v.R / 1000, 2) + " kW" };
+  }
+});
+
+// ---------- S3 Zeigerdiagramm ----------
+SIM.calc(R("szeig"), {
+  in: [{ k: "s", l: "Darstellung", opts: [["Y", "Stern: Spannungen"], ["D", "Dreieck: Ströme"]], v: "Y" }, { k: "w", l: "Drehwinkel ωt", min: 0, max: 360, step: 1, v: 90, u: "°" }],
+  f: function (v) {
+    var W = 520, Hh = 300, ox = 200, oy = 150, s = 110, h = [svgOpen(W, Hh), '<defs><marker id="az10" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="context-stroke"/></marker></defs>'];
+    var vec = function (x1, y1, x2, y2, c, lab, d) { return '<line x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '" stroke="' + c + '" stroke-width="' + (d ? 2.5 : 3) + '" marker-end="url(#az10)"' + (d ? ' stroke-dasharray="6 3"' : "") + '/>' + (d ? txt((x1 + x2) / 2 + 8, (y1 + y2) / 2, lab, { fs: 11, b: 1, c: c }) : txt(x2 + (x2 > x1 ? 6 : -6), y2 + (y2 > y1 ? 14 : -6), lab, { fs: 11, b: 1, c: c, a: x2 > x1 ? "start" : "end" })); };
+    var pt = function (r, a) { a = (a + v.w) * Math.PI / 180; return [ox + r * Math.cos(a), oy - r * Math.sin(a)]; };
+    h.push('<circle cx="' + ox + '" cy="' + oy + '" r="' + s + '" fill="none" stroke="var(--muted)" stroke-dasharray="2 4" opacity=".5"/>');
+    var a = pt(s, 0), b = pt(s, -120), c = pt(s, 120), names = v.s === "Y" ? ["U1N", "U2N", "U3N"] : ["I12", "I23", "I31"];
+    h.push(vec(ox, oy, a[0], a[1], PH[0], names[0]) + vec(ox, oy, b[0], b[1], "currentColor", names[1]) + vec(ox, oy, c[0], c[1], PH[2], names[2]));
+    if (v.s === "Y") { h.push(vec(b[0], b[1], a[0], a[1], "#c0392b", "U12", true)); var ang = Math.round(((v.w + 30) % 360 + 360) % 360); }
+    else { h.push(vec(c[0], c[1], a[0], a[1], "#c0392b", "I1 = I12 − I31", true)); }
+    var big = v.s === "Y" ? "U12 = U1N − U2N" : "I1 = I12 − I31";
+    h.push(txt(340, 40, v.s === "Y" ? "Sternspannungen 230 V" : "Strangströme I_Str", { fs: 11, b: 1 }) + txt(340, 62, big, { fs: 11, b: 1, c: "#c0392b" }) + txt(340, 84, "Länge der Differenz:", { fs: 10 }) + txt(340, 102, "2 · cos 30° = √3 ≈ 1,73", { fs: 11, b: 1 }) + txt(340, 124, v.s === "Y" ? "→ 230 V · √3 = 400 V" : "→ I = √3 · I_Str", { fs: 11, b: 1 }) + txt(340, 146, "Phasenverschiebung 30°", { fs: 10 }));
+    h.push('</svg>');
+    return { svg: h.join(""), note: '<p class="ab-intro">Die gestrichelte rote Differenz ist immer √3-mal so lang wie ein einzelner Zeiger – unabhängig vom Drehwinkel. Alle Zeiger drehen gemeinsam mit 50 Umdrehungen pro Sekunde.</p>' };
+  }
+});
+
+// ---------- S4 Klemmbrett ----------
+SIM.toggles(R("skb"), [["sch", 0, "Schild 400/690 V (sonst 230/400 V)"], ["a", 0, "Brücke W2–U2"], ["b", 0, "Brücke U2–V2"], ["c", 0, "Brücke W2–U1"], ["d", 0, "Brücke U2–V1"], ["e", 0, "Brücke V2–W1"]], function (s) {
+  var br = []; if (s.a) br.push(["W2", "U2"]); if (s.b) br.push(["U2", "V2"]); if (s.c) br.push(["W2", "U1"]); if (s.d) br.push(["U2", "V1"]); if (s.e) br.push(["V2", "W1"]);
+  var star = s.a && s.b && !s.c && !s.d && !s.e, delta = s.c && s.d && s.e && !s.a && !s.b, need = s.sch ? "D" : "Y", bad = (s.a || s.b) && (s.c || s.d || s.e), msg, ok = false;
+  if (bad) msg = "<b>Kurzschluss!</b> Stern- und Dreieckbrücken gleichzeitig verbinden Außenleiter miteinander.";
+  else if (!br.length) msg = "Noch keine Brücke gesetzt – die Wicklungen sind offen, der Motor läuft nicht.";
+  else if (star) { ok = need === "Y"; msg = ok ? "Richtig: Sternschaltung. Jede Wicklung erhält 230 V – passend zum Schild 230/400 V." : "Falsch: Stern an einem 400/690-V-Motor → jede Wicklung nur 230 V statt 400 V, nur ⅓ der Leistung. Unter Last überhitzt der Motor."; }
+  else if (delta) { ok = need === "D"; msg = ok ? "Richtig: Dreieckschaltung. Jede Wicklung erhält 400 V – passend zum Schild 400/690 V." : "Falsch: Dreieck an einem 230/400-V-Motor → jede Wicklung 400 V statt 230 V. Viel zu hoher Strom, die Wicklung verbrennt!"; }
+  else msg = "Unvollständig: Es fehlen noch Brücken – eine oder mehrere Wicklungen sind nicht richtig verbunden.";
+  return { svg: kbSVG(br, 300, 210, "Klemmbrett · Netz 400 V · Schild " + (s.sch ? "400/690 V" : "230/400 V")), out: [["Erforderlich", need === "Y" ? "Stern" : "Dreieck"], ["Gesetzt", star ? "Stern" : delta ? "Dreieck" : bad ? "Kurzschluss" : "unvollständig"]], note: '<div class="fb ' + (ok ? "ok" : "bad") + '">' + msg + '</div>' };
+});
+
+// ---------- S5 Generator ----------
+SIM.gen(R("sgen"), {
+  Y: ["Stern: Leiterstrom", function () { var U = pick([400, 690]), Rr = pick([23, 46, 53, 92]); var I = U / S3 / Rr; return { t: "Drei Widerstände je " + Rr + " Ω im Stern an " + U + " V. Leiterstrom I in A?", u: "A", a: I, s: "U_Str = " + U + "/√3 = " + fmt(U / S3, 1) + " V; I = I_Str = " + fmt(I, 2) + " A" }; }],
+  D: ["Dreieck: Leiterstrom", function () { var U = pick([230, 400]), Rr = pick([23, 46, 53, 92]); var I = S3 * U / Rr; return { t: "Drei Widerstände je " + Rr + " Ω im Dreieck an " + U + " V. Leiterstrom I in A?", u: "A", a: I, s: "I_Str = " + U + "/" + Rr + " = " + fmt(U / Rr, 2) + " A; I = √3 · I_Str = " + fmt(I, 2) + " A" }; }],
+  P: ["Leistung Dreieck/Stern", function () { var U = 400, Rr = pick([20, 40, 60, 80]), st = pick(["Stern", "Dreieck"]); var Pp = st === "Stern" ? U * U / Rr : 3 * U * U / Rr; return { t: "Heizregister, Strangwiderstand " + Rr + " Ω, im " + st + " an 400 V. Leistung in kW?", u: "kW", a: Pp / 1000, s: st === "Stern" ? "P = 3 · 230,9² / " + Rr + " = U²/R = " + fmt(Pp / 1000, 2) + " kW" : "P = 3 · 400² / " + Rr + " = " + fmt(Pp / 1000, 2) + " kW" }; }],
+  M: ["Motorstrom aus Leistung", function () { var Pab = pick([3, 5.5, 7.5, 11, 15]), eta = pick([0.85, 0.88, 0.9]), cp = pick([0.8, 0.83, 0.86]); var I = Pab * 1000 / (eta * S3 * 400 * cp); return { t: "Motor " + fmtAuto(Pab) + " kW, η = " + eta + ", cos φ = " + cp + ", 400 V. Leiterstrom in A?", u: "A", a: I, s: "I = P_ab / (η · √3 · U · cos φ) = " + fmt(I, 2) + " A" }; }],
+  S: ["Strangstrom im Dreieck", function () { var I = pick([8.4, 14.8, 21.2, 28.5, 36]); return { t: "Ein Motor im Dreieck nimmt " + fmtAuto(I) + " A Leiterstrom auf. Strangstrom in A?", u: "A", a: I / S3, s: "I_Str = I / √3 = " + fmt(I / S3, 2) + " A" }; }],
+  W: ["Wicklungswiderstand mit Brücken", function () { var Rr = pick([1.2, 2.4, 4.5, 8]), st = pick(["Stern", "Dreieck"]); var Rm = st === "Stern" ? 2 * Rr : 2 * Rr / 3; return { t: "Wicklung R_Str = " + fmtAuto(Rr) + " Ω, Klemmbrett im " + st + " gebrückt. Was misst du zwischen U1 und V1 (Ω)?", u: "Ω", a: Rm, s: st === "Stern" ? "zwei Stränge in Reihe: 2 · R = " + fmt(Rm, 2) + " Ω" : "R ∥ 2R = ⅔ · R = " + fmt(Rm, 2) + " Ω" }; }]
+});
+SIM.sort(R("ssort"), [["y", "nur Stern"], ["d", "nur Dreieck"], ["b", "beide"]], [["U = √3 · U_Str", "y"], ["I = I_Str", "y"], ["Neutralleiter anschließbar", "y"], ["Strangspannung 230 V am 400-V-Netz", "y"], ["U = U_Str", "d"], ["I = √3 · I_Str", "d"], ["Brücken W2–U1, U2–V1, V2–W1", "d"], ["dreifache Leistung bei gleichem Verbraucher", "d"], ["P = √3 · U · I · cos φ", "b"], ["P = 3 · U_Str · I_Str · cos φ", "b"], ["Drehrichtung durch Tausch zweier Außenleiter umkehrbar", "b"]]);
+
+SIM.quiz(R("wcq"), [["Wie groß ist die Strangspannung eines Verbrauchers im Stern am 400-V-Netz?", ["400 V", "690 V", "133 V", "230 V"], 3, "U_Str = U / √3."], ["Welche Beziehung gilt in der Dreieckschaltung für die Ströme?", ["I = I_Str", "I = 3 · I_Str", "I = I_Str / √3", "I = √3 · I_Str"], 3, ""], ["Welche Beziehung gilt in der Sternschaltung für die Spannungen?", ["U = 3 · U_Str", "U = U_Str", "U = U_Str / √3", "U = √3 · U_Str"], 3, ""], ["Derselbe Verbraucher wird von Stern auf Dreieck umgeschaltet. Wie ändert sich die Leistung?", ["sie bleibt gleich", "sie verdoppelt sich", "sie verdreifacht sich", "sie steigt um √3"], 2, "(√3)² = 3."], ["Drei Heizstäbe je 46 Ω im Dreieck an 400 V. Wie groß ist der Leiterstrom?", ["≈ 15 A", "≈ 26 A", "≈ 5 A", "≈ 8,7 A"], 0, "I_Str = 8,7 A; I = √3 · 8,7 A."], ["Welche Leistungsformel gilt mit Leitergrößen für beide Schaltungen?", ["P = √3 · U_Str · I_Str", "P = U · I", "P = 3 · U · I · cos φ", "P = √3 · U · I · cos φ"], 3, ""], ["Wie groß ist der Neutralleiterstrom bei symmetrischer Last im Stern?", ["gleich dem Leiterstrom", "0 A", "3-mal der Leiterstrom", "√3-mal der Leiterstrom"], 1, "Die drei Ströme heben sich auf."], ["Warum ist die Leiterspannung √3-mal so groß wie die Sternspannung?", ["sie ist die geometrische Differenz zweier um 120° verschobener Spannungen", "weil der Trafo das so übersetzt", "wegen des Neutralleiters", "weil drei Leiter vorhanden sind"], 0, "2 · cos 30° = √3."]]);
+SIM.quiz(R("wcq2"), [["Ein Motor hat das Schild Δ/Y 230/400 V. Wie wird er am 400-V-Netz geschaltet?", ["Stern-Dreieck-Anlauf", "Stern", "Doppelstern", "Dreieck"], 1, "Die Wicklung verträgt 230 V."], ["Welche Brücken ergeben am Klemmbrett die Dreieckschaltung?", ["W2–U1, U2–V1, V2–W1", "W2–U2 und U2–V2", "nur U2–V2", "U1–V1 und V1–W1"], 0, "Drei senkrechte Brücken."], ["Wo misst man den Leiterstrom eines laufenden Motors?", ["mit dem Isolationsmessgerät", "mit der Zange um das ganze Kabel", "mit der Stromzange um einen einzelnen Außenleiter der Zuleitung", "am offenen Klemmbrett unter Spannung"], 2, "Um das ganze Kabel heben sich die Ströme auf."], ["Was misst man am Motor-Klemmbrett ausschließlich spannungsfrei?", ["Wicklungs- und Isolationswiderstand", "Drehzahl", "Leiterspannung", "Leiterstrom"], 0, ""], ["Wann ist der Strangstrom eines Dreieck-Motors direkt mit der Zange messbar?", ["wenn die Wicklungsenden einzeln zum Schaltschrank geführt sind (Stern-Dreieck-Anlauf)", "immer in der Zuleitung", "nie", "nur im Neutralleiter"], 0, ""], ["Was misst man mit Brücken im Stern zwischen U1 und V1?", ["3 · R_Str", "2 · R_Str", "⅔ · R_Str", "R_Str"], 1, "Zwei Stränge in Reihe."], ["Ein Motor brummt, läuft nicht an, in L3 fließen 0 A. Wahrscheinliche Ursache?", ["zu große Sicherung", "falsche Drehrichtung", "Außenleiter L3 unterbrochen", "N fehlt"], 2, ""], ["Was passiert bei N-Unterbrechung im Stern mit unsymmetrischer Einphasenlast?", ["die Sicherung löst immer aus", "nichts", "alle Geräte bekommen 0 V", "Sternpunktverschiebung – einzelne Geräte bekommen bis 400 V"], 3, "Brandgefahr."]]);
+(function(){if(document.getElementById("wcstyle"))return;var s=document.createElement("style");s.id="wcstyle";s.textContent=".wc>li{margin:0 0 10px;break-inside:avoid}.wc p{margin:0 0 4px}.wco{list-style:none;padding-left:6px;margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 18px}@media (max-width:560px){.wco{grid-template-columns:1fr}}.wcb{font-size:1.15em}.wcpts{margin-top:10px;font-weight:600}";document.head.appendChild(s);})();
+
+};
+</script>
+<p class="foot">Fachliche Lernunterlage, kein rechtsverbindlicher Ausbildungs- oder Prüfungsplan. Erweitert nach „Fachkunde Elektrotechnik“ (Europa-Lehrmittel, 27. Aufl.); das Buch verweist auf deutsche DIN-VDE-Normen – in Österreich gelten sinngemäß ÖVE/ÖNORM E 8101 und die ESV. Für die österreichische Lehrlingsausbildung mit dem geltenden Berufsbild und den Prüfungsvorgaben abgleichen. Normen und Rechtsstand vor Verwendung prüfen (Stand: November 2026).</p>
+</main>
+</body>
+</html>
